@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using Codex.Tests.Framework.Models;
 using System.Runtime.InteropServices;
 using Codex.Core.Extensions;
+using Codex.Tenants.Models;
 
 namespace Codex.Tests.Framework
 {
@@ -31,9 +32,9 @@ namespace Codex.Tests.Framework
             ConventionRegistry.Register("CamelCase", camelCaseConventionPack, type => true);
         }
 
-        MongoDbSettings _mongoDbSettings;
-        ITenantAccessService _tenantAccessService;
-        IServiceProvider _services;
+        private readonly MongoDbSettings _mongoDbSettings;
+        private readonly ITenantAccessService _tenantAccessService;
+        private readonly IServiceProvider _services;
 
         public IServiceProvider Services
         {
@@ -45,6 +46,7 @@ namespace Codex.Tests.Framework
         public void Dispose()
         {
             DropDatabaseAsync().GetAwaiter().GetResult();
+            GC.SuppressFinalize(this);
         }
 
         private async Task DropDatabaseAsync()
@@ -59,29 +61,13 @@ namespace Codex.Tests.Framework
             client.DropDatabase(GetDatabaseName(tenant.Id));
         }
 
-        public enum LoadStrategyEnum { CleanInsert }
-
-        private async Task DropCollectionAsync(string collectionName)
-        {
-            var tenant = await _tenantAccessService.GetTenantAsync();
-            if (string.IsNullOrWhiteSpace(tenant?.Id))
-            {
-                throw new ArgumentNullException("TenantId");
-            }
-
-            var client = new MongoClient(this._mongoDbSettings.ConnectionString);
-            var database = client.GetDatabase(GetDatabaseName(tenant.Id));
-            await database.DropCollectionAsync(collectionName);
-        }
-
         public async Task UseDataSetAsync(
-            LoadStrategyEnum loadStrategyEnum = LoadStrategyEnum.CleanInsert,
             params string[] locations)
         {
             var tenant = await _tenantAccessService.GetTenantAsync();
             if (string.IsNullOrWhiteSpace(tenant?.Id))
             {
-                throw new ArgumentNullException("TenantId");
+                throw new ArgumentNullException("TenantId", nameof(Tenant.Id));
             }
 
             await DropDatabaseAsync();
