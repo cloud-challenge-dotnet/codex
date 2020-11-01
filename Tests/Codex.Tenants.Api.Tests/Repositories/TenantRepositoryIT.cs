@@ -20,7 +20,7 @@ namespace Codex.Tenants.Api.Tests
         [Fact]
         public async Task Update()
         {
-            await _fixture.UseDataSetAsync(locations: @".\Resources\tenants.json");
+            await _fixture.UseDataSetAsync(locations: @"Resources/tenants.json");
 
             var tenant = await _tenantRepository.UpdateAsync(new(
                 id: "TenantId",
@@ -39,7 +39,7 @@ namespace Codex.Tenants.Api.Tests
         [Fact]
         public async Task Update_TenantKey()
         {
-            await _fixture.UseDataSetAsync(locations: @".\Resources\tenants.json");
+            await _fixture.UseDataSetAsync(locations: @"Resources/tenants.json");
 
             var tenant = await _tenantRepository.UpdateKeyAsync("TenantId", "newKey");
 
@@ -55,7 +55,7 @@ namespace Codex.Tenants.Api.Tests
         [Fact]
         public async Task Add_Property()
         {
-            await _fixture.UseDataSetAsync(locations: @".\Resources\tenants.json");
+            await _fixture.UseDataSetAsync(locations: @"Resources/tenants.json");
 
             TenantProperties tenantProperties = new()
             {
@@ -71,7 +71,7 @@ namespace Codex.Tenants.Api.Tests
         [Fact]
         public async Task Add_Multiple_Property()
         {
-            await _fixture.UseDataSetAsync(locations: @".\Resources\tenants.json");
+            await _fixture.UseDataSetAsync(locations: @"Resources/tenants.json");
 
             TenantProperties tenantProperties = new()
             {
@@ -89,7 +89,7 @@ namespace Codex.Tenants.Api.Tests
         [Fact]
         public async Task Update_Properties()
         {
-            await _fixture.UseDataSetAsync(locations: @".\Resources\tenants.json");
+            await _fixture.UseDataSetAsync(locations: @"Resources/tenants.json");
 
             TenantProperties tenantProperties = new()
             {
@@ -105,7 +105,7 @@ namespace Codex.Tenants.Api.Tests
         [Fact]
         public async Task Delete_Property()
         {
-            await _fixture.UseDataSetAsync(locations: @".\Resources\tenants.json");
+            await _fixture.UseDataSetAsync(locations: @"Resources/tenants.json");
 
             var tenant = await _tenantRepository.DeletePropertyAsync("TenantId", "data");
 
