@@ -1,0 +1,121 @@
+﻿using MongoDB.Driver;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Codex.Tenants.Framework;
+using Codex.Tenants.Models;
+using MongoDB.Driver.Linq;
+using Codex.Core.Models;
+using Codex.Tenants.Framework.Interfaces;
+
+namespace Codex.Tenants.Api
+{
+    public class TenantRepository : MongoTemplate<Tenant>
+    {
+        public TenantRepository(MongoDbSettings mongoDbSettings,
+            ITenantAccessService tenantAccessService) : base(mongoDbSettings, tenantAccessService)
+        {
+        }
+
+        public async Task<List<Tenant>> FindAllAsync()
+        {
+            var repository = await GetRepositoryAsync();
+
+            var query =
+                from e in repository.AsQueryable()
+                select e;
+
+            return query.ToList();
+        }
+
+        public async Task<Tenant> UpdateAsync(Tenant tenant)
+        {
+            var repository = await GetRepositoryAsync();
+
+            var update = Builders<Tenant>.Update;
+            var updateDef = update.Set(GetMongoPropertyName(nameof(tenant.Name)), tenant.Name);
+
+            return await repository.FindOneAndUpdateAsync(
+                Builders<Tenant>.Filter.Where(it => it.Id == tenant.Id),
+                updateDef,
+                options: new FindOneAndUpdateOptions<Tenant>
+                {
+                    ReturnDocument = ReturnDocument.After
+                }
+            );
+        }
+
+        public async Task<Tenant> UpdateKeyAsync(string tenantId, string tenantKey)
+        {
+            var repository = await GetRepositoryAsync();
+
+            var update = Builders<Tenant>.Update;
+            var updateDef = update.Set(GetMongoPropertyName(nameof(Tenant.Key)), tenantKey);
+
+            return await repository.FindOneAndUpdateAsync(
+                Builders<Tenant>.Filter.Where(it => it.Id == tenantId),
+                updateDef,
+                options: new FindOneAndUpdateOptions<Tenant>
+                {
+                    ReturnDocument = ReturnDocument.After
+                }
+            );
+        }
+
+        public async Task<Tenant?> UpdatePropertyAsync(string tenantId, string propertyKey, List<string> values)
+        {
+            var repository = await GetRepositoryAsync();
+
+            var update = Builders<Tenant>.Update;
+            var updateDef = update.Set($"{nameof(Tenant.Properties)}.{propertyKey}", values);
+
+            return await repository.FindOneAndUpdateAsync(
+                Builders<Tenant>.Filter.Where(it => it.Id == tenantId),
+                updateDef,
+                options: new FindOneAndUpdateOptions<Tenant>
+                {
+                    ReturnDocument = ReturnDocument.After
+                }
+            );
+        }
+
+        public async Task<Tenant?> UpdatePropertiesAsync(string tenantId, TenantProperties tenantProperties)
+        {
+            var repository = await GetRepositoryAsync();
+
+            var update = Builders<Tenant>.Update;
+            var updates = new List<UpdateDefinition<Tenant>>();
+
+            foreach(var tenantProperty in tenantProperties)
+            {
+                updates.Add(update.Set($"{nameof(Tenant.Properties)}.{tenantProperty.Key}", tenantProperty.Value));
+            }
+
+            return await repository.FindOneAndUpdateAsync(
+                Builders<Tenant>.Filter.Where(it => it.Id == tenantId),
+                update.Combine(updates),
+                options: new FindOneAndUpdateOptions<Tenant>
+                {
+                    ReturnDocument = ReturnDocument.After
+                }
+            );
+        }
+
+        public async Task<Tenant?> DeletePropertyAsync(string tenantId, string propertyKey)
+        {
+            var repository = await GetRepositoryAsync();
+
+            var update = Builders<Tenant>.Update;
+            var updateDef = update.Unset($"{nameof(Tenant.Properties)}.{propertyKey}");
+
+            return await repository.FindOneAndUpdateAsync(
+                Builders<Tenant>.Filter.Where(it => it.Id == tenantId),
+                updateDef,
+                options: new FindOneAndUpdateOptions<Tenant>
+                {
+                    ReturnDocument = ReturnDocument.After
+                }
+            );
+        }
+    }
+}

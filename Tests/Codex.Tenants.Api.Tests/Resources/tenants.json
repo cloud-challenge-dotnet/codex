@@ -1,0 +1,20 @@
+[
+  {
+    "collectionName": "tenant",
+    "data": [
+      {
+        "_id": "TenantId",
+        "name": "TenantName",
+        "key": "TenantKey",
+        "properties": {
+          "data": [
+            "0",
+            "1",
+            "2",
+            "3"
+          ]
+        }
+      }
+    ]
+  }
+]
