@@ -21,7 +21,29 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
         
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v1
+        with:
+          path: ~\sonar\cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+      - name: Cache SonarCloud scanner
+        id: cache-sonar-scanner
+        uses: actions/cache@v1
+        with:
+          path: ./.sonar/scanner
+          key: ${{ runner.os }}-sonar-scanner
+          restore-keys: ${{ runner.os }}-sonar-scanner
+
+      - name: Install SonarCloud scanner
+        if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
+        run: |
+          mkdir ./.sonar/scanner
+          dotnet tool update dotnet-sonarscanner --tool-path ./.sonar/scanner
+          
       - name: Start MongoDB
         uses: supercharge/mongodb-github-action@1.3.0
         with:
@@ -33,7 +55,12 @@ jobs:
           dotnet-version: '5.0.100-rc.2.20479.15'
       - name: Install dependencies
         run: dotnet restore
-      - name: Build
-        run: dotnet build --configuration Release --no-restore
+        
+      - name: Build and analyze
+        run: |
+          ./.sonar/scanner/dotnet-sonarscanner begin /k:"cloud-challenge-dotnet_codex" /o:"cloud-challenge-dotnet" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
+          dotnet build --configuration Release --no-restore
+          ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+        
       - name: Test
         run: dotnet test --no-restore --verbosity normal
