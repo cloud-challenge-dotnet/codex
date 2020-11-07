@@ -64,7 +64,6 @@ namespace Codex.Tenants.Api
             //when deciding which services to register
             //These instances are scoped to the current tenant, so in this example 
             //it will be one instance per tenant
-            //c.RegisterInstance(new TenantSpecificInstance()).SingleInstance();
             _= tenant;
 
             containerBuilder.RegisterType<TenantRepository>().SingleInstance();

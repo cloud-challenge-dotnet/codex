@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Builder;
-using Codex.Tenants.Models;
 
 namespace Codex.Tenants.Framework
 {
