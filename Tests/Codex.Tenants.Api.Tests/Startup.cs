@@ -23,7 +23,7 @@ namespace Codex.Tenants.Api.Tests
             services.AddSingleton<ITenantAccessService, TestTenantAccessService>();
 
             services.AddSingleton<DbFixture, DbFixture>();
-            services.AddSingleton<TenantRepository>();
+            services.AddSingleton<ITenantRepository, TenantRepository>();
         }
     }
 }

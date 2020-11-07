@@ -9,12 +9,12 @@ namespace Codex.Tenants.Api.Services
 {
     public class TenantService
     {
-        public TenantService(TenantRepository tenantRepository)
+        public TenantService(ITenantRepository tenantRepository)
         {
             _tenantRepository = tenantRepository;
         }
 
-        private readonly TenantRepository _tenantRepository;
+        private readonly ITenantRepository _tenantRepository;
 
         public async Task<List<Tenant>> FindAllAsync()
         {

@@ -7,10 +7,11 @@ using Codex.Tenants.Models;
 using MongoDB.Driver.Linq;
 using Codex.Core.Models;
 using Codex.Tenants.Framework.Interfaces;
+using Codex.Core.Interfaces;
 
 namespace Codex.Tenants.Api
 {
-    public class TenantRepository : MongoTemplate<Tenant>
+    public class TenantRepository : MongoTemplate<Tenant>, ITenantRepository
     {
         public TenantRepository(MongoDbSettings mongoDbSettings,
             ITenantAccessService tenantAccessService) : base(mongoDbSettings, tenantAccessService)

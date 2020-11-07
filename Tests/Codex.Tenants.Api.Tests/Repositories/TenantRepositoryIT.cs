@@ -1,6 +1,7 @@
 using Codex.Tenants.Models;
 using Codex.Tests.Framework;
 using Microsoft.Extensions.DependencyInjection;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -9,13 +10,29 @@ namespace Codex.Tenants.Api.Tests
     public class TenantRepositoryIT : IClassFixture<DbFixture>
     {
         private readonly DbFixture _fixture;
-        private readonly TenantRepository _tenantRepository;
+        private readonly ITenantRepository _tenantRepository;
 
         public TenantRepositoryIT(DbFixture fixture)
         {
             _fixture = fixture;
-            _tenantRepository = _fixture.Services.GetService<TenantRepository>()!;
+            _tenantRepository = _fixture.Services.GetService<ITenantRepository>()!;
         }
+
+        [Fact]
+        public async Task FindAll()
+        {
+            await _fixture.UseDataSetAsync(locations: @"Resources/tenants.json");
+
+            var tenantList = await _tenantRepository.FindAllAsync();
+
+            Assert.NotNull(tenantList);
+            Assert.Equal(2, tenantList.Count);
+
+            //Not updated
+            Assert.Equal("TenantId", tenantList[0].Id);
+            Assert.Equal("TenantId2", tenantList[1].Id);
+        }
+
 
         [Fact]
         public async Task Update()
@@ -85,6 +102,23 @@ namespace Codex.Tenants.Api.Tests
             Assert.Equal(new() { "property1", "property2" }, tenant!.Properties!["newProperty1"]);
             Assert.Equal(new() { "property3", "property4" }, tenant!.Properties!["newProperty2"]);
         }
+
+        [Fact]
+        public async Task Update_Property()
+        {
+            await _fixture.UseDataSetAsync(locations: @"Resources/tenants.json");
+
+            List<string> tenantProperty = new()
+            {
+                "property1", "property2"
+            };
+
+            var tenant = await _tenantRepository.UpdatePropertyAsync("TenantId", "data", tenantProperty);
+
+            Assert.NotNull(tenant);
+            Assert.Equal(new() { "property1", "property2" }, tenant!.Properties!["data"]);
+        }
+
 
         [Fact]
         public async Task Update_Properties()

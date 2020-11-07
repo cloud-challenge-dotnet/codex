@@ -6,12 +6,12 @@ namespace Codex.Tenants.Api.Services
 {
     public class TenantPropertiesService
     {
-        public TenantPropertiesService(TenantRepository tenantRepository)
+        public TenantPropertiesService(ITenantRepository tenantRepository)
         {
             _tenantRepository = tenantRepository;
         }
 
-        private readonly TenantRepository _tenantRepository;
+        private readonly ITenantRepository _tenantRepository;
 
         public async Task<Tenant?> UpdatePropertiesAsync(string tenantId, TenantProperties tenantProperties)
         {

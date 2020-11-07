@@ -66,7 +66,7 @@ namespace Codex.Tenants.Api
             //it will be one instance per tenant
             _= tenant;
 
-            containerBuilder.RegisterType<TenantRepository>().SingleInstance();
+            containerBuilder.RegisterType<TenantRepository>().As<ITenantRepository>().SingleInstance();
             containerBuilder.RegisterType<TenantService>().SingleInstance();
             containerBuilder.RegisterType<TenantPropertiesService>().SingleInstance();
         }
