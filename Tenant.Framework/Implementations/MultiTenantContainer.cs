@@ -84,6 +84,7 @@ namespace Codex.Tenants.Framework.Implementations
             lock (_lock)
             {
                 Dispose(true);
+                GC.SuppressFinalize(this);
             }
         }
 
@@ -93,8 +94,6 @@ namespace Codex.Tenants.Framework.Implementations
                 scope.Value.Dispose();
 
             _applicationContainer.Dispose();
-
-            GC.SuppressFinalize(this);
         }
 
         public ValueTask DisposeAsync()

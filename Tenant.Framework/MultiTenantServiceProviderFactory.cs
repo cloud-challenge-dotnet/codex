@@ -39,13 +39,14 @@ namespace Codex.Tenants.Framework
         {
             MultiTenantContainer? container = null;
 
-            Func<MultiTenantContainer?> containerAccessor = () =>
+
+            MultiTenantContainer? containerAccessor()
             {
                 return container;
-            };
+            }
 
             containerBuilder
-                .RegisterInstance(containerAccessor)
+                .RegisterInstance((Func<MultiTenantContainer?>)containerAccessor)
                 .SingleInstance();
 
             container = new MultiTenantContainer(containerBuilder.Build(), _tenantServicesConfiguration);
