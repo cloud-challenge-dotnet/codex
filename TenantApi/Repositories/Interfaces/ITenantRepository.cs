@@ -9,9 +9,9 @@ namespace Codex.Tenants.Api
     {
         Task<List<Tenant>> FindAllAsync();
 
-        Task<Tenant> UpdateAsync(Tenant tenant);
+        Task<Tenant?> UpdateAsync(Tenant tenant);
 
-        Task<Tenant> UpdateKeyAsync(string tenantId, string tenantKey);
+        Task<Tenant?> UpdateKeyAsync(string tenantId, string tenantKey);
 
         Task<Tenant?> UpdatePropertyAsync(string tenantId, string propertyKey, List<string> values);
         Task<Tenant?> UpdatePropertiesAsync(string tenantId, TenantProperties tenantProperties);

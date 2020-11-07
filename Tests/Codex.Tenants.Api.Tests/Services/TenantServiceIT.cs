@@ -49,7 +49,7 @@ namespace Codex.Tenants.Api.Tests
             string tenandId = "Id1";
 
             tenantRepository.Setup(x => x.FindOneAsync(It.IsAny<string>())).Returns(
-                Task.FromResult(new Tenant("Id1", "Tenant 1", null))
+                Task.FromResult((Tenant?)new Tenant("Id1", "Tenant 1", null))
             );
 
 
@@ -58,7 +58,7 @@ namespace Codex.Tenants.Api.Tests
             var tenant = await tenantService.FindOneAsync(tenandId);
 
             Assert.NotNull(tenant);
-            Assert.Equal(tenandId, tenant.Id);
+            Assert.Equal(tenandId, tenant!.Id);
         }
 
         [Fact]
@@ -137,7 +137,7 @@ namespace Codex.Tenants.Api.Tests
             var tenantUpdated = await tenantService.UpdateAsync(tenant);
 
             Assert.NotNull(tenantUpdated);
-            Assert.Equal(tenant.Id, tenantUpdated.Id);
+            Assert.Equal(tenant.Id, tenantUpdated!.Id);
         }
     }
 }

@@ -46,7 +46,7 @@ namespace Codex.Tenants.Api.Tests
             ));
 
             Assert.NotNull(tenant);
-            Assert.Equal("tenant-test", tenant.Name);
+            Assert.Equal("tenant-test", tenant!.Name);
 
             //Not updated
             Assert.Equal("TenantId", tenant.Id);
@@ -61,7 +61,7 @@ namespace Codex.Tenants.Api.Tests
             var tenant = await _tenantRepository.UpdateKeyAsync("TenantId", "newKey");
 
             Assert.NotNull(tenant);
-            Assert.Equal("newKey", tenant.Key);
+            Assert.Equal("newKey", tenant!.Key);
 
             //Not updated
             Assert.Equal("TenantId", tenant.Id);

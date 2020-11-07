@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Codex.Tenants.Api.Services
 {
-    public class TenantService
+    public class TenantService : ITenantService
     {
         public TenantService(ITenantRepository tenantRepository)
         {
@@ -21,7 +21,7 @@ namespace Codex.Tenants.Api.Services
             return await _tenantRepository.FindAllAsync();
         }
 
-        public async Task<Tenant> FindOneAsync(string id)
+        public async Task<Tenant?> FindOneAsync(string id)
         {
             return await _tenantRepository.FindOneAsync(id);
         }
@@ -37,7 +37,7 @@ namespace Codex.Tenants.Api.Services
             return await _tenantRepository.InsertAsync(tenant.ToTenant() with { Key = StringUtils.RandomString(8) });
         }
 
-        public async Task<Tenant> UpdateAsync(Tenant tenant)
+        public async Task<Tenant?> UpdateAsync(Tenant tenant)
         {
             return await _tenantRepository.UpdateAsync(tenant);
         }

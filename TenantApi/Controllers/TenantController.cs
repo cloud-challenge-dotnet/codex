@@ -13,30 +13,31 @@ namespace Codex.Tenants.Api.Controllers
     public class TenantController : ControllerBase
     {
         public TenantController(
-            TenantService tenantService,
-            TenantPropertiesService tenantPropertiesService)
+            ITenantService tenantService,
+            ITenantPropertiesService tenantPropertiesService)
         {
             _tenantService = tenantService;
             _tenantPropertiesService = tenantPropertiesService;
         }
 
-        private readonly TenantService _tenantService;
-        private readonly TenantPropertiesService _tenantPropertiesService;
+        private readonly ITenantService _tenantService;
+        private readonly ITenantPropertiesService _tenantPropertiesService;
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Tenant>> FindOne(string id)
         {
             var tenant = await _tenantService.FindOneAsync(id);
 
-            return tenant == null ? NotFound() : Ok(tenant);
+            return tenant == null ? NotFound(id) : Ok(tenant);
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Tenant>>> FindAll()
         {
-            var tenantList = await _tenantService.FindAllAsync();
+            var tenantList = (await _tenantService.FindAllAsync())
+                .Select(t => t with { Key = null, Properties = null }).ToList();
 
-            return tenantList.Select(t => t with { Key = null, Properties = null }).ToList();
+            return Ok(tenantList);
         }
 
         [HttpPost]
@@ -49,12 +50,12 @@ namespace Codex.Tenants.Api.Controllers
         [HttpPut("{tenantId}")]
         public async Task<ActionResult<Tenant>> UpdateTenant([FromQuery]string tenantId, [FromBody] Tenant tenant)
         {
-            tenant = await _tenantService.UpdateAsync(tenant with { Id = tenantId });
-            if(tenant == null)
+            var tenantResult = await _tenantService.UpdateAsync(tenant with { Id = tenantId });
+            if (tenantResult == null)
             {
-                return NotFound();
+                return NotFound(tenantId);
             }
-            return AcceptedAtAction(nameof(FindOne), new { id = tenant.Id }, tenant);
+            return AcceptedAtAction(nameof(FindOne), new { id = tenant.Id }, tenantResult);
         }
 
         [HttpPut("{tenantId}/properties")]
@@ -63,7 +64,7 @@ namespace Codex.Tenants.Api.Controllers
             var tenant = await _tenantPropertiesService.UpdatePropertiesAsync(tenantId, tenantProperties);
             if (tenant == null)
             {
-                return NotFound();
+                return NotFound(tenantId);
             }
             return AcceptedAtAction(nameof(FindOne), new { id = tenant.Id }, tenant);
         }
@@ -74,7 +75,7 @@ namespace Codex.Tenants.Api.Controllers
             var tenant = await _tenantPropertiesService.UpdatePropertyAsync(tenantId, propertyKey, values);
             if (tenant == null)
             {
-                return NotFound();
+                return NotFound(tenantId);
             }
             return AcceptedAtAction(nameof(FindOne), new { id = tenant.Id }, tenant);
         }

@@ -29,7 +29,7 @@ namespace Codex.Tenants.Api
             return query.ToList();
         }
 
-        public async Task<Tenant> UpdateAsync(Tenant tenant)
+        public async Task<Tenant?> UpdateAsync(Tenant tenant)
         {
             var repository = await GetRepositoryAsync();
 
@@ -46,7 +46,7 @@ namespace Codex.Tenants.Api
             );
         }
 
-        public async Task<Tenant> UpdateKeyAsync(string tenantId, string tenantKey)
+        public async Task<Tenant?> UpdateKeyAsync(string tenantId, string tenantKey)
         {
             var repository = await GetRepositoryAsync();
 

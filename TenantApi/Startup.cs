@@ -67,8 +67,8 @@ namespace Codex.Tenants.Api
             _= tenant;
 
             containerBuilder.RegisterType<TenantRepository>().As<ITenantRepository>().SingleInstance();
-            containerBuilder.RegisterType<TenantService>().SingleInstance();
-            containerBuilder.RegisterType<TenantPropertiesService>().SingleInstance();
+            containerBuilder.RegisterType<TenantService>().As<ITenantService>().SingleInstance();
+            containerBuilder.RegisterType<TenantPropertiesService>().As<ITenantPropertiesService>().SingleInstance();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -6,7 +6,7 @@ namespace Codex.Core.Interfaces
     {
         Task<bool> ExistsByIdAsync(string id);
 
-        Task<TDocument> FindOneAsync(string id);
+        Task<TDocument?> FindOneAsync(string id);
 
         Task<TDocument> InsertAsync(TDocument tenant);
     }

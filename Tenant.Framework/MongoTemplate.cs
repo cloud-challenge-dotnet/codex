@@ -62,7 +62,7 @@ namespace Codex.Tenants.Framework
             var filter = Builders<TDocument>.Filter.Eq("_id", id);
             return (await repository.CountDocumentsAsync(filter)) > 0;
         }
-        public async Task<TDocument> FindOneAsync(string id)
+        public async Task<TDocument?> FindOneAsync(string id)
         {
             var repository = await GetRepositoryAsync();
 

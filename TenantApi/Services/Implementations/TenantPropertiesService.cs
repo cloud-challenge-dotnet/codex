@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Codex.Tenants.Api.Services
 {
-    public class TenantPropertiesService
+    public class TenantPropertiesService : ITenantPropertiesService
     {
         public TenantPropertiesService(ITenantRepository tenantRepository)
         {
