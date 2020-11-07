@@ -89,11 +89,6 @@ namespace Codex.Core
                         options: options
                     );
                 }
-
-                /*options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-                options.JsonSerializerOptions.WriteIndented = true;
-                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-                options.JsonSerializerOptions.IgnoreNullValues = true;*/
             }
         }
     }

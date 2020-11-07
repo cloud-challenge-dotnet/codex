@@ -1,7 +1,6 @@
 ﻿using Codex.Core.Extensions;
 using Codex.Core.Models;
 using Codex.Tenants.Framework.Interfaces;
-using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
 using System;
@@ -50,7 +49,7 @@ namespace Codex.Tenants.Framework
             var tenant = await _tenantAccessService.GetTenantAsync();
             if (string.IsNullOrWhiteSpace(tenant?.Id))
             {
-                throw new ArgumentNullException("TenantId");
+                throw new ArgumentNullException("Id", "TenantId must be not null or whitespace");
             }
 
             return GetDatabase(tenant.Id).GetCollection<TDocument>((typeof(TDocument).Name).ToCamelCase());
@@ -85,7 +84,7 @@ namespace Codex.Tenants.Framework
             var tenant = await _tenantAccessService.GetTenantAsync();
             if (string.IsNullOrWhiteSpace(tenant?.Id))
             {
-                throw new ArgumentNullException("TenantId");
+                throw new ArgumentNullException("Id", "TenantId must be not null or whitespace");
             }
 
             await MongoClient.DropDatabaseAsync(GetDatabaseName(tenant.Id));
@@ -96,7 +95,7 @@ namespace Codex.Tenants.Framework
             var tenant = await _tenantAccessService.GetTenantAsync();
             if (string.IsNullOrWhiteSpace(tenant?.Id))
             {
-                throw new ArgumentNullException("TenantId");
+                throw new ArgumentNullException("Id", "TenantId must be not null or whitespace");
             }
 
             await GetDatabase(tenant.Id).DropCollectionAsync(typeof(TDocument).Name);

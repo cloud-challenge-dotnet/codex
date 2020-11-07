@@ -83,10 +83,18 @@ namespace Codex.Tenants.Framework.Implementations
         {
             lock (_lock)
             {
-                foreach (var scope in _tenantLifetimeScopes)
-                    scope.Value.Dispose();
-                _applicationContainer.Dispose();
+                Dispose(true);
             }
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            foreach (var scope in _tenantLifetimeScopes)
+                scope.Value.Dispose();
+
+            _applicationContainer.Dispose();
+
+            GC.SuppressFinalize(this);
         }
 
         public ValueTask DisposeAsync()

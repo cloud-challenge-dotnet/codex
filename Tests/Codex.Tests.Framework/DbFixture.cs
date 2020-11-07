@@ -1,19 +1,15 @@
-﻿using Codex.Core.Models;
-using Codex.Tenants.Framework;
+﻿using Codex.Core.Extensions;
+using Codex.Core.Models;
 using Codex.Tenants.Framework.Interfaces;
+using Codex.Tenants.Models;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
 using System;
 using System.IO;
-using System.Threading.Tasks;
 using System.Text.Json;
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
-using System.Collections.Generic;
-using Codex.Tests.Framework.Models;
-using System.Runtime.InteropServices;
-using Codex.Core.Extensions;
-using Codex.Tenants.Models;
+using System.Threading.Tasks;
 
 namespace Codex.Tests.Framework
 {
@@ -45,8 +41,12 @@ namespace Codex.Tests.Framework
 
         public void Dispose()
         {
-            DropDatabaseAsync().GetAwaiter().GetResult();
+            Dispose(true);
             GC.SuppressFinalize(this);
+        }
+        protected virtual void Dispose(bool disposing)
+        {
+            DropDatabaseAsync().GetAwaiter().GetResult();
         }
 
         private async Task DropDatabaseAsync()
@@ -54,7 +54,7 @@ namespace Codex.Tests.Framework
             var tenant = await _tenantAccessService.GetTenantAsync();
             if (string.IsNullOrWhiteSpace(tenant?.Id))
             {
-                throw new ArgumentNullException("TenantId");
+                throw new ArgumentNullException("Id", "TenantId must be not null or whitespace");
             }
 
             var client = new MongoClient(this._mongoDbSettings.ConnectionString);

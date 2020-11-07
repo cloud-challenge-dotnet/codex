@@ -1,7 +1,4 @@
-﻿using MongoDB.Bson;
-using System.Collections.Generic;
-
-namespace Codex.Tests.Framework.Models
+﻿namespace Codex.Tests.Framework.Models
 {
     public record DataSetContent
     {

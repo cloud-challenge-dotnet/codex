@@ -1,12 +1,11 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Codex.Tenants.Models;
 using System.Threading.Tasks;
 using Codex.Tenants.Framework.Models;
 using Codex.Tenants.Framework.Interfaces;
 
 namespace Codex.Tenants.Framework
 {
-    internal class TenantMiddleware<T> where T : Tenant
+    internal class TenantMiddleware
     {
         private readonly RequestDelegate next;
 

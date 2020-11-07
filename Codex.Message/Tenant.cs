@@ -1,5 +1,6 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using System;
 using System.Collections.Generic;
 
 namespace Codex.Tenants.Models
@@ -55,6 +56,7 @@ namespace Codex.Tenants.Models
         public Tenant ToTenant() => new Tenant(id: Id, name: Name, properties: Properties, key: "");
     }
 
+    [Serializable]
     public class TenantProperties : Dictionary<string, List<string>>
     {
     }

@@ -1,6 +1,5 @@
 ﻿using Codex.Tenants.Api.Services;
 using Codex.Tenants.Models;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;

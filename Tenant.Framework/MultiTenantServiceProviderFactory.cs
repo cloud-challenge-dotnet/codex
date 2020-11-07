@@ -9,7 +9,7 @@ namespace Codex.Tenants.Framework
 {
     public class MultiTenantServiceProviderFactory : IServiceProviderFactory<ContainerBuilder>
     {
-        public Action<Tenant?, ContainerBuilder> _tenantServicesConfiguration;
+        private readonly Action<Tenant?, ContainerBuilder> _tenantServicesConfiguration;
 
         public MultiTenantServiceProviderFactory(Action<Tenant?, ContainerBuilder> tenantServicesConfiguration)
         {
