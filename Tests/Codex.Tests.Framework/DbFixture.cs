@@ -7,12 +7,14 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Codex.Tests.Framework
 {
+    [ExcludeFromCodeCoverage]
     public class DbFixture : IDisposable
     {
         public DbFixture(

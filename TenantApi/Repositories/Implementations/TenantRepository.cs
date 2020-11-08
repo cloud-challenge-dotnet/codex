@@ -7,7 +7,6 @@ using Codex.Tenants.Models;
 using MongoDB.Driver.Linq;
 using Codex.Core.Models;
 using Codex.Tenants.Framework.Interfaces;
-using Codex.Core.Interfaces;
 
 namespace Codex.Tenants.Api
 {

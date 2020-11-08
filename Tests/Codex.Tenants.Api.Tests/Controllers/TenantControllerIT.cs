@@ -97,7 +97,7 @@ namespace Codex.Tenants.Api.Tests
             var tenantCreator = new TenantCreator();
 
             tenantService.Setup(x => x.CreateAsync(It.IsAny<TenantCreator>())).Returns(
-                Task.FromResult(new Tenant("Id1", "name", null))
+                Task.FromResult(new Tenant("Id1", "name", "key"))
             );
 
             var tenantController = new TenantController(
@@ -112,6 +112,38 @@ namespace Codex.Tenants.Api.Tests
             var tenant = Assert.IsType<Tenant>(createdAtActionResult.Value);
             Assert.NotNull(tenant);
             Assert.Equal("Id1", tenant.Id);
+            Assert.Equal("name", tenant.Name);
+            Assert.Equal("key", tenant.Key);
+            Assert.Null(tenant.Properties);
+        }
+
+        [Fact]
+        public async Task CreateTenant_With_Properties()
+        {
+            var tenantService = new Mock<ITenantService>();
+            var tenantPropertiesService = new Mock<ITenantPropertiesService>();
+
+            var tenantCreator = new TenantCreator("Id1", "name", new());
+
+            tenantService.Setup(x => x.CreateAsync(It.IsAny<TenantCreator>())).Returns(
+                Task.FromResult(new Tenant("Id1", "name", new(), "key"))
+            );
+
+            var tenantController = new TenantController(
+                tenantService.Object,
+                tenantPropertiesService.Object
+            );
+
+            var result = await tenantController.CreateTenant(tenantCreator);
+
+            var createdAtActionResult = Assert.IsType<CreatedAtActionResult>(result.Result);
+            Assert.Equal(nameof(tenantController.FindOne), createdAtActionResult.ActionName);
+            var tenant = Assert.IsType<Tenant>(createdAtActionResult.Value);
+            Assert.NotNull(tenant);
+            Assert.Equal("Id1", tenant.Id);
+            Assert.Equal("name", tenant.Name);
+            Assert.Equal("key", tenant.Key);
+            Assert.NotNull(tenant.Properties);
         }
 
         [Fact]

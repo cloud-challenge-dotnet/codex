@@ -23,9 +23,9 @@ namespace Codex.Tenants.Api.Tests
                 Task.FromResult((Tenant?)new Tenant("Id1", "Tenant 1", null))
             );
 
-            var tenantService = new TenantPropertiesService(tenantRepository.Object);
+            var tenantPropertiesService = new TenantPropertiesService(tenantRepository.Object);
 
-            var tenant = await tenantService.UpdatePropertiesAsync("Id1", new());
+            var tenant = await tenantPropertiesService.UpdatePropertiesAsync("Id1", new());
 
             Assert.NotNull(tenant);
             Assert.Equal("Id1", tenant!.Id);
@@ -40,9 +40,9 @@ namespace Codex.Tenants.Api.Tests
                 Task.FromResult((Tenant?)new Tenant("Id1", "Tenant 1", null))
             );
 
-            var tenantService = new TenantPropertiesService(tenantRepository.Object);
+            var tenantPropertiesService = new TenantPropertiesService(tenantRepository.Object);
 
-            var tenant = await tenantService.UpdatePropertyAsync("Id1", "data", new());
+            var tenant = await tenantPropertiesService.UpdatePropertyAsync("Id1", "data", new());
 
             Assert.NotNull(tenant);
             Assert.Equal("Id1", tenant!.Id);
@@ -57,9 +57,9 @@ namespace Codex.Tenants.Api.Tests
                 Task.FromResult((Tenant?)new Tenant("Id1", "Tenant 1", null))
             );
 
-            var tenantService = new TenantPropertiesService(tenantRepository.Object);
+            var tenantPropertiesService = new TenantPropertiesService(tenantRepository.Object);
 
-            var tenant = await tenantService.DeletePropertyAsync("Id1", "data");
+            var tenant = await tenantPropertiesService.DeletePropertyAsync("Id1", "data");
 
             Assert.NotNull(tenant);
             Assert.Equal("Id1", tenant!.Id);
@@ -80,13 +80,31 @@ namespace Codex.Tenants.Api.Tests
                 ))
             );
 
-            var tenantService = new TenantPropertiesService(tenantRepository.Object);
+            var tenantPropertiesService = new TenantPropertiesService(tenantRepository.Object);
 
-            var tenantProperties = await tenantService.FindPropertyAsync("Id1", "data");
+            var tenantProperties = await tenantPropertiesService.FindPropertyAsync("Id1", "data");
 
             Assert.NotNull(tenantProperties);
         }
 
+        [Fact]
+        public async Task FindProperty_Null()
+        {
+            var tenantRepository = new Mock<ITenantRepository>();
+
+            tenantRepository.Setup(x => x.FindOneAsync(It.IsAny<string>())).Returns(
+                Task.FromResult((Tenant?)new Tenant("Id", "name",
+                    null,
+                    null
+                ))
+            );
+
+            var tenantPropertiesService = new TenantPropertiesService(tenantRepository.Object);
+
+            var tenantProperties = await tenantPropertiesService.FindPropertyAsync("Id1", "data");
+
+            Assert.Null(tenantProperties);
+        }
 
         [Fact]
         public async Task FindProperties()
@@ -97,11 +115,27 @@ namespace Codex.Tenants.Api.Tests
                 Task.FromResult((Tenant?)new Tenant("Id", "name", new(), null))
             );
 
-            var tenantService = new TenantPropertiesService(tenantRepository.Object);
+            var tenantPropertiesService = new TenantPropertiesService(tenantRepository.Object);
 
-            var tenantProperties = await tenantService.FindPropertiesAsync("Id1");
+            var tenantProperties = await tenantPropertiesService.FindPropertiesAsync("Id1");
 
             Assert.NotNull(tenantProperties);
+        }
+
+        [Fact]
+        public async Task FindProperties_Null()
+        {
+            var tenantRepository = new Mock<ITenantRepository>();
+
+            tenantRepository.Setup(x => x.FindOneAsync(It.IsAny<string>())).Returns(
+                Task.FromResult((Tenant?)new Tenant("Id", "name", null, null))
+            );
+
+            var tenantPropertiesService = new TenantPropertiesService(tenantRepository.Object);
+
+            var tenantProperties = await tenantPropertiesService.FindPropertiesAsync("Id1");
+
+            Assert.Null(tenantProperties);
         }
     }
 }

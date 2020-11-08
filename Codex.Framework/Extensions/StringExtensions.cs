@@ -14,7 +14,7 @@
             }
             else
             {
-                return char.ToLowerInvariant(str[0]) + str.Substring(1);
+                return char.ToLowerInvariant(str[0]) + str[1..];
             }
         }
     }

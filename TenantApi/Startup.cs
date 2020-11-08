@@ -14,11 +14,13 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Codex.Tenants.Api
 {
+    [ExcludeFromCodeCoverage]
     public class Startup
     {
         public Startup(IConfiguration configuration)
@@ -38,7 +40,6 @@ namespace Codex.Tenants.Api
                 sp.GetRequiredService<IOptions<MongoDbSettings>>().Value);
 
             services.AddSingleton<IExceptionHandler, CoreExceptionHandler>();
-            services.AddSingleton<IExceptionHandler, ExceptionHandler2>();
 
             services.AddMultiTenancy()
                 .WithResolutionStrategy<GlobalTenantResolutionStrategy>()

@@ -27,11 +27,11 @@ namespace Codex.Tenants.Framework
             //Declare our container and create a accessor function
             //This is to support the Func<MultiTenantContainer<T>> multiTenantContainerAccessor parameter in the middleware
             MultiTenantContainer? container = null;
-            Func<MultiTenantContainer?> containerAccessor = () =>
+            MultiTenantContainer? containerAccessor()
             {
                 return container;
-            };
-            services.AddSingleton(containerAccessor);
+            }
+            services.AddSingleton((Func<MultiTenantContainer?>)containerAccessor);
 
             //Add all the application level services to the builder
             containerBuilder.Populate(services);

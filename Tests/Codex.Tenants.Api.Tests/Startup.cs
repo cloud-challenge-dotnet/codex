@@ -1,4 +1,5 @@
-﻿using Codex.Core.Models;
+﻿using Codex.Core.Interfaces;
+using Codex.Core.Models;
 using Codex.Tenants.Framework.Interfaces;
 using Codex.Tests.Framework;
 using Microsoft.Extensions.Configuration;
