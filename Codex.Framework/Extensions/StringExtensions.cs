@@ -2,6 +2,17 @@
 {
     public static partial class StringExtensions
     {
+        public static string? ToNullableCamelCase(this string? str)
+        {
+            if (str == null)
+            {
+                return null;
+            }
+            else
+            {
+                return ToCamelCase(str);
+            }
+        }
         public static string ToCamelCase(this string str)
         {
             if (str.Length == 0)

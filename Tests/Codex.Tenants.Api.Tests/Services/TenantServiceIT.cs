@@ -129,7 +129,7 @@ namespace Codex.Tenants.Api.Tests
             var tenant = new Tenant("Id1", "Tenant 1", null);
 
             tenantRepository.Setup(x => x.UpdateAsync(It.IsAny<Tenant>())).Returns(
-                Task.FromResult(new Tenant("Id1", "Tenant 1", null))
+                Task.FromResult((Tenant?)new Tenant("Id1", "Tenant 1", null))
             );
 
             var tenantService = new TenantService(tenantRepository.Object);

@@ -1,11 +1,9 @@
-using Codex.Core.Exceptions;
 using Codex.Tenants.Api.Controllers;
 using Codex.Tenants.Api.Services;
 using Codex.Tenants.Models;
 using Codex.Tests.Framework;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;

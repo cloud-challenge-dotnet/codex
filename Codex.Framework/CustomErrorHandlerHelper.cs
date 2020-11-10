@@ -3,17 +3,17 @@ using Codex.Core.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Codex.Core
 {
+    [ExcludeFromCodeCoverage]
     public static class CustomErrorHandlerHelper
     {
         public static void UseCustomErrors(this IApplicationBuilder app, IHostEnvironment environment, IEnumerable<IExceptionHandler> exceptionHandlers)

@@ -6,7 +6,7 @@ namespace Codex.Core.Interfaces
 {
     public class CoreExceptionHandler : IExceptionHandler
     {
-        CustomProblemDetails? IExceptionHandler.Intercept(Exception exception)
+        public CustomProblemDetails? Intercept(Exception exception)
         {
             if(exception is ArgumentException)
             {
