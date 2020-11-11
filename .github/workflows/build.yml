@@ -73,7 +73,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          .sonar/scanner/dotnet-sonarscanner begin /k:"cloud-challenge-dotnet_codex" /o:"cloud-challenge-dotnet" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths="Tests/Codex.Core.Tests/TestsResults/coverage.opencover.xml;Tests/Codex.Tenants.Api.Tests/TestsResults/coverage.opencover.xml"
+          .sonar/scanner/dotnet-sonarscanner begin /k:"cloud-challenge-dotnet_codex" /o:"cloud-challenge-dotnet" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" /d:sonar.coverage.exclusions="**Tests*.cs"
           dotnet build --configuration Release --no-restore
           dotnet test --no-restore --verbosity normal /p:CoverletOutput="TestsResults/" /p:CollectCoverage=true  /p:CoverletOutputFormat=opencover
           .sonar/scanner/dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
