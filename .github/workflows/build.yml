@@ -24,47 +24,50 @@ jobs:
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
         
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v1
+        with:
+          path: ~\sonar\cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+      - name: Cache SonarCloud scanner
+        id: cache-sonar-scanner
+        uses: actions/cache@v1
+        with:
+          path: .sonar/scanner
+          key: ${{ runner.os }}-sonar-scanner
+          restore-keys: ${{ runner.os }}-sonar-scanner
+
+      - name: Install SonarCloud scanner
+        #if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p .sonar/scanner
+          dotnet tool update dotnet-sonarscanner --tool-path .sonar/scanner
+          
       - name: Start MongoDB
         uses: supercharge/mongodb-github-action@1.3.0
         with:
           mongodb-version: 4.2
       
-      - name: Setup .NET Core 3
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: '3.0'
+      #- name: Setup .NET Core 3
+      #  uses: actions/setup-dotnet@v1
+      #  with:
+      #    dotnet-version: '3.0'
 
       - name: Setup .NET Core 5
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: '5.0.x'
+          dotnet-version: '5.0.100'
       - name: Install dependencies
         run: dotnet restore
         
-      - name: Build
-        run: dotnet build --configuration Release --no-restore
+      - name: Build & Test & Analyze
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          .sonar/scanner/dotnet-sonarscanner begin /k:"cloud-challenge-dotnet_codex" /o:"cloud-challenge-dotnet" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths="./Tests/Coverage.opencover.xml"
+          dotnet build --configuration Release --no-restore
+          run: dotnet test --configuration Release --no-restore --no-build ./codex.sln -l trx -r ./ /p:CollectCoverage=true "/p:CoverletOutputFormat=\"json,opencover\"" /p:CoverletOutput=../Coverage /p:MergeWith="../coverage.json"
+          .sonar/scanner/dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
           
-      - name: Test
-        run: dotnet test ./codex.sln -l trx -r ./ /p:CollectCoverage=true "/p:CoverletOutputFormat=\"json,opencover\"" /p:CoverletOutput=../Coverage /p:MergeWith="../coverage.json"
-
-      - name: ReportGenerator
-        uses: danielpalme/ReportGenerator-GitHub-Action@4.5.8
-        with:
-          reports: './Tests/Coverage.opencover.xml' # REQUIRED # The coverage reports that should be parsed (separated by semicolon). Globbing is supported.
-          targetdir: './Tests/coveragereport' # REQUIRED # The directory where the generated report should be saved.
-          reporttypes: 'HtmlInline;Cobertura;Badges' # The output formats and scope (separated by semicolon) Values: Badges, Clover, Cobertura, CsvSummary, Html, HtmlChart, HtmlInline, HtmlInline_AzurePipelines, HtmlInline_AzurePipelines_Dark, HtmlSummary, JsonSummary, Latex, LatexSummary, lcov, MHtml, PngChart, SonarQube, TeamCitySummary, TextSummary, Xml, XmlSummary
-          sourcedirs: '' # Optional directories which contain the corresponding source code (separated by semicolon). The source directories are used if coverage report contains classes without path information.
-          historydir: '' # Optional directory for storing persistent coverage information. Can be used in future reports to show coverage evolution.
-          plugins: '' # Optional plugin files for custom reports or custom history storage (separated by semicolon).
-          assemblyfilters: '+*' # Optional list of assemblies that should be included or excluded in the report. Exclusion filters take precedence over inclusion filters. Wildcards are allowed.
-          classfilters: '+*' # Optional list of classes that should be included or excluded in the report. Exclusion filters take precedence over inclusion filters. Wildcards are allowed.
-          filefilters: '+*' # Optional list of files that should be included or excluded in the report. Exclusion filters take precedence over inclusion filters. Wildcards are allowed.
-          verbosity: 'Info' # The verbosity level of the log messages. Values: Verbose, Info, Warning, Error, Off
-          title: 'coverage report' # Optional title.
-          tag: '${{ github.run_number }}_${{ github.run_id }}' # Optional tag or build version.
-      
-      - name: Upload badges file
-        uses: actions/upload-artifact@v1
-        with:
-          name: badge_branchcoverage.svg
-          path: ./Tests/coveragereport/badge_branchcoverage.svg
