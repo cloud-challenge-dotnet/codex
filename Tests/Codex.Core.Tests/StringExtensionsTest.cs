@@ -46,7 +46,7 @@ namespace Codex.Core.Tests
         {
             string? value = "MyTestData";
 
-            string? result = value.ToCamelCase();
+            string? result = value.ToNullableCamelCase();
 
             Assert.Equal("myTestData", result);
         }
