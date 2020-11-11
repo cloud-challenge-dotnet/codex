@@ -46,7 +46,7 @@ jobs:
           #dotnet test --no-restore --verbosity normal /p:CollectCoverage=true /p:CoverletOutput="../coverage.json" /p:MergeWith="../coverage.json" /maxcpucount:1  /p:CoverletOutputFormat=lcov
           
       - name: Test
-        run: dotnet test .\codex.sln -l trx -r /results /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput=/results/coverage /p:MergeWith='/results/coverage.json'
+        run: dotnet test ./codex.sln -l trx -r /results /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput=/results/coverage /p:MergeWith='/results/coverage.json'
         #run: dotnet test --no-restore --verbosity normal /p:CoverletOutput="TestsResults/" /p:CollectCoverage=true  /p:CoverletOutputFormat=opencover
 
       - name: codecov
