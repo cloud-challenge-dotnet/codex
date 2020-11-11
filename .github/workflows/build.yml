@@ -24,26 +24,6 @@ jobs:
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
         
-      - name: Cache SonarCloud packages
-        uses: actions/cache@v1
-        with:
-          path: ~\sonar\cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
-      - name: Cache SonarCloud scanner
-        id: cache-sonar-scanner
-        uses: actions/cache@v1
-        with:
-          path: .sonar/scanner
-          key: ${{ runner.os }}-sonar-scanner
-          restore-keys: ${{ runner.os }}-sonar-scanner
-
-      - name: Install SonarCloud scanner
-        if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
-        run: |
-          mkdir -p .sonar/scanner
-          dotnet tool update dotnet-sonarscanner --tool-path .sonar/scanner
-          
       - name: Start MongoDB
         uses: supercharge/mongodb-github-action@1.3.0
         with:
@@ -57,17 +37,18 @@ jobs:
       - name: Setup .NET Core 5
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: '5.0.100-rc.2.20479.15'
+          dotnet-version: '5.0.x'
       - name: Install dependencies
         run: dotnet restore
         
       - name: Build & Test & Analyze
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          .sonar/scanner/dotnet-sonarscanner begin /k:"cloud-challenge-dotnet_codex" /o:"cloud-challenge-dotnet" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths="Tests/Codex.Tenants.Api.Tests/TestsResults/coverage.opencover.xml"
           dotnet build --configuration Release --no-restore
-          dotnet test --no-restore --verbosity normal /p:CoverletOutput="TestsResults/" /p:CollectCoverage=true  /p:CoverletOutputFormat=opencover
-          .sonar/scanner/dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+          dotnet test --no-restore --verbosity normal /p:CollectCoverage=true /p:Exclude="[xunit*]*" /p:CoverletOutput="../" /p:MergeWith="../coverage.json" /maxcpucount:1  /p:CoverletOutputFormat=lcov
+
+      - name: Publish coverage report to coveralls.io
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: ./Tests/coverage.info 
           
