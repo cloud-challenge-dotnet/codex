@@ -43,18 +43,9 @@ jobs:
         
       - name: Build
         run: dotnet build --configuration Release --no-restore
-          #dotnet test --no-restore --verbosity normal /p:CollectCoverage=true /p:CoverletOutput="../coverage.json" /p:MergeWith="../coverage.json" /maxcpucount:1  /p:CoverletOutputFormat=lcov
           
       - name: Test
-        #run: dotnet test ./codex.sln -l trx -r ${HOME}/results /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput=${HOME}/results/coverage /p:MergeWith='${HOME}/results/coverage.json'
         run: dotnet test ./codex.sln -l trx -r ./ /p:CollectCoverage=true "/p:CoverletOutputFormat=\"json,opencover\"" /p:CoverletOutput=../Coverage /p:MergeWith="../coverage.json"
-
-      - name: codecov
-        uses: codecov/codecov-action@v1
-        with:
-          files: ./Tests/Coverage.opencover.xml
-          fail_ci_if_error: true
-          verbose: true
 
       - name: ReportGenerator
         uses: danielpalme/ReportGenerator-GitHub-Action@4.5.8
@@ -71,3 +62,9 @@ jobs:
           verbosity: 'Info' # The verbosity level of the log messages. Values: Verbose, Info, Warning, Error, Off
           title: 'coverage report' # Optional title.
           tag: '${{ github.run_number }}_${{ github.run_id }}' # Optional tag or build version.
+      
+      - name: Upload badges file
+        uses: actions/upload-artifact@v1
+        with:
+          name: badge_branchcoverage.svg
+          path: ./Tests/coveragereport/badge_branchcoverage.svg
