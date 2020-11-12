@@ -1,5 +1,4 @@
-﻿
-namespace Codex.Core.Models
+﻿namespace Codex.Core.Models
 {
     public record MongoDbSettings
     {

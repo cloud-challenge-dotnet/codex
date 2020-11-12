@@ -35,3 +35,6 @@ msbuild.wrn
 
 # Visual Studio 2015
 .vs/
+/Tests/reports
+/Tests/Coverage.opencover.xml
+/Tests/Coverage.json

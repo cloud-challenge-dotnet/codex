@@ -19,6 +19,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Codex.Tenants.Api.Tests", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Codex.Core.Tests", "Tests\Codex.Core.Tests\Codex.Core.Tests.csproj", "{12B938D4-1E9C-4336-B9EC-45B9921E08D8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Codex.Tenants.Framework.Tests", "Tests\Codex.Tenants.Framework.Tests\Codex.Tenants.Framework.Tests.csproj", "{32B57E18-FADB-424A-B5C2-1F4F8E395DEF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -53,6 +55,10 @@ Global
 		{12B938D4-1E9C-4336-B9EC-45B9921E08D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{12B938D4-1E9C-4336-B9EC-45B9921E08D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{12B938D4-1E9C-4336-B9EC-45B9921E08D8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32B57E18-FADB-424A-B5C2-1F4F8E395DEF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32B57E18-FADB-424A-B5C2-1F4F8E395DEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32B57E18-FADB-424A-B5C2-1F4F8E395DEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32B57E18-FADB-424A-B5C2-1F4F8E395DEF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -61,6 +67,7 @@ Global
 		{608B54AB-27B7-45D1-84AD-CB05BD63A518} = {119FD8E2-3D0B-4FD8-924D-4AED657CF21F}
 		{AC48E766-D389-4472-BF04-274D15B2E76F} = {119FD8E2-3D0B-4FD8-924D-4AED657CF21F}
 		{12B938D4-1E9C-4336-B9EC-45B9921E08D8} = {119FD8E2-3D0B-4FD8-924D-4AED657CF21F}
+		{32B57E18-FADB-424A-B5C2-1F4F8E395DEF} = {119FD8E2-3D0B-4FD8-924D-4AED657CF21F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FCBFF2EE-B99A-4FF8-8F36-A58D3C7EAD69}
