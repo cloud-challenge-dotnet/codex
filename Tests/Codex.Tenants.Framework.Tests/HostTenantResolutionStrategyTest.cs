@@ -1,9 +1,7 @@
 using Codex.Tenants.Framework.Implementations;
 using Codex.Tests.Framework;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Primitives;
 using Moq;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
 

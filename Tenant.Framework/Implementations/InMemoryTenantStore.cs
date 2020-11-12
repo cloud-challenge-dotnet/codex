@@ -17,7 +17,7 @@ namespace Codex.Tenants.Framework.Implementations
             var tenant = new[]
             {
                 new Tenant("global", "global", "aazzzsq"),
-                new Tenant("but", "but", "dsfsdfsdf")
+                new Tenant("demo", "demo", "dsfsdfsdf")
             }.SingleOrDefault(t => t.Id == identifier);
 
             return await Task.FromResult(tenant);
