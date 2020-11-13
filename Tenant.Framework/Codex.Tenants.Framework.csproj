@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Codex.Framework\Codex.Core.csproj" />
+    <ProjectReference Include="..\Codex.Core\Codex.Core.csproj" />
     <ProjectReference Include="..\Codex.Message\Codex.Tenants.Models.csproj" />
   </ItemGroup>
 

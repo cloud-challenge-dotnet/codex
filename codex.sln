@@ -13,7 +13,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{119FD8E2
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Codex.Tests.Framework", "Tests\Codex.Tests.Framework\Codex.Tests.Framework.csproj", "{608B54AB-27B7-45D1-84AD-CB05BD63A518}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Codex.Core", "Codex.Framework\Codex.Core.csproj", "{6FEB9544-9C38-43AB-91A9-CE1EEAED2B7F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Codex.Core", "Codex.Core\Codex.Core.csproj", "{6FEB9544-9C38-43AB-91A9-CE1EEAED2B7F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Codex.Tenants.Api.Tests", "Tests\Codex.Tenants.Api.Tests\Codex.Tenants.Api.Tests.csproj", "{AC48E766-D389-4472-BF04-274D15B2E76F}"
 EndProject

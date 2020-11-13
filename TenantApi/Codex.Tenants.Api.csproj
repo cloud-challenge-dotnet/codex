@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Codex.Framework\Codex.Core.csproj" />
+    <ProjectReference Include="..\Codex.Core\Codex.Core.csproj" />
     <ProjectReference Include="..\Codex.Message\Codex.Tenants.Models.csproj" />
     <ProjectReference Include="..\Tenant.Framework\Codex.Tenants.Framework.csproj" />
   </ItemGroup>

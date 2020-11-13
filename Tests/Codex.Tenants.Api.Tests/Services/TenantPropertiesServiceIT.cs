@@ -88,7 +88,7 @@ namespace Codex.Tenants.Api.Tests
         }
 
         [Fact]
-        public async Task FindProperty_Null()
+        public async Task FindProperty_Null_Property()
         {
             var tenantRepository = new Mock<ITenantRepository>();
 
@@ -97,6 +97,23 @@ namespace Codex.Tenants.Api.Tests
                     null,
                     null
                 ))
+            );
+
+            var tenantPropertiesService = new TenantPropertiesService(tenantRepository.Object);
+
+            var tenantProperties = await tenantPropertiesService.FindPropertyAsync("Id1", "data");
+
+            Assert.Null(tenantProperties);
+        }
+
+
+        [Fact]
+        public async Task FindProperty_Null_Tenant()
+        {
+            var tenantRepository = new Mock<ITenantRepository>();
+
+            tenantRepository.Setup(x => x.FindOneAsync(It.IsAny<string>())).Returns(
+                Task.FromResult((Tenant?)null)
             );
 
             var tenantPropertiesService = new TenantPropertiesService(tenantRepository.Object);
@@ -123,12 +140,28 @@ namespace Codex.Tenants.Api.Tests
         }
 
         [Fact]
-        public async Task FindProperties_Null()
+        public async Task FindProperties_Null_Properties()
         {
             var tenantRepository = new Mock<ITenantRepository>();
 
             tenantRepository.Setup(x => x.FindOneAsync(It.IsAny<string>())).Returns(
                 Task.FromResult((Tenant?)new Tenant("Id", "name", null, null))
+            );
+
+            var tenantPropertiesService = new TenantPropertiesService(tenantRepository.Object);
+
+            var tenantProperties = await tenantPropertiesService.FindPropertiesAsync("Id1");
+
+            Assert.Null(tenantProperties);
+        }
+
+        [Fact]
+        public async Task FindProperties_Null_Tenant()
+        {
+            var tenantRepository = new Mock<ITenantRepository>();
+
+            tenantRepository.Setup(x => x.FindOneAsync(It.IsAny<string>())).Returns(
+                Task.FromResult((Tenant?)null)
             );
 
             var tenantPropertiesService = new TenantPropertiesService(tenantRepository.Object);
