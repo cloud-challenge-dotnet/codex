@@ -4,9 +4,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Codex.Tenants.Framework.Implementations;
 using Codex.Tenants.Models;
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Codex.Tenants.Framework
 {
+    [ExcludeFromCodeCoverage]
     /// <summary>
     /// Nice method to create the tenant builder
     /// </summary>

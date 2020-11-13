@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Builder;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Codex.Tenants.Framework
 {
+    [ExcludeFromCodeCoverage]
     /// <summary>
     /// Nice method to register our middleware
     /// </summary>

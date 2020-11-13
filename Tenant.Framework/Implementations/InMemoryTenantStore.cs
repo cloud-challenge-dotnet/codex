@@ -1,10 +1,12 @@
 ﻿using Codex.Tenants.Framework.Interfaces;
 using Codex.Tenants.Models;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace Codex.Tenants.Framework.Implementations
 {
+    [ExcludeFromCodeCoverage]
     public class InMemoryTenantStore : ITenantStore
     {
         /// <summary>

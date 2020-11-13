@@ -1,5 +1,4 @@
-﻿using Codex.Core.Interfaces;
-using Codex.Core.Models;
+﻿using Codex.Core.Models;
 using Codex.Tenants.Framework.Interfaces;
 using Codex.Tests.Framework;
 using Microsoft.Extensions.Configuration;
@@ -10,7 +9,7 @@ namespace Codex.Tenants.Api.Tests
 {
     public class Startup
     {
-        public void ConfigureServices(IServiceCollection services)
+        public static void ConfigureServices(IServiceCollection services)
         {
             var configuration = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json")

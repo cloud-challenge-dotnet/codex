@@ -3,9 +3,11 @@ using Microsoft.AspNetCore.Http;
 using Codex.Tenants.Framework.Implementations;
 using System;
 using System.Threading.Tasks;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Codex.Tenants.Framework
 {
+    [ExcludeFromCodeCoverage]
     internal class MultitenantContainerMiddleware
     {
         private readonly RequestDelegate next;

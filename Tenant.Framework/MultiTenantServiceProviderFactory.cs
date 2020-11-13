@@ -4,9 +4,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Codex.Tenants.Framework.Implementations;
 using Codex.Tenants.Models;
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Codex.Tenants.Framework
 {
+    [ExcludeFromCodeCoverage]
     public class MultiTenantServiceProviderFactory : IServiceProviderFactory<ContainerBuilder>
     {
         private readonly Action<Tenant?, ContainerBuilder> _tenantServicesConfiguration;
@@ -38,7 +40,6 @@ namespace Codex.Tenants.Framework
         public IServiceProvider CreateServiceProvider(ContainerBuilder containerBuilder)
         {
             MultiTenantContainer? container = null;
-
 
             MultiTenantContainer? containerAccessor()
             {
