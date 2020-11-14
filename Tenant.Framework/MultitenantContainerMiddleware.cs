@@ -25,11 +25,10 @@ namespace Codex.Tenants.Framework
             context.RequestServices =
                 new AutofacServiceProvider(multiTenantContainerAccessor()
                         .GetCurrentTenantScope().BeginLifetimeScope());
-            await next.Invoke(context);
 
             //Continue processing
             if (next != null)
-                await next(context);
+                await next.Invoke(context);
         }
     }
 }
