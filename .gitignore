@@ -41,3 +41,4 @@ msbuild.wrn
 /Tests/reports
 /Tests/Coverage.opencover.xml
 /Tests/Coverage.json
+/.tye

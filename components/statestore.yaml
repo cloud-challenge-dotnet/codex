@@ -1,0 +1,16 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: default
+spec:
+  type: state.redis
+  metadata:
+  - name: redisHost
+    value: localhost:6379
+  - name: redisPassword
+    secretKeyRef:
+      name: redisPassword
+  - name: actorStateStore
+    value: "true"
+auth:
+    secretStore: localsecretstore
