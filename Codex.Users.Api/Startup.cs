@@ -24,7 +24,6 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Dapr.Client;
 
 namespace Codex.Users.Api
 {

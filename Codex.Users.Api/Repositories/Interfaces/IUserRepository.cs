@@ -9,6 +9,6 @@ namespace Codex.Users.Api.Repositories.Interfaces
     {
         Task<List<User>> FindAllAsync(UserCriteria userCriteria);
 
-        Task<User?> UpdateAsync(User tenant);
+        Task<User?> UpdateAsync(User user);
     }
 }

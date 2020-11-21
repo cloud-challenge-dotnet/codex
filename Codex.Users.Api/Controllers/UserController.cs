@@ -2,10 +2,7 @@
 using Codex.Users.Api.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Codex.Users.Api.Controllers
@@ -14,14 +11,10 @@ namespace Codex.Users.Api.Controllers
     [Route("[controller]")]
     public class UserController : ControllerBase
     {
-        private readonly ILogger<UserController> _logger;
-
         private readonly IUserService _userService;
 
-        public UserController(ILogger<UserController> logger,
-            IUserService userService)
+        public UserController(IUserService userService)
         {
-            _logger = logger;
             _userService = userService;
         }
 

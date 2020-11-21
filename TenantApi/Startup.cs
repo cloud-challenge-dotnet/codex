@@ -17,6 +17,9 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Codex.Tenants.Api
 {
@@ -59,6 +62,28 @@ namespace Codex.Tenants.Api
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "TenantApi", Version = "v1" });
             });
+
+
+            var jwtSecret = Encoding.ASCII.GetBytes(Configuration.GetValue<string>(ConfigConstant.JwtSecretKey));
+
+            services.AddAuthentication(x =>
+            {
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(x =>
+            {
+                x.RequireHttpsMetadata = false;
+                x.SaveToken = true;
+                x.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(jwtSecret),
+                    ValidateIssuer = false,
+                    ValidateAudience = false
+                };
+
+            });
         }
 
         public static void ConfigureMultiTenantServices(Tenant? tenant, ContainerBuilder containerBuilder)
@@ -97,6 +122,7 @@ namespace Codex.Tenants.Api
             app.UseMultiTenancy()
                 .UseMultiTenantContainer();
 
+            app.UseAuthorization();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

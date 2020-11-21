@@ -1,7 +1,6 @@
 ﻿using Codex.Tenants.Framework.Interfaces;
 using Codex.Models.Tenants;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Threading.Tasks;
 using Dapr.Client;
 using Microsoft.Extensions.Logging;

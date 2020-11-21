@@ -19,13 +19,11 @@ namespace Codex.Tenants.Framework.Utils
             }
             catch (Exception exception)
             {
-                if (exception is Grpc.Core.RpcException rpcException)
+                if (exception is Grpc.Core.RpcException rpcException &&
+                    rpcException.Status.StatusCode == Grpc.Core.StatusCode.NotFound)
                 {
-                    if (rpcException.Status.StatusCode == Grpc.Core.StatusCode.NotFound)
-                    {
-                        logger.LogInformation(rpcException, $"Tenant not found : '{tenantId}'");
-                        throw new InvalidTenantIdException($"Tenant not found : '{tenantId}'", "TENANT_NOT_FOUND");
-                    }
+                    logger.LogInformation(rpcException, $"Tenant not found : '{tenantId}'");
+                    throw new InvalidTenantIdException($"Tenant not found : '{tenantId}'", "TENANT_NOT_FOUND");
                 }
 
                 logger.LogError(exception, $"Unable to find Tenant {tenantId}");

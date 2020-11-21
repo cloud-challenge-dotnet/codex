@@ -57,7 +57,6 @@ namespace Codex.Models.Tenants
         public Tenant ToTenant() => new Tenant(id: Id, name: Name, properties: Properties);
     }
 
-    [Serializable]
     public class TenantProperties : Dictionary<string, List<string>>
     {
     }

@@ -1,5 +1,4 @@
-﻿using Codex.Core.Exceptions;
-using Codex.Core.Interfaces;
+﻿using Codex.Core.Interfaces;
 using Codex.Models.Users;
 using Codex.Users.Api.Repositories.Interfaces;
 using Codex.Users.Api.Services.Interfaces;
@@ -36,21 +35,26 @@ namespace Codex.Users.Api.Services.Implementations
             return await _userRepository.FindOneAsync(id);
         }
 
-        public async Task<User> CreateAsync(UserCreator userCreator)
+        public Task<User> CreateAsync(UserCreator userCreator)
         {
-            User user;
             if (string.IsNullOrWhiteSpace(userCreator.Password))
             {
-                throw new ArgumentNullException(nameof(UserCreator.Password));
+                throw new ArgumentNullException(nameof(userCreator.Password));
             }
 
+            return CreateInternalAsync(userCreator);
+        }
+
+        public async Task<User> CreateInternalAsync(UserCreator userCreator)
+        {
             var secretValues = await _daprClient.GetSecretAsync("codex", "passwordSalt");
             var salt = secretValues["passwordSalt"];
 
-            user = userCreator.ToUser(passwordHash: _passwordHasher.GenerateHash(userCreator.Password!, salt));
+            var user = userCreator.ToUser(passwordHash: _passwordHasher.GenerateHash(userCreator.Password!, salt));
 
             return await _userRepository.InsertAsync(user);
         }
+
 
         public async Task<User?> UpdateAsync(User user)
         {
