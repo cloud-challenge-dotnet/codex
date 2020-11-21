@@ -53,7 +53,7 @@ namespace Codex.Tenants.Framework
                 throw new ArgumentNullException(nameof(tenant), "Tenant must be not null");
 
             if (string.IsNullOrWhiteSpace(tenant.Id))
-                throw new ArgumentException("TenantId must be not null or whitespace", nameof(Tenant.Id));
+                throw new ArgumentException("TenantId must be not null or whitespace");
 
             return GetDatabase(tenant.Id).GetCollection<TDocument>((typeof(TDocument).Name).ToCamelCase());
         }
@@ -89,7 +89,7 @@ namespace Codex.Tenants.Framework
                 throw new ArgumentNullException(nameof(tenant), "Tenant must be not null");
 
             if (string.IsNullOrWhiteSpace(tenant.Id))
-                throw new ArgumentException("TenantId must be not null or whitespace", nameof(Tenant.Id));
+                throw new ArgumentException("TenantId must be not null or whitespace");
 
             await MongoClient.DropDatabaseAsync(GetDatabaseName(tenant.Id));
         }
@@ -101,7 +101,7 @@ namespace Codex.Tenants.Framework
                 throw new ArgumentNullException(nameof(tenant), "Tenant must be not null");
 
             if (string.IsNullOrWhiteSpace(tenant.Id))
-                throw new ArgumentException("TenantId must be not null or whitespace", nameof(Tenant.Id));
+                throw new ArgumentException("TenantId must be not null or whitespace");
 
             await GetDatabase(tenant.Id).DropCollectionAsync(typeof(TDocument).Name);
         }
