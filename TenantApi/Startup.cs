@@ -63,7 +63,6 @@ namespace Codex.Tenants.Api
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "TenantApi", Version = "v1" });
             });
 
-
             var jwtSecret = Encoding.ASCII.GetBytes(Configuration.GetValue<string>(ConfigConstant.JwtSecretKey));
 
             services.AddAuthentication(x =>
@@ -82,7 +81,6 @@ namespace Codex.Tenants.Api
                     ValidateIssuer = false,
                     ValidateAudience = false
                 };
-
             });
         }
 
@@ -122,7 +120,7 @@ namespace Codex.Tenants.Api
             app.UseMultiTenancy()
                 .UseMultiTenantContainer();
 
-            app.UseAuthorization();
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

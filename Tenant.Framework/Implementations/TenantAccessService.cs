@@ -26,6 +26,10 @@ namespace Codex.Tenants.Framework.Implementations
         public async Task<Tenant?> GetTenantAsync()
         {
             var tenantIdentifier = await _tenantResolutionStrategy.GetTenantIdentifierAsync();
+            if (string.IsNullOrWhiteSpace(tenantIdentifier))
+            {
+                return null;
+            }
             return await _tenantStore.GetTenantAsync(tenantIdentifier);
         }
     }

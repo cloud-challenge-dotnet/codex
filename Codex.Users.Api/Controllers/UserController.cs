@@ -1,4 +1,5 @@
-﻿using Codex.Models.Users;
+﻿using Codex.Models.Roles;
+using Codex.Models.Users;
 using Codex.Users.Api.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -19,7 +20,7 @@ namespace Codex.Users.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize(Roles = "TENANT_MANAGER")]
+        [Authorize(Roles = RoleConstant.TENANT_MANAGER)]
         public async Task<ActionResult<User>> FindOne(string id)
         {
             var user = await _userService.FindOneAsync(id);
@@ -28,7 +29,7 @@ namespace Codex.Users.Api.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "TENANT_MANAGER")]
+        [Authorize(Roles = RoleConstant.TENANT_MANAGER)]
         public async Task<ActionResult<IEnumerable<User>>> FindAll([FromQuery] UserCriteria userCriteria)
         {
             var users = await _userService.FindAllAsync(userCriteria);
@@ -37,7 +38,7 @@ namespace Codex.Users.Api.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "TENANT_MANAGER")]
+        [Authorize(Roles = RoleConstant.TENANT_MANAGER)]
         public async Task<ActionResult<User>> CreateUser([FromBody] UserCreator userCreator)
         {
             var user = await _userService.CreateAsync(userCreator);

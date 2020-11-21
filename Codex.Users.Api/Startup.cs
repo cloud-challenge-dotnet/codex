@@ -85,7 +85,6 @@ namespace Codex.Users.Api
                     ValidateIssuer = false,
                     ValidateAudience = false
                 };
-
             });
         }
         public static void ConfigureMultiTenantServices(Tenant? tenant, ContainerBuilder containerBuilder)
