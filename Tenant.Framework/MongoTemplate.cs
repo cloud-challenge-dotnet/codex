@@ -82,10 +82,8 @@ namespace Codex.Tenants.Framework
         public async Task DropDatabaseAsync()
         {
             var tenant = await _tenantAccessService.GetTenantAsync();
-            if (tenant == null)
-                throw new ArgumentNullException("Tenant must be not null");
 
-            if (string.IsNullOrWhiteSpace(tenant.Id))
+            if (string.IsNullOrWhiteSpace(tenant?.Id))
                 throw new ArgumentException("TenantId must be not null or whitespace");
 
             await MongoClient.DropDatabaseAsync(GetDatabaseName(tenant.Id));
