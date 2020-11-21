@@ -38,10 +38,10 @@ namespace Codex.Users.Api.Services.Implementations
         public Task<User> CreateAsync(UserCreator userCreator)
         {
             if (userCreator == null)
-                throw new ArgumentNullException("userCreator", "USer must be not null");
+                throw new ArgumentNullException(nameof(userCreator), "USer must be not null");
 
             if (string.IsNullOrWhiteSpace(userCreator.Password))
-                throw new ArgumentException(nameof(userCreator.Password), "Password must be not null or whitespace");
+                throw new ArgumentException("Password must be not null or whitespace", nameof(userCreator.Password));
 
             return CreateInternalAsync(userCreator);
         }
