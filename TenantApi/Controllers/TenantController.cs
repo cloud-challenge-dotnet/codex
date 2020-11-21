@@ -1,5 +1,5 @@
 ﻿using Codex.Tenants.Api.Services;
-using Codex.Tenants.Models;
+using Codex.Models.Tenants;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,7 +35,7 @@ namespace Codex.Tenants.Api.Controllers
         public async Task<ActionResult<IEnumerable<Tenant>>> FindAll()
         {
             var tenantList = (await _tenantService.FindAllAsync())
-                .Select(t => t with { Key = null, Properties = null }).ToList();
+                .Select(t => t with { Properties = null }).ToList();
 
             return Ok(tenantList);
         }

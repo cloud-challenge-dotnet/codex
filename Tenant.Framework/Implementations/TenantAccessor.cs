@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Codex.Tenants.Framework.Interfaces;
-using Codex.Tenants.Models;
+using Codex.Models.Tenants;
 
 namespace Codex.Tenants.Framework.Implementations
 {

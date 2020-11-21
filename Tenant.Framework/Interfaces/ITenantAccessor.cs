@@ -1,4 +1,4 @@
-﻿using Codex.Tenants.Models;
+﻿using Codex.Models.Tenants;
 
 namespace Codex.Tenants.Framework.Interfaces
 {

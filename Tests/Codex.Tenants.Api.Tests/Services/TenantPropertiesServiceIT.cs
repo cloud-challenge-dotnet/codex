@@ -1,5 +1,5 @@
 using Codex.Tenants.Api.Services;
-using Codex.Tenants.Models;
+using Codex.Models.Tenants;
 using Codex.Tests.Framework;
 using Moq;
 using System.Collections.Generic;
@@ -75,8 +75,7 @@ namespace Codex.Tenants.Api.Tests
                     new TenantProperties()
                     {
                         { "data", new() { "" } }
-                    },
-                    null
+                    }
                 ))
             );
 
@@ -94,7 +93,6 @@ namespace Codex.Tenants.Api.Tests
 
             tenantRepository.Setup(x => x.FindOneAsync(It.IsAny<string>())).Returns(
                 Task.FromResult((Tenant?)new Tenant("Id", "name",
-                    null,
                     null
                 ))
             );
@@ -129,7 +127,7 @@ namespace Codex.Tenants.Api.Tests
             var tenantRepository = new Mock<ITenantRepository>();
 
             tenantRepository.Setup(x => x.FindOneAsync(It.IsAny<string>())).Returns(
-                Task.FromResult((Tenant?)new Tenant("Id", "name", new(), null))
+                Task.FromResult((Tenant?)new Tenant("Id", "name", new()))
             );
 
             var tenantPropertiesService = new TenantPropertiesService(tenantRepository.Object);
@@ -145,7 +143,7 @@ namespace Codex.Tenants.Api.Tests
             var tenantRepository = new Mock<ITenantRepository>();
 
             tenantRepository.Setup(x => x.FindOneAsync(It.IsAny<string>())).Returns(
-                Task.FromResult((Tenant?)new Tenant("Id", "name", null, null))
+                Task.FromResult((Tenant?)new Tenant("Id", "name", null))
             );
 
             var tenantPropertiesService = new TenantPropertiesService(tenantRepository.Object);

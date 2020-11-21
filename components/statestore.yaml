@@ -13,4 +13,4 @@ spec:
   - name: actorStateStore
     value: "true"
 auth:
-    secretStore: localsecretstore
+  secretStore: codex

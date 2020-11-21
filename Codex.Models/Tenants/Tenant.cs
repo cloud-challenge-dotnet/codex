@@ -3,7 +3,7 @@ using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
 
-namespace Codex.Tenants.Models
+namespace Codex.Models.Tenants
 {
     public abstract record BaseTenant
     {
@@ -28,15 +28,16 @@ namespace Codex.Tenants.Models
     public record Tenant : BaseTenant
     {
         public Tenant() : base()
-            => (Key) = (null);
+        {
+        }
 
-        public Tenant(string? id, string name, string? key) : base(id, name)
-          => (Key) = (key);
+        public Tenant(string? id, string name) : base(id, name)
+        {
+        }
 
-        public Tenant(string? id, string name, TenantProperties? properties, string? key) : base(id, name, properties)
-          => (Key) = (key);
-
-        public string? Key { get; init; }
+        public Tenant(string? id, string name, TenantProperties? properties) : base(id, name, properties)
+        {
+        }
     }
 
     public record TenantCreator : BaseTenant
@@ -53,7 +54,7 @@ namespace Codex.Tenants.Models
         {
         }
 
-        public Tenant ToTenant() => new Tenant(id: Id, name: Name, properties: Properties, key: "");
+        public Tenant ToTenant() => new Tenant(id: Id, name: Name, properties: Properties);
     }
 
     [Serializable]

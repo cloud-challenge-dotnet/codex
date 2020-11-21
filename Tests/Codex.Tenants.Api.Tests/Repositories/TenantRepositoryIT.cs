@@ -1,4 +1,4 @@
-using Codex.Tenants.Models;
+using Codex.Models.Tenants;
 using Codex.Tests.Framework;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
@@ -41,8 +41,7 @@ namespace Codex.Tenants.Api.Tests
 
             var tenant = await _tenantRepository.UpdateAsync(new(
                 id: "TenantId",
-                name: "tenant-test",
-                key: "123131546"
+                name: "tenant-test"
             ));
 
             Assert.NotNull(tenant);
@@ -50,23 +49,6 @@ namespace Codex.Tenants.Api.Tests
 
             //Not updated
             Assert.Equal("TenantId", tenant.Id);
-            Assert.Equal("TenantKey", tenant.Key);
-        }
-
-        [Fact]
-        public async Task Update_TenantKey()
-        {
-            await _fixture.UseDataSetAsync(locations: @"Resources/tenants.json");
-
-            var tenant = await _tenantRepository.UpdateKeyAsync("TenantId", "newKey");
-
-            Assert.NotNull(tenant);
-            Assert.Equal("newKey", tenant!.Key);
-
-            //Not updated
-            Assert.Equal("TenantId", tenant.Id);
-            Assert.Equal("TenantName", tenant.Name);
-            Assert.Equal(new() { "0", "1", "2", "3" }, tenant.Properties!["data"]);
         }
 
         [Fact]

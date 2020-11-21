@@ -1,5 +1,5 @@
 ﻿using Codex.Tenants.Framework.Interfaces;
-using Codex.Tenants.Models;
+using Codex.Models.Tenants;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
@@ -13,7 +13,7 @@ namespace Codex.Tests.Framework
 
         public Task<Tenant?> GetTenantAsync()
         {
-            return Task.FromResult<Tenant?>(new Tenant(_testId, "Test", ""));
+            return Task.FromResult<Tenant?>(new Tenant(_testId, "Test"));
         }
     }
 }

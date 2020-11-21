@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="Autofac" Version="6.0.0" />
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.1.0" />
+    <PackageReference Include="Dapr.Client" Version="0.12.0-preview01" />
     <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
     <PackageReference Include="MongoDB.Bson" Version="2.11.4" />
@@ -17,7 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Codex.Core\Codex.Core.csproj" />
-    <ProjectReference Include="..\Codex.Message\Codex.Tenants.Models.csproj" />
+    <ProjectReference Include="..\Codex.Models\Codex.Models.csproj" />
   </ItemGroup>
 
 </Project>

@@ -19,10 +19,15 @@ ingress:
     rules:
       - path: /tenantApi
         service: tenantApi
+      - path: /userApi
+        service: userApi
 
 services:
 - name: tenantApi
   project: TenantApi/Codex.Tenants.Api.csproj
+  replicas: 1
+- name: userApi
+  project: Codex.Users.Api/Codex.Users.Api.csproj
   replicas: 1
 
 # This may conflict with the redis instance that dapr manages.

@@ -1,5 +1,5 @@
 ﻿using Codex.Tenants.Framework.Interfaces;
-using Codex.Tenants.Models;
+using Codex.Models.Tenants;
 using System.Threading.Tasks;
 
 namespace Codex.Tenants.Framework.Implementations

@@ -2,7 +2,7 @@
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using Codex.Tenants.Framework.Implementations;
-using Codex.Tenants.Models;
+using Codex.Models.Tenants;
 using System;
 using System.Diagnostics.CodeAnalysis;
 

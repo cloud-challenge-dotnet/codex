@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Codex.Core.Interfaces;
-using Codex.Tenants.Models;
+using Codex.Models.Tenants;
 
 namespace Codex.Tenants.Api
 {
@@ -10,8 +10,6 @@ namespace Codex.Tenants.Api
         Task<List<Tenant>> FindAllAsync();
 
         Task<Tenant?> UpdateAsync(Tenant tenant);
-
-        Task<Tenant?> UpdateKeyAsync(string tenantId, string tenantKey);
 
         Task<Tenant?> UpdatePropertyAsync(string tenantId, string propertyKey, List<string> values);
         Task<Tenant?> UpdatePropertiesAsync(string tenantId, TenantProperties tenantProperties);

@@ -3,9 +3,9 @@
 namespace Codex.Core.Exceptions
 {
     [Serializable]
-    public class InfoException : Exception
+    public class FunctionnalException : Exception
     {
-        public InfoException(string message, string? code) : base(message)
+        public FunctionnalException(string message, string? code) : base(message)
         {
             Code = code;
         }

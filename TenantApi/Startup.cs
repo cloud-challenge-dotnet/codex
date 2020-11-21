@@ -5,7 +5,7 @@ using Codex.Core.Models;
 using Codex.Tenants.Api.Services;
 using Codex.Tenants.Framework;
 using Codex.Tenants.Framework.Implementations;
-using Codex.Tenants.Models;
+using Codex.Models.Tenants;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -39,11 +39,13 @@ namespace Codex.Tenants.Api
             services.AddSingleton(sp =>
                 sp.GetRequiredService<IOptions<MongoDbSettings>>().Value);
 
+            services.AddDaprClient();
+
             services.AddSingleton<IExceptionHandler, CoreExceptionHandler>();
 
             services.AddMultiTenancy()
                 .WithResolutionStrategy<GlobalTenantResolutionStrategy>()
-                .WithStore<InMemoryTenantStore>();
+                .WithStore<GlobalTenantStore>();
 
             services.AddControllers().AddJsonOptions(options =>
             {

@@ -3,7 +3,7 @@ using Autofac.Core;
 using Autofac.Core.Lifetime;
 using Autofac.Core.Resolving;
 using Codex.Tenants.Framework.Interfaces;
-using Codex.Tenants.Models;
+using Codex.Models.Tenants;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

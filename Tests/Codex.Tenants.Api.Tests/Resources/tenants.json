@@ -5,7 +5,6 @@
       {
         "_id": "TenantId",
         "name": "TenantName",
-        "key": "TenantKey",
         "properties": {
           "data": [
             "0",
@@ -18,7 +17,6 @@
       {
         "_id": "TenantId2",
         "name": "TenantName2",
-        "key": "TenantKey2",
         "properties": {
           "data": [
             "0"

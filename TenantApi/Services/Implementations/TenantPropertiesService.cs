@@ -1,4 +1,4 @@
-﻿using Codex.Tenants.Models;
+﻿using Codex.Models.Tenants;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 

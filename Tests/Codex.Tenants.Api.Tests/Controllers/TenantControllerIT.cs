@@ -1,6 +1,6 @@
 using Codex.Tenants.Api.Controllers;
 using Codex.Tenants.Api.Services;
-using Codex.Tenants.Models;
+using Codex.Models.Tenants;
 using Codex.Tests.Framework;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -95,7 +95,7 @@ namespace Codex.Tenants.Api.Tests
             var tenantCreator = new TenantCreator();
 
             tenantService.Setup(x => x.CreateAsync(It.IsAny<TenantCreator>())).Returns(
-                Task.FromResult(new Tenant("Id1", "name", "key"))
+                Task.FromResult(new Tenant("Id1", "name"))
             );
 
             var tenantController = new TenantController(
@@ -111,7 +111,6 @@ namespace Codex.Tenants.Api.Tests
             Assert.NotNull(tenant);
             Assert.Equal("Id1", tenant.Id);
             Assert.Equal("name", tenant.Name);
-            Assert.Equal("key", tenant.Key);
             Assert.Null(tenant.Properties);
         }
 
@@ -124,7 +123,7 @@ namespace Codex.Tenants.Api.Tests
             var tenantCreator = new TenantCreator("Id1", "name", new());
 
             tenantService.Setup(x => x.CreateAsync(It.IsAny<TenantCreator>())).Returns(
-                Task.FromResult(new Tenant("Id1", "name", new(), "key"))
+                Task.FromResult(new Tenant("Id1", "name", new()))
             );
 
             var tenantController = new TenantController(
@@ -140,7 +139,6 @@ namespace Codex.Tenants.Api.Tests
             Assert.NotNull(tenant);
             Assert.Equal("Id1", tenant.Id);
             Assert.Equal("name", tenant.Name);
-            Assert.Equal("key", tenant.Key);
             Assert.NotNull(tenant.Properties);
         }
 

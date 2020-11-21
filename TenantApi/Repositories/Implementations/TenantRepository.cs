@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Codex.Tenants.Framework;
-using Codex.Tenants.Models;
+using Codex.Models.Tenants;
 using MongoDB.Driver.Linq;
 using Codex.Core.Models;
 using Codex.Tenants.Framework.Interfaces;
@@ -37,23 +37,6 @@ namespace Codex.Tenants.Api
 
             return await repository.FindOneAndUpdateAsync(
                 Builders<Tenant>.Filter.Where(it => it.Id == tenant.Id),
-                updateDef,
-                options: new FindOneAndUpdateOptions<Tenant>
-                {
-                    ReturnDocument = ReturnDocument.After
-                }
-            );
-        }
-
-        public async Task<Tenant?> UpdateKeyAsync(string tenantId, string tenantKey)
-        {
-            var repository = await GetRepositoryAsync();
-
-            var update = Builders<Tenant>.Update;
-            var updateDef = update.Set(GetMongoPropertyName(nameof(Tenant.Key)), tenantKey);
-
-            return await repository.FindOneAndUpdateAsync(
-                Builders<Tenant>.Filter.Where(it => it.Id == tenantId),
                 updateDef,
                 options: new FindOneAndUpdateOptions<Tenant>
                 {

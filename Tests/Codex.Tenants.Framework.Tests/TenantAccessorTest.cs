@@ -1,6 +1,6 @@
 ﻿using Codex.Tenants.Framework.Implementations;
 using Codex.Tenants.Framework.Models;
-using Codex.Tenants.Models;
+using Codex.Models.Tenants;
 using Codex.Tests.Framework;
 using Microsoft.AspNetCore.Http;
 using Moq;
@@ -64,7 +64,6 @@ namespace Codex.Tenants.Framework.Tests
             Assert.NotNull(tenant);
             Assert.Equal("tenant", tenant!.Id);
             Assert.Equal("my tenant", tenant!.Name);
-            Assert.Null(tenant!.Key);
         }
     }
 }

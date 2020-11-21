@@ -1,6 +1,6 @@
 ﻿using Codex.Core;
 using Codex.Core.Exceptions;
-using Codex.Tenants.Models;
+using Codex.Models.Tenants;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -34,7 +34,7 @@ namespace Codex.Tenants.Api.Services
             {
                 throw new IllegalArgumentException(code: "TENANT_EXISTS", message: $"Tenant {tenantId} already exists");
             }
-            return await _tenantRepository.InsertAsync(tenant.ToTenant() with { Key = StringUtils.RandomString(8) });
+            return await _tenantRepository.InsertAsync(tenant.ToTenant());
         }
 
         public async Task<Tenant?> UpdateAsync(Tenant tenant)

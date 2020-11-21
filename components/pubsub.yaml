@@ -10,3 +10,5 @@ spec:
   - name: redisPassword
     secretKeyRef:
       name: redisPassword
+auth:
+  secretStore: codex
