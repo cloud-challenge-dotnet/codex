@@ -49,10 +49,7 @@ namespace Codex.Tenants.Framework
         public async Task<IMongoCollection<TDocument>> GetRepositoryAsync(){
             var tenant = await _tenantAccessService.GetTenantAsync();
 
-            if(tenant == null)
-                throw new ArgumentNullException(nameof(tenant), "Tenant must be not null");
-
-            if (string.IsNullOrWhiteSpace(tenant.Id))
+            if (string.IsNullOrWhiteSpace(tenant?.Id))
                 throw new ArgumentException("TenantId must be not null or whitespace");
 
             return GetDatabase(tenant.Id).GetCollection<TDocument>((typeof(TDocument).Name).ToCamelCase());
@@ -86,7 +83,7 @@ namespace Codex.Tenants.Framework
         {
             var tenant = await _tenantAccessService.GetTenantAsync();
             if (tenant == null)
-                throw new ArgumentNullException(nameof(tenant), "Tenant must be not null");
+                throw new ArgumentNullException("Tenant must be not null");
 
             if (string.IsNullOrWhiteSpace(tenant.Id))
                 throw new ArgumentException("TenantId must be not null or whitespace");
@@ -97,10 +94,8 @@ namespace Codex.Tenants.Framework
         public async Task DropCollectionAsync()
         {
             var tenant = await _tenantAccessService.GetTenantAsync();
-            if (tenant == null)
-                throw new ArgumentNullException(nameof(tenant), "Tenant must be not null");
 
-            if (string.IsNullOrWhiteSpace(tenant.Id))
+            if (string.IsNullOrWhiteSpace(tenant?.Id))
                 throw new ArgumentException("TenantId must be not null or whitespace");
 
             await GetDatabase(tenant.Id).DropCollectionAsync(typeof(TDocument).Name);
