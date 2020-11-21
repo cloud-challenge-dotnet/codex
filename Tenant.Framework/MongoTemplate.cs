@@ -1,5 +1,6 @@
 ﻿using Codex.Core.Extensions;
 using Codex.Core.Models;
+using Codex.Models.Tenants;
 using Codex.Tenants.Framework.Interfaces;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
@@ -47,10 +48,12 @@ namespace Codex.Tenants.Framework
 
         public async Task<IMongoCollection<TDocument>> GetRepositoryAsync(){
             var tenant = await _tenantAccessService.GetTenantAsync();
-            if (string.IsNullOrWhiteSpace(tenant?.Id))
-            {
-                throw new ArgumentNullException("Id", "TenantId must be not null or whitespace");
-            }
+
+            if(tenant == null)
+                throw new ArgumentNullException("tenant", "Tenant must be not null");
+
+            if (string.IsNullOrWhiteSpace(tenant.Id))
+                throw new ArgumentException(nameof(Tenant.Id), "TenantId must be not null or whitespace");
 
             return GetDatabase(tenant.Id).GetCollection<TDocument>((typeof(TDocument).Name).ToCamelCase());
         }
@@ -82,10 +85,11 @@ namespace Codex.Tenants.Framework
         public async Task DropDatabaseAsync()
         {
             var tenant = await _tenantAccessService.GetTenantAsync();
-            if (string.IsNullOrWhiteSpace(tenant?.Id))
-            {
-                throw new ArgumentNullException("Id", "TenantId must be not null or whitespace");
-            }
+            if (tenant == null)
+                throw new ArgumentNullException("tenant", "Tenant must be not null");
+
+            if (string.IsNullOrWhiteSpace(tenant.Id))
+                throw new ArgumentException(nameof(Tenant.Id), "TenantId must be not null or whitespace");
 
             await MongoClient.DropDatabaseAsync(GetDatabaseName(tenant.Id));
         }
@@ -93,10 +97,11 @@ namespace Codex.Tenants.Framework
         public async Task DropCollectionAsync()
         {
             var tenant = await _tenantAccessService.GetTenantAsync();
-            if (string.IsNullOrWhiteSpace(tenant?.Id))
-            {
-                throw new ArgumentNullException("Id", "TenantId must be not null or whitespace");
-            }
+            if (tenant == null)
+                throw new ArgumentNullException("tenant", "Tenant must be not null");
+
+            if (string.IsNullOrWhiteSpace(tenant.Id))
+                throw new ArgumentException(nameof(Tenant.Id), "TenantId must be not null or whitespace");
 
             await GetDatabase(tenant.Id).DropCollectionAsync(typeof(TDocument).Name);
         }

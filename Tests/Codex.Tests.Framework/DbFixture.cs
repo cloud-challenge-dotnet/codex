@@ -54,10 +54,11 @@ namespace Codex.Tests.Framework
         private async Task DropDatabaseAsync()
         {
             var tenant = await _tenantAccessService.GetTenantAsync();
-            if (string.IsNullOrWhiteSpace(tenant?.Id))
-            {
-                throw new ArgumentNullException("Id", "TenantId must be not null or whitespace");
-            }
+            if (tenant == null)
+                throw new ArgumentNullException("tenant", "Tenant must be not null");
+
+            if (string.IsNullOrWhiteSpace(tenant.Id))
+                throw new ArgumentException(nameof(Tenant.Id), "TenantId must be not null or whitespace");
 
             var client = new MongoClient(this._mongoDbSettings.ConnectionString);
             client.DropDatabase(GetDatabaseName(tenant.Id));
@@ -68,9 +69,7 @@ namespace Codex.Tests.Framework
         {
             var tenant = await _tenantAccessService.GetTenantAsync();
             if (string.IsNullOrWhiteSpace(tenant?.Id))
-            {
-                throw new ArgumentNullException("TenantId", nameof(Tenant.Id));
-            }
+                throw new ArgumentException(nameof(Tenant.Id), "TenantId must be not null or whitespace");
 
             await DropDatabaseAsync();
 
