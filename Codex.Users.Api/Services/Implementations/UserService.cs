@@ -1,4 +1,5 @@
 ﻿using Codex.Core.Interfaces;
+using Codex.Core.Models;
 using Codex.Models.Users;
 using Codex.Users.Api.Repositories.Interfaces;
 using Codex.Users.Api.Services.Interfaces;
@@ -45,8 +46,8 @@ namespace Codex.Users.Api.Services.Implementations
 
         public async Task<User> CreateInternalAsync(UserCreator userCreator)
         {
-            var secretValues = await _daprClient.GetSecretAsync("codex", "passwordSalt");
-            var salt = secretValues["passwordSalt"];
+            var secretValues = await _daprClient.GetSecretAsync(ConfigConstant.CodexKey, ConfigConstant.PasswordSalt);
+            var salt = secretValues[ConfigConstant.PasswordSalt];
 
             var user = userCreator.ToUser(passwordHash: _passwordHasher.GenerateHash(userCreator.Password!, salt));
 

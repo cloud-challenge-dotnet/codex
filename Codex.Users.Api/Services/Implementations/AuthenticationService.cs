@@ -76,9 +76,9 @@ namespace Codex.Users.Api.Services.Implementations
 
         private async Task<bool> CheckPasswordAsync(string? passwordHash, string password)
         {
-            var secretValues = await _daprClient.GetSecretAsync("codex", "passwordSalt");
+            var secretValues = await _daprClient.GetSecretAsync(ConfigConstant.CodexKey, ConfigConstant.PasswordSalt);
 
-            var salt = secretValues["passwordSalt"];
+            var salt = secretValues[ConfigConstant.PasswordSalt];
 
             string generatePasswordHash = _passwordHasher.GenerateHash(password, salt);
             return passwordHash == generatePasswordHash;
@@ -91,7 +91,7 @@ namespace Codex.Users.Api.Services.Implementations
             List<Claim> claimList = new()
             {
                 new Claim(ClaimTypes.Name, user.Id!),
-                new Claim("tenant", tenant.Id!)
+                new Claim(ClaimConstant.Tenant, tenant.Id!)
             };
             claimList.AddRange(user.Roles.Select(r =>
                 new Claim(ClaimTypes.Role, r)

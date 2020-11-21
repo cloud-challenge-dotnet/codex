@@ -9,7 +9,7 @@ namespace Codex.Core.Interfaces
     {
         public CustomProblemDetails? Intercept(Exception exception)
         {
-            if(exception is ArgumentException)
+            if(exception is ArgumentException || exception is ArgumentNullException)
             {
                 return new()
                 {
