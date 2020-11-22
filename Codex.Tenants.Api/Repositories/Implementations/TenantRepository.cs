@@ -50,7 +50,7 @@ namespace Codex.Tenants.Api
             var repository = await GetRepositoryAsync();
 
             var update = Builders<Tenant>.Update;
-            var updateDef = update.Set($"{nameof(Tenant.Properties)}.{propertyKey}", values);
+            var updateDef = update.Set(GetMongoPropertyName($"{nameof(Tenant.Properties)}.{propertyKey}"), values);
 
             return await repository.FindOneAndUpdateAsync(
                 Builders<Tenant>.Filter.Where(it => it.Id == tenantId),
@@ -71,7 +71,7 @@ namespace Codex.Tenants.Api
 
             foreach(var tenantProperty in tenantProperties)
             {
-                updates.Add(update.Set($"{nameof(Tenant.Properties)}.{tenantProperty.Key}", tenantProperty.Value));
+                updates.Add(update.Set(GetMongoPropertyName($"{nameof(Tenant.Properties)}.{tenantProperty.Key}"), tenantProperty.Value));
             }
 
             return await repository.FindOneAndUpdateAsync(

@@ -1,9 +1,13 @@
 ﻿using Codex.Core.Extensions;
 using Codex.Core.Models;
 using Codex.Tenants.Framework.Interfaces;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
+using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Events;
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace Codex.Tenants.Framework
@@ -22,9 +26,30 @@ namespace Codex.Tenants.Framework
             _mongoDbSettings = mongoDbSettings;
         }
 
+        public static ClusterBuilder ConfigureCluster(ClusterBuilder builder)
+        {
+#if TRACE
+            var traceSource = new TraceSource(nameof(MongoTemplate<TDocument>), SourceLevels.Verbose);
+            builder.TraceWith(traceSource);
+            builder.TraceCommandsWith(traceSource);
+#endif
+            return builder;
+        }
+
         public MongoClient MongoClient
         {
-            get => _mongoClient ??= new MongoClient(_mongoDbSettings.ConnectionString);
+            get => _mongoClient ??= new MongoClient(new MongoClientSettings()
+            {
+                
+                Server = new MongoServerAddress("localhost"),
+                ClusterConfigurator = cb =>
+                {
+                    cb.Subscribe<CommandStartedEvent>(e =>
+                    {
+                        Console.WriteLine($"{e.CommandName} - {e.Command.ToJson()}");
+                    });
+                }
+            }); //_mongoDbSettings.ConnectionString);
         }
 
         public string GetDatabaseName(string tenantId) => $"{_mongoDbSettings.DatabaseName}-{tenantId}";

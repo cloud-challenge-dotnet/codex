@@ -19,7 +19,7 @@ namespace Codex.Tenants.Framework.Tests
         {
             var tenantResolutionStrategy = new Mock<ITenantResolutionStrategy>();
             tenantResolutionStrategy.Setup(x => x.GetTenantIdentifierAsync()).Returns(
-                Task.FromResult("tenant")
+                Task.FromResult<string?>("tenant")
             );
 
             var tenantStore = new Mock<ITenantStore>();

@@ -1,0 +1,41 @@
+[
+  {
+    "collectionName": "user",
+    "data": [
+      {
+        "_id": {
+          "$oid": "5fb92118da7ed3521e4a7d59"
+        },
+        "login": "user1",
+        "email": "test1@gmail.com",
+        "firstName": null,
+        "lastName": null,
+        "phoneNumber": null,
+        "roles": [
+          "ADMIN"
+        ],
+        "passwordHash": "G3JsGuJkkF/nLP27fnsyzGpL+jIU0YgVIVd5qoKiepE=",
+        "emailConfirmed": false,
+        "phoneConfirmed": false,
+        "active": true
+      },
+      {
+        "_id": {
+          "$oid" : "5fb92118da7ed3521e4a7d60"
+        },
+        "login": "user2",
+        "email": "test2@gmail.com",
+        "firstName": null,
+        "lastName": null,
+        "phoneNumber": null,
+        "roles": [
+          "TENANT_MANAGER"
+        ],
+        "passwordHash": "G3JsGuJkkF/nLP27fnsyzGpL+jIU0YgVIVd5qoKiepE=",
+        "emailConfirmed": false,
+        "phoneConfirmed": false,
+        "active": true
+      }
+    ]
+  }
+]

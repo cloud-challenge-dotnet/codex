@@ -21,7 +21,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Codex.Tenants.Framework.Tes
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Codex.Users.Api", "Codex.Users.Api\Codex.Users.Api.csproj", "{416F25F3-F505-430D-ADE5-9F6266168F99}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Codex.Models", "Codex.Models\Codex.Models.csproj", "{9C31B262-73FB-45DA-BD13-622B157DD0AB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Codex.Models", "Codex.Models\Codex.Models.csproj", "{9C31B262-73FB-45DA-BD13-622B157DD0AB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Codex.Users.Api.Tests", "Tests\Codex.Users.Api.Tests\Codex.Users.Api.Tests.csproj", "{61FCC3DA-7345-4499-9CC9-53D7EE2C1EFD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -65,6 +67,10 @@ Global
 		{9C31B262-73FB-45DA-BD13-622B157DD0AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9C31B262-73FB-45DA-BD13-622B157DD0AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9C31B262-73FB-45DA-BD13-622B157DD0AB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{61FCC3DA-7345-4499-9CC9-53D7EE2C1EFD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{61FCC3DA-7345-4499-9CC9-53D7EE2C1EFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{61FCC3DA-7345-4499-9CC9-53D7EE2C1EFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{61FCC3DA-7345-4499-9CC9-53D7EE2C1EFD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -74,6 +80,7 @@ Global
 		{AC48E766-D389-4472-BF04-274D15B2E76F} = {119FD8E2-3D0B-4FD8-924D-4AED657CF21F}
 		{12B938D4-1E9C-4336-B9EC-45B9921E08D8} = {119FD8E2-3D0B-4FD8-924D-4AED657CF21F}
 		{32B57E18-FADB-424A-B5C2-1F4F8E395DEF} = {119FD8E2-3D0B-4FD8-924D-4AED657CF21F}
+		{61FCC3DA-7345-4499-9CC9-53D7EE2C1EFD} = {119FD8E2-3D0B-4FD8-924D-4AED657CF21F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FCBFF2EE-B99A-4FF8-8F36-A58D3C7EAD69}
