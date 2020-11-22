@@ -24,7 +24,7 @@ ingress:
 
 services:
 - name: tenantApi
-  project: TenantApi/Codex.Tenants.Api.csproj
+  project: Codex.Tenants.Api/Codex.Tenants.Api.csproj
   replicas: 1
 - name: userApi
   project: Codex.Users.Api/Codex.Users.Api.csproj

@@ -41,7 +41,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Codex.Core\Codex.Core.csproj" />
-    <ProjectReference Include="..\..\TenantApi\Codex.Tenants.Api.csproj" />
+    <ProjectReference Include="..\..\Codex.Tenants.Api\Codex.Tenants.Api.csproj" />
     <ProjectReference Include="..\Codex.Tests.Framework\Codex.Tests.Framework.csproj" />
   </ItemGroup>
 
