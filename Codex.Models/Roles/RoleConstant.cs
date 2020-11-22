@@ -5,5 +5,7 @@
         public const string ADMIN = "ADMIN";
 
         public const string TENANT_MANAGER = "TENANT_MANAGER";
+
+        public const string USER = "USER";
     }
 }

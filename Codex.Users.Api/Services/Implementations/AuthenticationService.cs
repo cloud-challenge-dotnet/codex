@@ -15,7 +15,6 @@ using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Collections.Generic;
 using Codex.Models.Roles;
-using Codex.Core.Roles.Interfaces;
 using Codex.Models.Tenants;
 using Codex.Core.Models;
 
@@ -33,7 +32,7 @@ namespace Codex.Users.Api.Services.Implementations
 
         private readonly IUserService _userService;
 
-        private readonly IRoleProvider _roleProvider;
+        private readonly IRoleService _roleService;
 
         public AuthenticationService(
             ILogger<AuthenticationService> logger,
@@ -41,14 +40,14 @@ namespace Codex.Users.Api.Services.Implementations
             IPasswordHasher passwordHasher,
             IUserService userService,
             IConfiguration configuration,
-            IRoleProvider roleProvider)
+            IRoleService roleService)
         {
             _logger = logger;
             _daprClient = daprClient;
             _passwordHasher = passwordHasher;
             _userService = userService;
             _configuration = configuration;
-            _roleProvider = roleProvider;
+            _roleService = roleService;
         }
 
         public async Task<Auth> AuthenticateAsync(UserLogin userLogin)
@@ -112,7 +111,7 @@ namespace Codex.Users.Api.Services.Implementations
 
         private User CompleteUserWithParentRoles(User user)
         {
-            var roles = _roleProvider.GetRoles();
+            var roles = _roleService.GetRoles();
 
             var completedRoles = new List<string>();
 
@@ -120,21 +119,21 @@ namespace Codex.Users.Api.Services.Implementations
                 var role = roles.FirstOrDefault(r => r.Code == roleCode);
                 if(role != null) {
                     completedRoles.Add(roleCode);
-                    completedRoles.AddRange(GetParentRoles(roles, role).Select(r => r.Code));
+                    completedRoles.AddRange(GetLowerRoles(roles, role).Select(r => r.Code));
                 }
             });
 
             return user with { Roles = completedRoles.Distinct().ToList() };
         }
 
-        private List<Role> GetParentRoles(List<Role> roles, Role role)
+        private List<Role> GetLowerRoles(List<Role> roles, Role role)
         {
             List<Role> roleList = new();
-            var parentRole = roles.FirstOrDefault(r => r.Code == role.ParentRoleCode);
+            var parentRole = roles.FirstOrDefault(r => r.UpperRoleCode == role.Code);
             if (parentRole != null)
             {
                 roleList.Add(parentRole);
-                roleList.AddRange(GetParentRoles(roles, parentRole));
+                roleList.AddRange(GetLowerRoles(roles, parentRole));
             }
             return roleList;
         }

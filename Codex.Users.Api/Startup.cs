@@ -4,7 +4,6 @@ using Codex.Core.Implementations;
 using Codex.Core.Interfaces;
 using Codex.Core.Models;
 using Codex.Core.Roles.Interfaces;
-using Codex.Core.Roles.Implementations;
 using Codex.Tenants.Framework;
 using Codex.Tenants.Framework.Implementations;
 using Codex.Models.Tenants;
@@ -24,6 +23,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Codex.Users.Api.Providers.Implementations;
 
 namespace Codex.Users.Api
 {
@@ -49,6 +49,7 @@ namespace Codex.Users.Api
             services.AddSingleton<IExceptionHandler, CoreExceptionHandler>();
             services.AddSingleton<IPasswordHasher, PasswordHasher>();
             services.AddSingleton<IRoleProvider, DefaultRoleProvider>();
+            services.AddSingleton<IRoleService, RoleService>();
 
             services.AddMultiTenancy()
                 .WithResolutionStrategy<HostTenantResolutionStrategy>()

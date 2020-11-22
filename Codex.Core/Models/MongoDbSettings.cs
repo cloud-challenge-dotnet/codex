@@ -1,5 +1,8 @@
-﻿namespace Codex.Core.Models
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace Codex.Core.Models
 {
+    [ExcludeFromCodeCoverage]
     public record MongoDbSettings
     {
         //

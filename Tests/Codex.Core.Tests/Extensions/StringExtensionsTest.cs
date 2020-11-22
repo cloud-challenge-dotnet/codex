@@ -3,7 +3,7 @@ using Codex.Tests.Framework;
 using Xunit;
 
 
-namespace Codex.Core.Tests
+namespace Codex.Core.Tests.Extensions
 {
     public class StringExtensionsTest : IClassFixture<Fixture>
     {
