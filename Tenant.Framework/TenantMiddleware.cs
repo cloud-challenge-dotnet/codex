@@ -2,9 +2,11 @@
 using System.Threading.Tasks;
 using Codex.Tenants.Framework.Models;
 using Codex.Tenants.Framework.Interfaces;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Codex.Tenants.Framework
 {
+    [ExcludeFromCodeCoverage]
     internal class TenantMiddleware
     {
         private readonly RequestDelegate next;

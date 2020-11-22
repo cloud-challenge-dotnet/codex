@@ -4,6 +4,6 @@ namespace Codex.Tenants.Framework.Interfaces
 {
     public interface ITenantResolutionStrategy
     {
-        Task<string> GetTenantIdentifierAsync();
+        Task<string?> GetTenantIdentifierAsync();
     }
 }

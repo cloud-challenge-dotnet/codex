@@ -1,6 +1,5 @@
 ﻿using Codex.Core.Extensions;
 using Codex.Core.Models;
-using Codex.Models.Tenants;
 using Codex.Tenants.Framework.Interfaces;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;

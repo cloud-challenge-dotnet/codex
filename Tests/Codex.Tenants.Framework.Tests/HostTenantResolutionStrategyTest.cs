@@ -26,7 +26,7 @@ namespace Codex.Tenants.Framework.Tests
 
             HostTenantResolutionStrategy tenantStrategy = new(httpContextAccessor.Object);
 
-            string tenantId = await tenantStrategy.GetTenantIdentifierAsync();
+            string? tenantId = await tenantStrategy.GetTenantIdentifierAsync();
 
             Assert.NotNull(tenantId);
             Assert.Equal("TenantTest", tenantId);
@@ -47,10 +47,9 @@ namespace Codex.Tenants.Framework.Tests
 
             HostTenantResolutionStrategy tenantStrategy = new(httpContextAccessor.Object);
 
-            string tenantId = await tenantStrategy.GetTenantIdentifierAsync();
+            string? tenantId = await tenantStrategy.GetTenantIdentifierAsync();
 
-            Assert.NotNull(tenantId);
-            Assert.Equal("", tenantId);
+            Assert.Null(tenantId);
         }
 
         [Fact]
@@ -68,10 +67,9 @@ namespace Codex.Tenants.Framework.Tests
 
             HostTenantResolutionStrategy tenantStrategy = new(httpContextAccessor.Object);
 
-            string tenantId = await tenantStrategy.GetTenantIdentifierAsync();
+            string? tenantId = await tenantStrategy.GetTenantIdentifierAsync();
 
-            Assert.NotNull(tenantId);
-            Assert.Equal("", tenantId);
+            Assert.Null(tenantId);
         }
     }
 }

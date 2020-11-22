@@ -15,7 +15,7 @@ namespace Codex.Tenants.Framework.Tests
         }
 
         [Fact]
-        public async Task Get_Null_Tenant()
+        public async Task Get_Tenant()
         {
             var tenantResolutionStrategy = new Mock<ITenantResolutionStrategy>();
             tenantResolutionStrategy.Setup(x => x.GetTenantIdentifierAsync()).Returns(
@@ -34,6 +34,23 @@ namespace Codex.Tenants.Framework.Tests
             Assert.NotNull(tenant);
             Assert.Equal("tenant", tenant!.Id);
             Assert.Equal("my tenant", tenant!.Name);
+        }
+
+        [Fact]
+        public async Task Get_Null_Tenant()
+        {
+            var tenantResolutionStrategy = new Mock<ITenantResolutionStrategy>();
+            tenantResolutionStrategy.Setup(x => x.GetTenantIdentifierAsync()).Returns(
+                Task.FromResult<string?>(null)
+            );
+
+            var tenantStore = new Mock<ITenantStore>();
+
+            TenantAccessService tenantAccessService = new(tenantResolutionStrategy.Object, tenantStore.Object);
+
+            Tenant? tenant = await tenantAccessService.GetTenantAsync();
+
+            Assert.Null(tenant);
         }
     }
 }

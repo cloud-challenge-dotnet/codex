@@ -3,12 +3,14 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Codex.Tenants.Framework.Interfaces;
 using Codex.Tenants.Framework.Implementations;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Codex.Tenants.Framework
 {
     /// <summary>
     /// Configure tenant services
     /// </summary>
+    [ExcludeFromCodeCoverage]
     public class TenantBuilder
     {
         private readonly IServiceCollection _services;

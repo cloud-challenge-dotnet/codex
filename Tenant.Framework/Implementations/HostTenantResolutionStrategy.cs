@@ -22,9 +22,9 @@ namespace Codex.Tenants.Framework.Implementations
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
-        public async Task<string> GetTenantIdentifierAsync()
+        public async Task<string?> GetTenantIdentifierAsync()
         {
-            string tenantId = _httpContextAccessor.HttpContext?.Request?.Headers["tenantId"].FirstOrDefault() ?? "";
+            string tenantId = _httpContextAccessor.HttpContext?.Request?.Headers["tenantId"].FirstOrDefault();
             return await Task.FromResult(tenantId);
         }
     }
