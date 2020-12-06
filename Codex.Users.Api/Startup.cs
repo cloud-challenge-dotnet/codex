@@ -25,6 +25,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Codex.Users.Api.Providers.Implementations;
 using System.Diagnostics.CodeAnalysis;
+using Codex.Core.Cache;
 
 namespace Codex.Users.Api
 {
@@ -52,6 +53,7 @@ namespace Codex.Users.Api
             services.AddSingleton<IPasswordHasher, PasswordHasher>();
             services.AddSingleton<IRoleProvider, DefaultRoleProvider>();
             services.AddSingleton<IRoleService, RoleService>();
+            services.AddSingleton<CacheService<Tenant>, CacheService<Tenant>>();
 
             services.AddMultiTenancy()
                 .WithResolutionStrategy<HostTenantResolutionStrategy>()
