@@ -6,6 +6,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Codex.Models.Roles;
+using Dapr.Client;
+using Codex.Core.Models;
 
 namespace Codex.Tenants.Api.Controllers
 {
@@ -15,12 +17,15 @@ namespace Codex.Tenants.Api.Controllers
     {
         public TenantController(
             ITenantService tenantService,
-            ITenantPropertiesService tenantPropertiesService)
+            ITenantPropertiesService tenantPropertiesService,
+            DaprClient daprClient)
         {
             _tenantService = tenantService;
             _tenantPropertiesService = tenantPropertiesService;
+            _daprClient = daprClient;
         }
 
+        private readonly DaprClient _daprClient;
         private readonly ITenantService _tenantService;
         private readonly ITenantPropertiesService _tenantPropertiesService;
 
@@ -29,7 +34,10 @@ namespace Codex.Tenants.Api.Controllers
         {
             var tenant = await _tenantService.FindOneAsync(id);
 
-            return tenant == null ? NotFound(id) : Ok(tenant);
+            if (tenant == null)
+                return NotFound(id);
+
+            return Ok(tenant);
         }
 
         [HttpGet]
@@ -46,6 +54,9 @@ namespace Codex.Tenants.Api.Controllers
         public async Task<ActionResult<Tenant>> CreateTenant([FromBody] TenantCreator tenantCreator)
         {
             var tenant = await _tenantService.CreateAsync(tenantCreator);
+
+            await PublishTenantChangeEventAsync(TopicType.Modify, tenant);
+
             return CreatedAtAction(nameof(FindOne), new { id = tenant.Id }, tenant);
         }
 
@@ -58,6 +69,9 @@ namespace Codex.Tenants.Api.Controllers
             {
                 return NotFound(tenantId);
             }
+
+            await PublishTenantChangeEventAsync(TopicType.Modify, tenant);
+
             return AcceptedAtAction(nameof(FindOne), new { id = tenant.Id }, tenantResult);
         }
 
@@ -70,6 +84,9 @@ namespace Codex.Tenants.Api.Controllers
             {
                 return NotFound(tenantId);
             }
+
+            await PublishTenantChangeEventAsync(TopicType.Modify, tenant);
+
             return AcceptedAtAction(nameof(FindOne), new { id = tenant.Id }, tenant);
         }
 
@@ -82,6 +99,9 @@ namespace Codex.Tenants.Api.Controllers
             {
                 return NotFound(tenantId);
             }
+
+            await PublishTenantChangeEventAsync(TopicType.Modify, tenant);
+
             return AcceptedAtAction(nameof(FindOne), new { id = tenant.Id }, tenant);
         }
 
@@ -104,7 +124,16 @@ namespace Codex.Tenants.Api.Controllers
             {
                 return NoContent();
             }
+
+            await PublishTenantChangeEventAsync(TopicType.Modify, tenant);
+
             return AcceptedAtAction(nameof(FindOne), new { id = tenant.Id }, tenant);
         }
+
+        private async Task PublishTenantChangeEventAsync(TopicType topicType, Tenant tenant)
+        {
+            await _daprClient.PublishEventAsync(ConfigConstant.CodexPubSubName, TopicConstant.Tenant, new TopicData<Tenant>(topicType, tenant));
+        }
+
     }
 }

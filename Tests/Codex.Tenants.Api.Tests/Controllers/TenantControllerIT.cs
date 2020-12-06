@@ -7,6 +7,10 @@ using Moq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
+using Dapr.Client;
+using Dapr;
+using System.Threading;
+using Codex.Core.Models;
 
 namespace Codex.Tenants.Api.Tests
 {
@@ -16,9 +20,21 @@ namespace Codex.Tenants.Api.Tests
         {
         }
 
+        private static Mock<DaprClient> CreateMockDaprClientWithTenant(Tenant? tenant = null)
+        {
+            var daprClient = new Mock<DaprClient>();
+
+            daprClient.Setup(x => x.GetStateAndETagAsync<Tenant?>(
+                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<ConsistencyMode?>(), It.IsAny<CancellationToken>()
+            )).Returns(new ValueTask<(Tenant?, string)>((tenant, "")));
+
+            return daprClient;
+        }
+
         [Fact]
         public async Task FindOne()
         {
+            var daprClient = CreateMockDaprClientWithTenant();
             var tenantService = new Mock<ITenantService>();
             var tenantPropertiesService = new Mock<ITenantPropertiesService>();
 
@@ -28,7 +44,8 @@ namespace Codex.Tenants.Api.Tests
 
             var tenantController = new TenantController(
                 tenantService.Object,
-                tenantPropertiesService.Object
+                tenantPropertiesService.Object,
+                daprClient.Object
             );
 
             var result = await tenantController.FindOne("Id1");
@@ -37,11 +54,13 @@ namespace Codex.Tenants.Api.Tests
             var tenant = Assert.IsType<Tenant>(objectResult.Value);
             Assert.NotNull(tenant);
             Assert.Equal("Id1", tenant.Id);
+            daprClient.Verify(x => x.PublishEventAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
         }
 
         [Fact]
         public async Task FindOne_NotFound()
         {
+            var daprClient = CreateMockDaprClientWithTenant();
             var tenantService = new Mock<ITenantService>();
             var tenantPropertiesService = new Mock<ITenantPropertiesService>();
 
@@ -51,18 +70,21 @@ namespace Codex.Tenants.Api.Tests
 
             var tenantController = new TenantController(
                 tenantService.Object,
-                tenantPropertiesService.Object
+                tenantPropertiesService.Object,
+                daprClient.Object
             );
 
             var result = await tenantController.FindOne("Id1");
 
             var notFoundObjectResult = Assert.IsType<NotFoundObjectResult>(result.Result);
             Assert.Equal("Id1", notFoundObjectResult.Value);
+            daprClient.Verify(x => x.PublishEventAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
         }
 
         [Fact]
         public async Task FindAll()
         {
+            var daprClient = CreateMockDaprClientWithTenant();
             var tenantService = new Mock<ITenantService>();
             var tenantPropertiesService = new Mock<ITenantPropertiesService>();
 
@@ -75,7 +97,8 @@ namespace Codex.Tenants.Api.Tests
 
             var tenantController = new TenantController(
                 tenantService.Object,
-                tenantPropertiesService.Object
+                tenantPropertiesService.Object,
+                daprClient.Object
             );
 
             var result = await tenantController.FindAll();
@@ -84,11 +107,13 @@ namespace Codex.Tenants.Api.Tests
             var tenantList = Assert.IsType<List<Tenant>>(objectResult.Value);
             Assert.NotNull(tenantList);
             Assert.Equal(2, tenantList!.Count);
+            daprClient.Verify(x => x.PublishEventAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
         }
 
         [Fact]
         public async Task CreateTenant()
         {
+            var daprClient = CreateMockDaprClientWithTenant();
             var tenantService = new Mock<ITenantService>();
             var tenantPropertiesService = new Mock<ITenantPropertiesService>();
 
@@ -100,7 +125,8 @@ namespace Codex.Tenants.Api.Tests
 
             var tenantController = new TenantController(
                 tenantService.Object,
-                tenantPropertiesService.Object
+                tenantPropertiesService.Object,
+                daprClient.Object
             );
 
             var result = await tenantController.CreateTenant(tenantCreator);
@@ -112,11 +138,13 @@ namespace Codex.Tenants.Api.Tests
             Assert.Equal("Id1", tenant.Id);
             Assert.Equal("name", tenant.Name);
             Assert.Null(tenant.Properties);
+            daprClient.Verify(x => x.PublishEventAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<TopicData<Tenant>>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
         public async Task CreateTenant_With_Properties()
         {
+            var daprClient = CreateMockDaprClientWithTenant();
             var tenantService = new Mock<ITenantService>();
             var tenantPropertiesService = new Mock<ITenantPropertiesService>();
 
@@ -128,7 +156,8 @@ namespace Codex.Tenants.Api.Tests
 
             var tenantController = new TenantController(
                 tenantService.Object,
-                tenantPropertiesService.Object
+                tenantPropertiesService.Object,
+                daprClient.Object
             );
 
             var result = await tenantController.CreateTenant(tenantCreator);
@@ -140,11 +169,13 @@ namespace Codex.Tenants.Api.Tests
             Assert.Equal("Id1", tenant.Id);
             Assert.Equal("name", tenant.Name);
             Assert.NotNull(tenant.Properties);
+            daprClient.Verify(x => x.PublishEventAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<TopicData<Tenant>>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
         public async Task UpdateTenant()
         {
+            var daprClient = CreateMockDaprClientWithTenant();
             var tenantService = new Mock<ITenantService>();
             var tenantPropertiesService = new Mock<ITenantPropertiesService>();
 
@@ -156,7 +187,8 @@ namespace Codex.Tenants.Api.Tests
 
             var tenantController = new TenantController(
                 tenantService.Object,
-                tenantPropertiesService.Object
+                tenantPropertiesService.Object,
+                daprClient.Object
             );
 
             var result = await tenantController.UpdateTenant("Id1", tenant);
@@ -166,11 +198,13 @@ namespace Codex.Tenants.Api.Tests
             var tenantResult = Assert.IsType<Tenant>(acceptedAtActionResult.Value);
             Assert.NotNull(tenant);
             Assert.Equal("Id1", tenant.Id);
+            daprClient.Verify(x => x.PublishEventAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<TopicData<Tenant>>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
         public async Task UpdateTenant_NotFound()
         {
+            var daprClient = CreateMockDaprClientWithTenant();
             var tenantService = new Mock<ITenantService>();
             var tenantPropertiesService = new Mock<ITenantPropertiesService>();
 
@@ -180,18 +214,21 @@ namespace Codex.Tenants.Api.Tests
 
             var tenantController = new TenantController(
                 tenantService.Object,
-                tenantPropertiesService.Object
+                tenantPropertiesService.Object,
+                daprClient.Object
             );
 
             var result = await tenantController.UpdateTenant("Id1", new());
 
             var notFoundObjectResult = Assert.IsType<NotFoundObjectResult>(result.Result);
             Assert.Equal("Id1", notFoundObjectResult.Value);
+            daprClient.Verify(x => x.PublishEventAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<TopicData<Tenant>>(), It.IsAny<CancellationToken>()), Times.Never);
         }
 
         [Fact]
         public async Task UpdateProperties()
         {
+            var daprClient = CreateMockDaprClientWithTenant();
             var tenantService = new Mock<ITenantService>();
             var tenantPropertiesService = new Mock<ITenantPropertiesService>();
 
@@ -203,7 +240,8 @@ namespace Codex.Tenants.Api.Tests
 
             var tenantController = new TenantController(
                 tenantService.Object,
-                tenantPropertiesService.Object
+                tenantPropertiesService.Object,
+                daprClient.Object
             );
 
             var result = await tenantController.UpdateProperties("Id1", new());
@@ -213,11 +251,13 @@ namespace Codex.Tenants.Api.Tests
             var tenantResult = Assert.IsType<Tenant>(acceptedAtActionResult.Value);
             Assert.NotNull(tenant);
             Assert.Equal("Id1", tenant.Id);
+            daprClient.Verify(x => x.PublishEventAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<TopicData<Tenant>>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
         public async Task UpdateProperties_NotFound()
         {
+            var daprClient = CreateMockDaprClientWithTenant();
             var tenantService = new Mock<ITenantService>();
             var tenantPropertiesService = new Mock<ITenantPropertiesService>();
 
@@ -227,7 +267,8 @@ namespace Codex.Tenants.Api.Tests
 
             var tenantController = new TenantController(
                 tenantService.Object,
-                tenantPropertiesService.Object
+                tenantPropertiesService.Object,
+                daprClient.Object
             );
 
             var result = await tenantController.UpdateProperties("Id1", new());
@@ -235,11 +276,13 @@ namespace Codex.Tenants.Api.Tests
 
             var notFoundObjectResult = Assert.IsType<NotFoundObjectResult>(result.Result);
             Assert.Equal("Id1", notFoundObjectResult.Value);
+            daprClient.Verify(x => x.PublishEventAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<TopicData<Tenant>>(), It.IsAny<CancellationToken>()), Times.Never);
         }
 
         [Fact]
         public async Task UpdateProperty()
         {
+            var daprClient = CreateMockDaprClientWithTenant();
             var tenantService = new Mock<ITenantService>();
             var tenantPropertiesService = new Mock<ITenantPropertiesService>();
 
@@ -251,7 +294,8 @@ namespace Codex.Tenants.Api.Tests
 
             var tenantController = new TenantController(
                 tenantService.Object,
-                tenantPropertiesService.Object
+                tenantPropertiesService.Object,
+                daprClient.Object
             );
 
             var result = await tenantController.UpdateProperty("Id1", "data", new());
@@ -261,11 +305,13 @@ namespace Codex.Tenants.Api.Tests
             var tenantResult = Assert.IsType<Tenant>(acceptedAtActionResult.Value);
             Assert.NotNull(tenant);
             Assert.Equal("Id1", tenant.Id);
+            daprClient.Verify(x => x.PublishEventAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<TopicData<Tenant>>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
         public async Task UpdateProperty_NotFound()
         {
+            var daprClient = CreateMockDaprClientWithTenant();
             var tenantService = new Mock<ITenantService>();
             var tenantPropertiesService = new Mock<ITenantPropertiesService>();
 
@@ -275,7 +321,8 @@ namespace Codex.Tenants.Api.Tests
 
             var tenantController = new TenantController(
                 tenantService.Object,
-                tenantPropertiesService.Object
+                tenantPropertiesService.Object,
+                daprClient.Object
             );
 
             var result = await tenantController.UpdateProperty("Id1", "data", new());
@@ -283,11 +330,13 @@ namespace Codex.Tenants.Api.Tests
 
             var notFoundObjectResult = Assert.IsType<NotFoundObjectResult>(result.Result);
             Assert.Equal("Id1", notFoundObjectResult.Value);
+            daprClient.Verify(x => x.PublishEventAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<TopicData<Tenant>>(), It.IsAny<CancellationToken>()), Times.Never);
         }
 
         [Fact]
         public async Task FindProperties()
         {
+            var daprClient = CreateMockDaprClientWithTenant();
             var tenantService = new Mock<ITenantService>();
             var tenantPropertiesService = new Mock<ITenantPropertiesService>();
 
@@ -301,7 +350,8 @@ namespace Codex.Tenants.Api.Tests
 
             var tenantController = new TenantController(
                 tenantService.Object,
-                tenantPropertiesService.Object
+                tenantPropertiesService.Object,
+                daprClient.Object
             );
 
             var result = await tenantController.FindProperties("Id1");
@@ -310,11 +360,13 @@ namespace Codex.Tenants.Api.Tests
             var tenantProperties = Assert.IsType<TenantProperties>(okObjectResult.Value);
             Assert.NotNull(tenantProperties);
             Assert.Equal(2, tenantProperties.Count);
+            daprClient.Verify(x => x.PublishEventAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<TopicData<Tenant>>(), It.IsAny<CancellationToken>()), Times.Never);
         }
 
         [Fact]
         public async Task DeleteProperty()
         {
+            var daprClient = CreateMockDaprClientWithTenant();
             var tenantService = new Mock<ITenantService>();
             var tenantPropertiesService = new Mock<ITenantPropertiesService>();
 
@@ -324,7 +376,8 @@ namespace Codex.Tenants.Api.Tests
 
             var tenantController = new TenantController(
                 tenantService.Object,
-                tenantPropertiesService.Object
+                tenantPropertiesService.Object,
+                daprClient.Object
             );
 
             var result = await tenantController.DeleteProperty("Id1", "data");
@@ -334,11 +387,13 @@ namespace Codex.Tenants.Api.Tests
             var tenantResult = Assert.IsType<Tenant>(acceptedAtActionResult.Value);
             Assert.NotNull(tenantResult);
             Assert.Equal("Id1", tenantResult.Id);
+            daprClient.Verify(x => x.PublishEventAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<TopicData<Tenant>>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
         public async Task DeleteProperty_No_Content()
         {
+            var daprClient = CreateMockDaprClientWithTenant();
             var tenantService = new Mock<ITenantService>();
             var tenantPropertiesService = new Mock<ITenantPropertiesService>();
 
@@ -348,12 +403,14 @@ namespace Codex.Tenants.Api.Tests
 
             var tenantController = new TenantController(
                 tenantService.Object,
-                tenantPropertiesService.Object
+                tenantPropertiesService.Object,
+                daprClient.Object
             );
 
             var result = await tenantController.DeleteProperty("Id1", "data");
 
             Assert.IsType<NoContentResult>(result.Result);
+            daprClient.Verify(x => x.PublishEventAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<TopicData<Tenant>>(), It.IsAny<CancellationToken>()), Times.Never);
         }
     }
 }

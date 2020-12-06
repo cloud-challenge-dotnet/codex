@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using Codex.Models.Roles;
 using Codex.Models.Tenants;
 using Codex.Core.Models;
+using Codex.Core.Cache;
 
 namespace Codex.Users.Api.Services.Implementations
 {
@@ -34,13 +35,16 @@ namespace Codex.Users.Api.Services.Implementations
 
         private readonly IRoleService _roleService;
 
+        private readonly CacheService<Tenant> _tenantCacheService;
+
         public AuthenticationService(
             ILogger<AuthenticationService> logger,
             DaprClient daprClient,
             IPasswordHasher passwordHasher,
             IUserService userService,
             IConfiguration configuration,
-            IRoleService roleService)
+            IRoleService roleService,
+            CacheService<Tenant> tenantCacheService)
         {
             _logger = logger;
             _daprClient = daprClient;
@@ -48,6 +52,7 @@ namespace Codex.Users.Api.Services.Implementations
             _userService = userService;
             _configuration = configuration;
             _roleService = roleService;
+            _tenantCacheService = tenantCacheService;
         }
 
         public async Task<Auth> AuthenticateAsync(UserLogin userLogin)
@@ -55,7 +60,7 @@ namespace Codex.Users.Api.Services.Implementations
             if (string.IsNullOrWhiteSpace(userLogin.Login) || string.IsNullOrWhiteSpace(userLogin.Password))
                 throw new InvalidCredentialsException("Invalid login", code: "INVALID_LOGIN");
 
-            Tenant tenant = await MicroServiceTenantTools.SearchTenantByIdAsync(_logger, _daprClient, userLogin.TenantId);
+            Tenant tenant = await TenantTools.SearchTenantByIdAsync(_logger, _tenantCacheService, _daprClient, userLogin.TenantId);
 
             var user = (await _userService.FindAllAsync(new(Login: userLogin.Login))).FirstOrDefault();
 

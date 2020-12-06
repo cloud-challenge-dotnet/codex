@@ -6,16 +6,30 @@ using Dapr.Client.Http;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
+using Codex.Core.Models;
+using Codex.Core.Cache;
 
 namespace Codex.Tenants.Framework.Utils
 {
-    public static class MicroServiceTenantTools
+    public static class TenantTools
     {
-        public static async Task<Tenant> SearchTenantByIdAsync(ILogger logger, DaprClient daprClient, string tenantId)
+        public static async Task<Tenant> SearchTenantByIdAsync(ILogger logger, CacheService<Tenant> tenantCacheService, DaprClient daprClient, string tenantId)
         {
             try
             {
-                return await daprClient.InvokeMethodAsync<Tenant>("tenantapi", $"Tenant/{tenantId}", new HTTPExtension() { Verb = HTTPVerb.Get });
+                string cacheKey = $"{CacheConstant.Tenant_}{tenantId}";
+                var tenant = await tenantCacheService.GetCacheAsync(daprClient, cacheKey);
+
+                if (tenant == null)
+                {
+                    tenant = await daprClient.InvokeMethodAsync<Tenant>("tenantapi", $"Tenant/{tenantId}", new HTTPExtension() { Verb = HTTPVerb.Get });
+                    await tenantCacheService.UpdateCacheAsync(daprClient, cacheKey, tenant);
+                    return tenant;
+                }
+                else
+                {
+                    return tenant;
+                }
             }
             catch (Exception exception)
             {

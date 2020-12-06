@@ -16,7 +16,7 @@ namespace Codex.Tenants.Framework.Tests
         {
             GlobalTenantResolutionStrategy tenantStrategy = new();
 
-            string tenantId = await tenantStrategy.GetTenantIdentifierAsync();
+            string? tenantId = await tenantStrategy.GetTenantIdentifierAsync();
 
             Assert.NotNull(tenantId);
             Assert.Equal("global", tenantId);

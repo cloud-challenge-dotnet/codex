@@ -1,4 +1,5 @@
-﻿using Codex.Core.Exceptions;
+﻿using Codex.Core.Cache;
+using Codex.Core.Exceptions;
 using Codex.Models.Tenants;
 using Codex.Tenants.Framework.Exceptions;
 using Codex.Tenants.Framework.Utils;
@@ -14,11 +15,11 @@ using Xunit;
 
 namespace Codex.Tenants.Framework.Tests.Utils
 {
-    public class MicroServiceTenantToolsTest : IClassFixture<Fixture>
+    public class TenantToolsTest : IClassFixture<Fixture>
     {
-        private readonly ILogger<MicroServiceTenantToolsTest> _logger;
+        private readonly ILogger<TenantToolsTest> _logger;
 
-        public MicroServiceTenantToolsTest(ILogger<MicroServiceTenantToolsTest> logger)
+        public TenantToolsTest(ILogger<TenantToolsTest> logger)
         {
             _logger = logger;
         }
@@ -28,17 +29,41 @@ namespace Codex.Tenants.Framework.Tests.Utils
         {
             string tenantId = "global";
 
-            var daprClient = new Mock<DaprClient>() { DefaultValue = DefaultValue.Mock };
-            await daprClient.Object.InvokeMethodAsync<Tenant>("tenantapi", $"Tenant/{tenantId}", new HTTPExtension() { Verb = HTTPVerb.Get });
+            var daprClient = new Mock<DaprClient>();
+
+            var tenantCacheService = new Mock<CacheService<Tenant>>();
 
             daprClient.Setup(x => x.InvokeMethodAsync<Tenant>(
                 It.IsAny<string>(), It.IsAny<string>(), It.IsAny<HTTPExtension>(), It.IsAny<CancellationToken>()))
                 .Returns(new ValueTask<Tenant>(new Tenant("global", "", null)));
 
-            var tenant = await MicroServiceTenantTools.SearchTenantByIdAsync(_logger, daprClient.Object, tenantId);
+            var tenant = await TenantTools.SearchTenantByIdAsync(_logger, tenantCacheService.Object, daprClient.Object, tenantId);
 
             Assert.NotNull(tenant);
             Assert.Equal("global", tenant.Id);
+
+            tenantCacheService.Verify(v => v.GetCacheAsync(daprClient.Object, It.IsAny<string>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task SearchTenantById_Inside_Cache()
+        {
+            string tenantId = "global";
+
+            var daprClient = new Mock<DaprClient>();
+
+            var tenantCacheService = new Mock<CacheService<Tenant>>();
+
+            tenantCacheService.Setup(x => x.GetCacheAsync(
+                daprClient.Object, It.IsAny<string>()))
+                .Returns(Task.FromResult<Tenant?>(new Tenant("global", "", null)));
+
+            var tenant = await TenantTools.SearchTenantByIdAsync(_logger, tenantCacheService.Object, daprClient.Object, tenantId);
+
+            Assert.NotNull(tenant);
+            Assert.Equal("global", tenant.Id);
+
+            tenantCacheService.Verify(v => v.GetCacheAsync(daprClient.Object, It.IsAny<string>()), Times.Once);
         }
 
         [Fact]
@@ -46,18 +71,21 @@ namespace Codex.Tenants.Framework.Tests.Utils
         {
             string tenantId = "global";
 
-            var daprClient = new Mock<DaprClient>() { DefaultValue = DefaultValue.Mock };
-            await daprClient.Object.InvokeMethodAsync<Tenant>("tenantapi", $"Tenant/{tenantId}", new HTTPExtension() { Verb = HTTPVerb.Get });
+            var daprClient = new Mock<DaprClient>();
+
+            var tenantCacheService = new Mock<CacheService<Tenant>>();
 
             daprClient.Setup(x => x.InvokeMethodAsync<Tenant>(
                 It.IsAny<string>(), It.IsAny<string>(), It.IsAny<HTTPExtension>(), It.IsAny<CancellationToken>()))
                 .Throws(new System.Exception("invalid tenant"));
 
             var technicalException = await Assert.ThrowsAsync<TechnicalException>(
-                async () => await MicroServiceTenantTools.SearchTenantByIdAsync(_logger, daprClient.Object, tenantId)
+                async () => await TenantTools.SearchTenantByIdAsync(_logger, tenantCacheService.Object, daprClient.Object, tenantId)
             );
 
             Assert.Equal("TENANT_NOT_FOUND", technicalException.Code);
+
+            tenantCacheService.Verify(v => v.GetCacheAsync(daprClient.Object, It.IsAny<string>()), Times.Once);
         }
 
         [Fact]
@@ -65,18 +93,21 @@ namespace Codex.Tenants.Framework.Tests.Utils
         {
             string tenantId = "global";
 
-            var daprClient = new Mock<DaprClient>() { DefaultValue = DefaultValue.Mock };
-            await daprClient.Object.InvokeMethodAsync<Tenant>("tenantapi", $"Tenant/{tenantId}", new HTTPExtension() { Verb = HTTPVerb.Get });
+            var daprClient = new Mock<DaprClient>();
+
+            var tenantCacheService = new Mock<CacheService<Tenant>>();
 
             daprClient.Setup(x => x.InvokeMethodAsync<Tenant>(
                 It.IsAny<string>(), It.IsAny<string>(), It.IsAny<HTTPExtension>(), It.IsAny<CancellationToken>()))
                 .Throws(new RpcException(new Status(StatusCode.Aborted, "")));
 
             var technicalException = await Assert.ThrowsAsync<TechnicalException>(
-                async () => await MicroServiceTenantTools.SearchTenantByIdAsync(_logger, daprClient.Object, tenantId)
+                async () => await TenantTools.SearchTenantByIdAsync(_logger, tenantCacheService.Object, daprClient.Object, tenantId)
             );
 
             Assert.Equal("TENANT_NOT_FOUND", technicalException.Code);
+
+            tenantCacheService.Verify(v => v.GetCacheAsync(daprClient.Object, It.IsAny<string>()), Times.Once);
         }
 
         [Fact]
@@ -84,18 +115,21 @@ namespace Codex.Tenants.Framework.Tests.Utils
         {
             string tenantId = "global";
 
-            var daprClient = new Mock<DaprClient>() { DefaultValue = DefaultValue.Mock };
-            await daprClient.Object.InvokeMethodAsync<Tenant>("tenantapi", $"Tenant/{tenantId}", new HTTPExtension() { Verb = HTTPVerb.Get });
+            var daprClient = new Mock<DaprClient>();
+
+            var tenantCacheService = new Mock<CacheService<Tenant>>();
 
             daprClient.Setup(x => x.InvokeMethodAsync<Tenant>(
                 It.IsAny<string>(), It.IsAny<string>(), It.IsAny<HTTPExtension>(), It.IsAny<CancellationToken>()))
                 .Throws(new RpcException(new Status(StatusCode.NotFound, "")));
 
             var invalidTenantIdException = await Assert.ThrowsAsync<InvalidTenantIdException>(
-                async () => await MicroServiceTenantTools.SearchTenantByIdAsync(_logger, daprClient.Object, tenantId)
+                async () => await TenantTools.SearchTenantByIdAsync(_logger, tenantCacheService.Object, daprClient.Object, tenantId)
             );
 
             Assert.Equal("TENANT_NOT_FOUND", invalidTenantIdException.Code);
+
+            tenantCacheService.Verify(v => v.GetCacheAsync(daprClient.Object, It.IsAny<string>()), Times.Once);
         }
     }
 }

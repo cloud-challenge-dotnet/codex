@@ -24,9 +24,11 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Codex.Users.Api.Providers.Implementations;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Codex.Users.Api
 {
+    [ExcludeFromCodeCoverage]
     public class Startup
     {
         public Startup(IConfiguration configuration)
@@ -102,7 +104,8 @@ namespace Codex.Users.Api
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env,
+        public void Configure(IApplicationBuilder app,
+            IWebHostEnvironment env,
             IEnumerable<IExceptionHandler> exceptionHandlers)
         {
             if (env.IsDevelopment())
@@ -131,6 +134,7 @@ namespace Codex.Users.Api
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapSubscribeHandler();
                 endpoints.MapControllers();
             });
         }

@@ -19,7 +19,7 @@ namespace Codex.Tenants.Framework.Implementations
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
-        public async Task<string> GetTenantIdentifierAsync()
+        public async Task<string?> GetTenantIdentifierAsync()
         {
             return await Task.FromResult(_tenantId);
         }

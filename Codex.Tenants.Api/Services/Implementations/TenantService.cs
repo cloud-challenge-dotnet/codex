@@ -24,7 +24,6 @@ namespace Codex.Tenants.Api.Services
         {
             return await _tenantRepository.FindOneAsync(id);
         }
-
         public async Task<Tenant> CreateAsync(TenantCreator tenant)
         {
             var tenantId = tenant.Id ?? throw new ArgumentException("Tenant id is mandatory");

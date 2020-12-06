@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Dapr.Client;
 using Microsoft.Extensions.Logging;
 using Codex.Tenants.Framework.Utils;
+using Codex.Core.Cache;
 
 namespace Codex.Tenants.Framework.Implementations
 {
@@ -15,13 +16,16 @@ namespace Codex.Tenants.Framework.Implementations
 
         private readonly DaprClient _daprClient;
 
+        private readonly CacheService<Tenant> _tenantCacheService;
+
         public TenantStore(
             ILogger<TenantStore> logger,
-            DaprClient daprClient)
+            DaprClient daprClient,
+            CacheService<Tenant> tenantCacheService)
         {
             _logger = logger;
-
             _daprClient = daprClient;
+            _tenantCacheService = tenantCacheService;
         }
 
         /// <summary>
@@ -31,7 +35,7 @@ namespace Codex.Tenants.Framework.Implementations
         /// <returns></returns>
         public async Task<Tenant?> GetTenantAsync(string identifier)
         {
-            Tenant tenant = await MicroServiceTenantTools.SearchTenantByIdAsync(_logger, _daprClient, identifier);
+            Tenant tenant = await TenantTools.SearchTenantByIdAsync(_logger, _tenantCacheService, _daprClient, identifier);
 
             return await Task.FromResult(tenant);
         }
