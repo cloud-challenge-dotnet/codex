@@ -1,10 +1,12 @@
-﻿using Codex.Core.Interfaces;
+﻿using Codex.Core.Exceptions;
+using Codex.Core.Interfaces;
 using Codex.Core.Models;
+using Codex.Core.Tools;
 using Codex.Models.Users;
 using Codex.Users.Api.Repositories.Interfaces;
 using Codex.Users.Api.Services.Interfaces;
 using Dapr.Client;
-using System;
+using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -12,19 +14,16 @@ namespace Codex.Users.Api.Services.Implementations
 {
     public class UserService : IUserService
     {
-        private readonly IPasswordHasher _passwordHasher;
-        private readonly DaprClient _daprClient;
-
-        public UserService(IUserRepository userRepository,
-            IPasswordHasher passwordHasher,
-            DaprClient daprClient)
+        public UserService(IUserRepository userRepository, DaprClient daprClient, IPasswordHasher passwordHasher)
         {
             _userRepository = userRepository;
-            _passwordHasher = passwordHasher;
             _daprClient = daprClient;
+            _passwordHasher = passwordHasher;
         }
 
         private readonly IUserRepository _userRepository;
+        private readonly DaprClient _daprClient;
+        private readonly IPasswordHasher _passwordHasher;
 
         public async Task<List<User>> FindAllAsync(UserCriteria userCriteria)
         {
@@ -36,16 +35,23 @@ namespace Codex.Users.Api.Services.Implementations
             return await _userRepository.FindOneAsync(id);
         }
 
-        public Task<User> CreateAsync(UserCreator userCreator)
+        public async Task<User> CreateAsync(UserCreator userCreator)
         {
             if (string.IsNullOrWhiteSpace(userCreator.Password))
-                throw new ArgumentException("Password must be not null or whitespace");
+                throw new IllegalArgumentException(code: "USER_PASSWORD_INVALID", message: "Password must be not null or whitespace");
 
-            return CreateInternalAsync(userCreator);
-        }
+            if (string.IsNullOrWhiteSpace(userCreator.Login))
+                throw new IllegalArgumentException(code: "USER_LOGIN_INVALID", message: "Login must be not null or whitespace");
 
-        public async Task<User> CreateInternalAsync(UserCreator userCreator)
-        {
+            if (string.IsNullOrWhiteSpace(userCreator.Email) || !EmailValidator.EmailValid(userCreator.Email))
+                throw new IllegalArgumentException(code: "USER_EMAIL_INVALID", message: "Email format is invalid");
+
+            if ((await _userRepository.FindAllAsync(new (Login: userCreator.Login))).Count != 0 ||
+                (await _userRepository.FindAllAsync(new(Email: userCreator.Email))).Count != 0)
+            {
+                throw new IllegalArgumentException(code: "USER_EXISTS", message: $"User '{userCreator.Login}' already exists");
+            }
+
             var secretValues = await _daprClient.GetSecretAsync(ConfigConstant.CodexKey, ConfigConstant.PasswordSalt);
             var salt = secretValues[ConfigConstant.PasswordSalt];
 
@@ -53,7 +59,6 @@ namespace Codex.Users.Api.Services.Implementations
 
             return await _userRepository.InsertAsync(user);
         }
-
 
         public async Task<User?> UpdateAsync(User user)
         {

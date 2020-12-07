@@ -6,6 +6,7 @@ using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Codex.Core.Extensions;
 
 namespace Codex.Users.Api.Repositories.Interfaces
 {
@@ -40,11 +41,20 @@ namespace Codex.Users.Api.Repositories.Interfaces
             var repository = await GetRepositoryAsync();
 
             var update = Builders<User>.Update;
-            var updateDef = update.Set(GetMongoPropertyName(nameof(user.Login)), user.Login);
+            var updates = new List<UpdateDefinition<User>>
+            {
+                update.Set(GetMongoPropertyName(nameof(user.Login)), user.Login),
+                update.Set(GetMongoPropertyName(nameof(user.Email)), user.Email)
+            };
+            user.FirstName?.Also(x => updates.Add(update.Set(GetMongoPropertyName(nameof(user.FirstName)), user.FirstName)));
+            user.LastName?.Also(x => updates.Add(update.Set(GetMongoPropertyName(nameof(user.LastName)), user.LastName)));
+            user.PhoneNumber?.Also(x => updates.Add(update.Set(GetMongoPropertyName(nameof(user.PhoneNumber)), user.PhoneNumber)));
+            user.Roles?.Also(x => updates.Add(update.Set(GetMongoPropertyName(nameof(user.Roles)), user.Roles)));
+            updates.Add(update.Set(GetMongoPropertyName(nameof(user.Active)), user.Active));
 
             return await repository.FindOneAndUpdateAsync(
                 Builders<User>.Filter.Where(it => it.Id == user.Id),
-                updateDef,
+                update.Combine(updates),
                 options: new FindOneAndUpdateOptions<User>
                 {
                     ReturnDocument = ReturnDocument.After

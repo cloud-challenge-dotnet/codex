@@ -104,15 +104,40 @@ namespace Codex.Users.Api.Tests
             await _fixture.UseDataSetAsync(locations: @"Resources/users.json");
 
             var user = await _userRepository.UpdateAsync(new() {
-                Id = "5fb92118da7ed3521e4a7d59",                
-                Login = "user-login"
+                Id = "5fb92118da7ed3521e4a7d59",
+                Login = "user-login",
+                Email = "user-email",
+                FirstName = "user-firstName",
+                LastName = "user-lastName",
+                PhoneNumber = "user-phoneNumber",
+                Roles = new()
+                {
+                    "ADMIN",
+                    "USER"
+                },
+                EmailConfirmed = true,
+                PhoneConfirmed = true,
+                PasswordHash = "test",
+                Active = true
             });
 
             Assert.NotNull(user);
             Assert.Equal("user-login", user!.Login);
+            Assert.Equal("user-email", user!.Email);
+            Assert.Equal("user-firstName", user!.FirstName);
+            Assert.Equal("user-lastName", user!.LastName);
+            Assert.Equal("user-phoneNumber", user!.PhoneNumber);
+            Assert.NotNull(user!.Roles);
+            Assert.Equal(2, user!.Roles.Count);
+            Assert.Equal("ADMIN", user!.Roles[0]);
+            Assert.Equal("USER", user!.Roles[1]);
+            Assert.True(user!.Active);
 
             //Not updated
             Assert.Equal("5fb92118da7ed3521e4a7d59", user!.Id);
+            Assert.Equal("G3JsGuJkkF/nLP27fnsyzGpL+jIU0YgVIVd5qoKiepE=", user!.PasswordHash);
+            Assert.False(user!.EmailConfirmed);
+            Assert.False(user!.PhoneConfirmed);
         }
     }
 }

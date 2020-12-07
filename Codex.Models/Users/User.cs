@@ -7,14 +7,10 @@ namespace Codex.Models.Users
     public abstract record BaseUser
     {
         public BaseUser()
-               => (Id, Login, Email, FirstName, LastName, PhoneNumber, Roles) = (null, "", "", null, null, null, new());
+               => (Login, Email, FirstName, LastName, PhoneNumber, Roles) = ("", "", null, null, null, new());
 
-        public BaseUser(string? id, string login, string email, string? firstName, string? lastName, string? phoneNumber, List<string> roles)
-               => (Id, Login, Email, FirstName, LastName, PhoneNumber, Roles) = (id, login, email, firstName, lastName, phoneNumber, roles);
-
-        [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public string? Id { get; set; }
+        public BaseUser(string login, string email, string? firstName, string? lastName, string? phoneNumber, List<string> roles)
+               => (Login, Email, FirstName, LastName, PhoneNumber, Roles) = (login, email, firstName, lastName, phoneNumber, roles);
 
         public string Login { get; set; }
 
@@ -32,12 +28,16 @@ namespace Codex.Models.Users
     public record User : BaseUser
     {
         public User() : base()
-            => (PasswordHash, EmailConfirmed, PhoneConfirmed, Active) = (null, false, false, true);
+            => (Id, PasswordHash, EmailConfirmed, PhoneConfirmed, Active) = (null, null, false, false, true);
 
         public User(string? id, string login, string email, string? firstName, string? lastName, string? phoneNumber, List<string> roles,
             string? passwordHash, bool emailConfirmed, bool phoneConfirmed, bool active)
-            : base(id, login, email, firstName, lastName, phoneNumber, roles)
-            => (PasswordHash, EmailConfirmed, PhoneConfirmed, Active) = (passwordHash, emailConfirmed, phoneConfirmed, active);
+            : base(login, email, firstName, lastName, phoneNumber, roles)
+            => (Id, PasswordHash, EmailConfirmed, PhoneConfirmed, Active) = (id, passwordHash, emailConfirmed, phoneConfirmed, active);
+
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string? Id { get; set; }
 
         public string? PasswordHash { get; set; }
 
@@ -56,7 +56,7 @@ namespace Codex.Models.Users
         public string? Password { get; set; }
 
         public User ToUser(string? passwordHash = null) => new User(
-            id: Id,
+            id: null,
             login: Login,
             email: Email,
             firstName: FirstName,
