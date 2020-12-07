@@ -131,13 +131,13 @@ namespace Codex.Users.Api.Tests
             Assert.Equal(2, user!.Roles.Count);
             Assert.Equal("ADMIN", user!.Roles[0]);
             Assert.Equal("USER", user!.Roles[1]);
+            Assert.True(user!.EmailConfirmed);
+            Assert.True(user!.PhoneConfirmed);
+            Assert.Equal("test", user!.PasswordHash);
             Assert.True(user!.Active);
 
             //Not updated
             Assert.Equal("5fb92118da7ed3521e4a7d59", user!.Id);
-            Assert.Equal("G3JsGuJkkF/nLP27fnsyzGpL+jIU0YgVIVd5qoKiepE=", user!.PasswordHash);
-            Assert.False(user!.EmailConfirmed);
-            Assert.False(user!.PhoneConfirmed);
         }
     }
 }

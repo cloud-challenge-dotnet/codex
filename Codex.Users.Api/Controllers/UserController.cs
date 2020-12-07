@@ -5,6 +5,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
+using System.Security.Claims;
+using Codex.Tenants.Framework;
 
 namespace Codex.Users.Api.Controllers
 {
@@ -44,6 +47,45 @@ namespace Codex.Users.Api.Controllers
             var user = await _userService.CreateAsync(userCreator);
 
             return CreatedAtAction(nameof(FindOne), new { id = user.Id }, user);
+        }
+
+        [HttpPut("{userId}")]
+        [Authorize(Roles = "TENANT_MANAGER,USER")]
+        public async Task<ActionResult<User>> UpdateUser([FromQuery] string userId, [FromBody] User user)
+        {
+            string? contextUserId = HttpContext.GetUserId();
+            if (!HttpContext.User.IsInRole(RoleConstant.TENANT_MANAGER) && contextUserId != userId)
+            {
+                return Unauthorized();
+            }
+
+            user = user with { Id = userId };
+
+            User? userResult;
+            if (!HttpContext.User.IsInRole(RoleConstant.TENANT_MANAGER) && contextUserId == userId)
+            {
+                userResult = await _userService.FindOneAsync(userId);
+                if (userResult == null)
+                {
+                    return NotFound(userId);
+                }
+                user = user with
+                { // current user without TENANT_MANAGER Role can't update all user fields
+                    PasswordHash = null,
+                    Roles = userResult.Roles,
+                    Active = userResult.Active,
+                    PhoneConfirmed = userResult.PhoneConfirmed,
+                    EmailConfirmed = userResult.EmailConfirmed
+                };
+            }
+
+            userResult = await _userService.UpdateAsync(user);
+            if (userResult == null)
+            {
+                return NotFound(userId);
+            }
+
+            return AcceptedAtAction(nameof(FindOne), new { id = user.Id }, userResult);
         }
     }
 }

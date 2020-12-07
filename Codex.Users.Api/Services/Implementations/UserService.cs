@@ -58,6 +58,8 @@ namespace Codex.Users.Api.Services.Implementations
             var user = userCreator.ToUser(passwordHash: _passwordHasher.GenerateHash(userCreator.Password!, salt));
 
             return await _userRepository.InsertAsync(user);
+
+            // TODO send mail to user for verify his email
         }
 
         public async Task<User?> UpdateAsync(User user)

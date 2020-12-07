@@ -94,7 +94,8 @@ namespace Codex.Users.Api.Services.Implementations
             user = CompleteUserWithParentRoles(user);
             List<Claim> claimList = new()
             {
-                new Claim(ClaimTypes.Name, user.Id!),
+                new Claim(ClaimTypes.NameIdentifier, user.Id!),
+                new Claim(ClaimTypes.Name, user.Login!),
                 new Claim(ClaimConstant.Tenant, tenant.Id!)
             };
             claimList.AddRange(user.Roles.Select(r =>

@@ -50,6 +50,9 @@ namespace Codex.Users.Api.Repositories.Interfaces
             user.LastName?.Also(x => updates.Add(update.Set(GetMongoPropertyName(nameof(user.LastName)), user.LastName)));
             user.PhoneNumber?.Also(x => updates.Add(update.Set(GetMongoPropertyName(nameof(user.PhoneNumber)), user.PhoneNumber)));
             user.Roles?.Also(x => updates.Add(update.Set(GetMongoPropertyName(nameof(user.Roles)), user.Roles)));
+            user.PasswordHash?.Also(x => updates.Add(update.Set(GetMongoPropertyName(nameof(user.PasswordHash)), user.PasswordHash)));
+            updates.Add(update.Set(GetMongoPropertyName(nameof(user.EmailConfirmed)), user.EmailConfirmed));
+            updates.Add(update.Set(GetMongoPropertyName(nameof(user.PhoneConfirmed)), user.PhoneConfirmed));
             updates.Add(update.Set(GetMongoPropertyName(nameof(user.Active)), user.Active));
 
             return await repository.FindOneAndUpdateAsync(
