@@ -27,7 +27,7 @@ namespace Codex.Tests.Framework
             get => _services;
         }
 
-        public HttpContext CreateHttpContext(string tenantId, string userId, string userName, List<string> roles)
+        public static HttpContext CreateHttpContext(string tenantId, string userId, string userName, List<string> roles)
         {
             List<Claim> claimList = new()
             {

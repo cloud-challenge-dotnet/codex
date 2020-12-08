@@ -5,8 +5,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Linq;
-using System.Security.Claims;
 using Codex.Tenants.Framework;
 
 namespace Codex.Users.Api.Controllers

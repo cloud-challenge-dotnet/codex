@@ -37,7 +37,7 @@ namespace Codex.Users.Api.Tests
                 userService.Object
             );
 
-            userController.ControllerContext.HttpContext = _fixture.CreateHttpContext(
+            userController.ControllerContext.HttpContext = Fixture.CreateHttpContext(
                 tenantId: "global",
                 userId: "Id1",
                 userName: "login",
@@ -75,7 +75,7 @@ namespace Codex.Users.Api.Tests
                 userService.Object
             );
 
-            userController.ControllerContext.HttpContext = _fixture.CreateHttpContext(
+            userController.ControllerContext.HttpContext = Fixture.CreateHttpContext(
                 tenantId: "global",
                 userId: "Id1",
                 userName: "login",
@@ -107,7 +107,7 @@ namespace Codex.Users.Api.Tests
                 userService.Object
             );
 
-            userController.ControllerContext.HttpContext = _fixture.CreateHttpContext(
+            userController.ControllerContext.HttpContext = Fixture.CreateHttpContext(
                 tenantId: "global",
                 userId: "Id2",
                 userName: "login",
@@ -135,7 +135,7 @@ namespace Codex.Users.Api.Tests
                 userService.Object
             );
 
-            userController.ControllerContext.HttpContext = _fixture.CreateHttpContext(
+            userController.ControllerContext.HttpContext = Fixture.CreateHttpContext(
                 tenantId: "global",
                 userId: "Id1",
                 userName: "login",
@@ -169,7 +169,7 @@ namespace Codex.Users.Api.Tests
 
             var authorizeAttributes = userController.GetType().GetMethod(nameof(UserController.FindAll))?.GetCustomAttributes(typeof(AuthorizeAttribute), true);
 
-            userController.ControllerContext.HttpContext = _fixture.CreateHttpContext(
+            userController.ControllerContext.HttpContext = Fixture.CreateHttpContext(
                 tenantId: "global",
                 userId: "Id1",
                 userName: "login",
@@ -241,7 +241,7 @@ namespace Codex.Users.Api.Tests
 
             var authorizeAttributes = userController.GetType().GetMethod(nameof(UserController.UpdateUser))?.GetCustomAttributes(typeof(AuthorizeAttribute), true);
 
-            var httpContext = _fixture.CreateHttpContext(
+            var httpContext = Fixture.CreateHttpContext(
                 tenantId: "global",
                 userId: currentUserId,
                 userName: "login",
@@ -284,14 +284,16 @@ namespace Codex.Users.Api.Tests
                 userService.Object
             );
 
-            var httpContext = new DefaultHttpContext();
-            httpContext.User = new ClaimsPrincipal(
-                new ClaimsIdentity(new List<Claim>()
-                {
-                    new Claim(ClaimTypes.NameIdentifier, currentUserId),
-                    new Claim(ClaimTypes.Role, RoleConstant.TENANT_MANAGER)
-                }, "TestAuthType")
-            );
+            var httpContext = new DefaultHttpContext
+            {
+                User = new ClaimsPrincipal(
+                    new ClaimsIdentity(new List<Claim>()
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, currentUserId),
+                        new Claim(ClaimTypes.Role, RoleConstant.TENANT_MANAGER)
+                    }, "TestAuthType")
+                )
+            };
 
             userController.ControllerContext.HttpContext = httpContext;
 

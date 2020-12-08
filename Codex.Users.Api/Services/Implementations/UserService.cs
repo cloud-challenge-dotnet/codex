@@ -6,7 +6,6 @@ using Codex.Models.Users;
 using Codex.Users.Api.Repositories.Interfaces;
 using Codex.Users.Api.Services.Interfaces;
 using Dapr.Client;
-using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 

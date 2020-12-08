@@ -41,10 +41,12 @@ namespace Codex.Tenants.Framework.Tests
         [Fact]
         public void GetUserId()
         {
-            var httpContext = new DefaultHttpContext();
-            httpContext.User = new ClaimsPrincipal(
-                new ClaimsIdentity(new List<Claim>(){new(ClaimTypes.NameIdentifier, "Id1")}, "TestAuthType")
-            );
+            var httpContext = new DefaultHttpContext
+            {
+                User = new ClaimsPrincipal(
+                    new ClaimsIdentity(new List<Claim>() { new(ClaimTypes.NameIdentifier, "Id1") }, "TestAuthType")
+                )
+            };
 
             string? userId = httpContext.GetUserId();
 
@@ -75,10 +77,12 @@ namespace Codex.Tenants.Framework.Tests
         [Fact]
         public void GetUserName()
         {
-            var httpContext = new DefaultHttpContext();
-            httpContext.User = new ClaimsPrincipal(
-                new ClaimsIdentity(new List<Claim>() { new(ClaimTypes.Name, "User name") }, "TestAuthType")
-            );
+            var httpContext = new DefaultHttpContext
+            {
+                User = new ClaimsPrincipal(
+                    new ClaimsIdentity(new List<Claim>() { new(ClaimTypes.Name, "User name") }, "TestAuthType")
+                )
+            };
 
             string? userName = httpContext.GetUserName();
 
