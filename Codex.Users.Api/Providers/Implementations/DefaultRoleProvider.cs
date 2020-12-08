@@ -1,9 +1,11 @@
 ﻿using Codex.Core.Roles.Interfaces;
 using Codex.Models.Roles;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Codex.Users.Api.Providers.Implementations
 {
+    [ExcludeFromCodeCoverage]
     public class DefaultRoleProvider : IRoleProvider
     {
         public List<Role> GetRoles()

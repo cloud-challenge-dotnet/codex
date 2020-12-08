@@ -1,6 +1,7 @@
 ﻿using Codex.Models.Users;
 using Codex.Users.Api.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Threading.Tasks;
 
 namespace Codex.Users.Api.Controllers

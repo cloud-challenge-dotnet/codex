@@ -68,7 +68,7 @@ namespace Codex.Users.Api.Services.Implementations
                 throw new InvalidCredentialsException("Invalid login", code: "INVALID_LOGIN");
 
             if (!user.Active)
-                throw new DisabledUserException($"User {user.Id} is disabled", code: "INVALID_LOGIN");
+                throw new DisabledUserException($"User {user.Id} is disabled", code: "DISABLED_USER");
 
             if (!await CheckPasswordAsync(user.PasswordHash, userLogin.Password))
                 throw new InvalidCredentialsException("Invalid login", code: "INVALID_LOGIN");
