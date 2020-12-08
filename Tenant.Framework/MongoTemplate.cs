@@ -1,17 +1,15 @@
 ﻿using Codex.Core.Extensions;
 using Codex.Core.Models;
 using Codex.Tenants.Framework.Interfaces;
-using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
-using MongoDB.Driver.Core.Configuration;
-using MongoDB.Driver.Core.Events;
 using System;
-using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 namespace Codex.Tenants.Framework
 {
+    [ExcludeFromCodeCoverage]
     public class MongoTemplate<TDocument>
     {
         MongoClient? _mongoClient;

@@ -1,5 +1,4 @@
-﻿
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Codex.Models.Tenants;
 using Codex.Tenants.Framework.Models;
 using System.Security.Claims;
@@ -27,7 +26,7 @@ namespace Codex.Tenants.Framework
         /// </summary>
         public static string? GetUserId(this HttpContext context)
         {
-            if (context?.User == null)
+            if (context == null)
                 return null;
 
             return context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
@@ -38,7 +37,7 @@ namespace Codex.Tenants.Framework
         /// </summary>
         public static string? GetUserName(this HttpContext context)
         {
-            if (context.User == null)
+            if (context == null)
                 return null;
 
             return context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
