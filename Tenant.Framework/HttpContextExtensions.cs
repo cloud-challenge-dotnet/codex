@@ -27,7 +27,7 @@ namespace Codex.Tenants.Framework
         /// </summary>
         public static string? GetUserId(this HttpContext context)
         {
-            if (context.User == null)
+            if (context?.User == null)
                 return null;
 
             return context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;

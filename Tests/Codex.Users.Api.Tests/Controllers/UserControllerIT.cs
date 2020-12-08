@@ -1,25 +1,27 @@
 using Codex.Users.Api.Controllers;
-using Codex.Models.Tenants;
 using Codex.Tests.Framework;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using System.Threading.Tasks;
+using System.Linq;
 using Xunit;
-using Dapr.Client;
-using System.Threading;
 using Codex.Users.Api.Services.Interfaces;
 using Codex.Models.Users;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 using Codex.Models.Roles;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Codex.Users.Api.Tests
 {
     public class UserControllerIT : IClassFixture<Fixture>
     {
-        public UserControllerIT()
+        private readonly Fixture _fixture;
+
+        public UserControllerIT(Fixture fixture)
         {
+            _fixture = fixture;
         }
 
         [Fact]
@@ -35,6 +37,51 @@ namespace Codex.Users.Api.Tests
                 userService.Object
             );
 
+            userController.ControllerContext.HttpContext = _fixture.CreateHttpContext(
+                tenantId: "global",
+                userId: "Id1",
+                userName: "login",
+                roles: new() { RoleConstant.TENANT_MANAGER }
+            );
+
+            var authorizeAttributes = userController.GetType().GetMethod(nameof(UserController.FindOne))?.GetCustomAttributes(typeof(AuthorizeAttribute), true);
+
+            var result = await userController.FindOne("Id1");
+
+            userService.Verify(x => x.FindOneAsync(It.IsAny<string>()), Times.Once);
+
+            var objectResult = Assert.IsType<OkObjectResult>(result.Result);
+            var user = Assert.IsType<User>(objectResult.Value);
+            Assert.NotNull(user);
+            Assert.Equal("Id1", user.Id);
+            Assert.Equal("login", user.Login);
+
+            Assert.NotNull(authorizeAttributes);
+            Assert.Single(authorizeAttributes);
+            var authorizeAttribute = Assert.IsType<AuthorizeAttribute>(authorizeAttributes![0]);
+            Assert.Equal($"{RoleConstant.TENANT_MANAGER},{RoleConstant.USER}", authorizeAttribute.Roles);
+        }
+
+        [Fact]
+        public async Task FindOne_Current_User_Id()
+        {
+            var userService = new Mock<IUserService>();
+
+            userService.Setup(x => x.FindOneAsync(It.IsAny<string>())).Returns(
+                Task.FromResult((User?)new User() { Id = "Id1", Login = "login" })
+            );
+
+            var userController = new UserController(
+                userService.Object
+            );
+
+            userController.ControllerContext.HttpContext = _fixture.CreateHttpContext(
+                tenantId: "global",
+                userId: "Id1",
+                userName: "login",
+                roles: new() { RoleConstant.USER }
+            );
+
             var result = await userController.FindOne("Id1");
 
             userService.Verify(x => x.FindOneAsync(It.IsAny<string>()), Times.Once);
@@ -45,6 +92,35 @@ namespace Codex.Users.Api.Tests
             Assert.Equal("Id1", user.Id);
             Assert.Equal("login", user.Login);
         }
+
+
+        [Fact]
+        public async Task FindOne_UnAuthorize()
+        {
+            var userService = new Mock<IUserService>();
+
+            userService.Setup(x => x.FindOneAsync(It.IsAny<string>())).Returns(
+                Task.FromResult((User?)new User() { Id = "Id1", Login = "login" })
+            );
+
+            var userController = new UserController(
+                userService.Object
+            );
+
+            userController.ControllerContext.HttpContext = _fixture.CreateHttpContext(
+                tenantId: "global",
+                userId: "Id2",
+                userName: "login",
+                roles: new() { RoleConstant.USER }
+            );
+
+            var result = await userController.FindOne("Id1");
+
+            userService.Verify(x => x.FindOneAsync(It.IsAny<string>()), Times.Never);
+            
+            Assert.IsType<UnauthorizedResult>(result.Result);
+        }
+
 
         [Fact]
         public async Task FindOne_NotFound()
@@ -57,6 +133,13 @@ namespace Codex.Users.Api.Tests
 
             var userController = new UserController(
                 userService.Object
+            );
+
+            userController.ControllerContext.HttpContext = _fixture.CreateHttpContext(
+                tenantId: "global",
+                userId: "Id1",
+                userName: "login",
+                roles: new() { RoleConstant.USER }
             );
 
             var result = await userController.FindOne("Id1");
@@ -80,9 +163,17 @@ namespace Codex.Users.Api.Tests
                 })
             );
 
-
             var userController = new UserController(
                 userService.Object
+            );
+
+            var authorizeAttributes = userController.GetType().GetMethod(nameof(UserController.FindAll))?.GetCustomAttributes(typeof(AuthorizeAttribute), true);
+
+            userController.ControllerContext.HttpContext = _fixture.CreateHttpContext(
+                tenantId: "global",
+                userId: "Id1",
+                userName: "login",
+                roles: new() { RoleConstant.TENANT_MANAGER }
             );
 
             var result = await userController.FindAll(userCriteria);
@@ -93,6 +184,11 @@ namespace Codex.Users.Api.Tests
             var userList = Assert.IsType<List<User>>(objectResult.Value);
             Assert.NotNull(userList);
             Assert.Equal(2, userList!.Count);
+
+            Assert.NotNull(authorizeAttributes);
+            Assert.Single(authorizeAttributes);
+            var authorizeAttribute = Assert.IsType<AuthorizeAttribute>(authorizeAttributes![0]);
+            Assert.Equal(RoleConstant.TENANT_MANAGER, authorizeAttribute.Roles);
         }
 
         [Fact]
@@ -109,6 +205,8 @@ namespace Codex.Users.Api.Tests
                 userService.Object
             );
 
+            var authorizeAttributes = userController.GetType().GetMethod(nameof(UserController.CreateUser))?.GetCustomAttributes(typeof(AuthorizeAttribute), true);
+
             var result = await userController.CreateUser(userCreator);
 
             userService.Verify(x => x.CreateAsync(It.IsAny<UserCreator>()), Times.Once);
@@ -119,6 +217,11 @@ namespace Codex.Users.Api.Tests
             Assert.NotNull(user);
             Assert.Equal("Id1", user.Id);
             Assert.Equal("login", user.Login);
+
+            Assert.NotNull(authorizeAttributes);
+            Assert.Single(authorizeAttributes);
+            var authorizeAttribute = Assert.IsType<AuthorizeAttribute>(authorizeAttributes![0]);
+            Assert.Equal(RoleConstant.TENANT_MANAGER, authorizeAttribute.Roles);
         }
 
         [Fact]
@@ -136,16 +239,14 @@ namespace Codex.Users.Api.Tests
                 userService.Object
             );
 
-            var httpContext = new DefaultHttpContext
-            {
-                User = new ClaimsPrincipal(
-                    new ClaimsIdentity(new List<Claim>()
-                    {
-                        new Claim(ClaimTypes.NameIdentifier, currentUserId),
-                        new Claim(ClaimTypes.Role, RoleConstant.TENANT_MANAGER)
-                    }, "TestAuthType")
-                )
-            };
+            var authorizeAttributes = userController.GetType().GetMethod(nameof(UserController.UpdateUser))?.GetCustomAttributes(typeof(AuthorizeAttribute), true);
+
+            var httpContext = _fixture.CreateHttpContext(
+                tenantId: "global",
+                userId: currentUserId,
+                userName: "login",
+                roles: new() { RoleConstant.TENANT_MANAGER }
+            );
 
             userController.ControllerContext.HttpContext = httpContext;
 
@@ -160,6 +261,11 @@ namespace Codex.Users.Api.Tests
             Assert.NotNull(user);
             Assert.Equal("Id1", user.Id);
             Assert.Equal("login", user.Login);
+
+            Assert.NotNull(authorizeAttributes);
+            Assert.Single(authorizeAttributes);
+            var authorizeAttribute = Assert.IsType<AuthorizeAttribute>(authorizeAttributes![0]);
+            Assert.Equal($"{RoleConstant.TENANT_MANAGER},{RoleConstant.USER}", authorizeAttribute.Roles);
         }
 
 

@@ -23,9 +23,15 @@ namespace Codex.Users.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize(Roles = RoleConstant.TENANT_MANAGER)]
+        [Authorize(Roles = "TENANT_MANAGER,USER")]
         public async Task<ActionResult<User>> FindOne(string id)
         {
+            string? contextUserId = HttpContext.GetUserId();
+            if (!HttpContext.User.IsInRole(RoleConstant.TENANT_MANAGER) && contextUserId != id)
+            {
+                return Unauthorized();
+            }
+
             var user = await _userService.FindOneAsync(id);
 
             return user == null ? NotFound(id) : Ok(user);
