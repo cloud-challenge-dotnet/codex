@@ -14,6 +14,7 @@ using Codex.Core.Interfaces;
 using Dapr.Client;
 using System.Threading;
 using Codex.Core.Models;
+using Codex.Users.Api.Exceptions;
 
 namespace Codex.Users.Api.Tests
 {
@@ -96,7 +97,7 @@ namespace Codex.Users.Api.Tests
 
             var userService = new UserService(userRepository.Object, daprClient.Object, passwordHasher.Object);
 
-            var user = await userService.CreateAsync(userCreator);
+            var user = await userService.CreateAsync("global", userCreator);
 
             Assert.NotNull(user);
             Assert.Equal(userCreator.Login, user.Login);
@@ -114,7 +115,7 @@ namespace Codex.Users.Api.Tests
 
             var userService = new UserService(userRepository.Object, daprClient.Object, passwordHasher.Object);
 
-            var exception = await Assert.ThrowsAsync<IllegalArgumentException>(() => userService.CreateAsync(userCreator));
+            var exception = await Assert.ThrowsAsync<IllegalArgumentException>(() => userService.CreateAsync("global", userCreator));
 
             Assert.Equal("USER_PASSWORD_INVALID", exception.Code);
         }
@@ -130,7 +131,7 @@ namespace Codex.Users.Api.Tests
 
             var userService = new UserService(userRepository.Object, daprClient.Object, passwordHasher.Object);
 
-            var exception = await Assert.ThrowsAsync<IllegalArgumentException>(() => userService.CreateAsync(userCreator));
+            var exception = await Assert.ThrowsAsync<IllegalArgumentException>(() => userService.CreateAsync("global", userCreator));
 
             Assert.Equal("USER_PASSWORD_INVALID", exception.Code);
         }
@@ -146,7 +147,7 @@ namespace Codex.Users.Api.Tests
 
             var userService = new UserService(userRepository.Object, daprClient.Object, passwordHasher.Object);
 
-            var exception = await Assert.ThrowsAsync<IllegalArgumentException>(() => userService.CreateAsync(userCreator));
+            var exception = await Assert.ThrowsAsync<IllegalArgumentException>(() => userService.CreateAsync("global", userCreator));
 
             Assert.Equal("USER_LOGIN_INVALID", exception.Code);
         }
@@ -162,7 +163,7 @@ namespace Codex.Users.Api.Tests
 
             var userService = new UserService(userRepository.Object, daprClient.Object, passwordHasher.Object);
 
-            var exception = await Assert.ThrowsAsync<IllegalArgumentException>(() => userService.CreateAsync(userCreator));
+            var exception = await Assert.ThrowsAsync<IllegalArgumentException>(() => userService.CreateAsync("global", userCreator));
 
             Assert.Equal("USER_EMAIL_INVALID", exception.Code);
         }
@@ -178,7 +179,7 @@ namespace Codex.Users.Api.Tests
 
             var userService = new UserService(userRepository.Object, daprClient.Object, passwordHasher.Object);
 
-            var exception = await Assert.ThrowsAsync<IllegalArgumentException>(() => userService.CreateAsync(userCreator));
+            var exception = await Assert.ThrowsAsync<IllegalArgumentException>(() => userService.CreateAsync("global", userCreator));
 
             Assert.Equal("USER_EMAIL_INVALID", exception.Code);
         }
@@ -200,7 +201,7 @@ namespace Codex.Users.Api.Tests
 
             var userService = new UserService(userRepository.Object, daprClient.Object, passwordHasher.Object);
 
-            var exception = await Assert.ThrowsAsync<IllegalArgumentException>(() => userService.CreateAsync(userCreator));
+            var exception = await Assert.ThrowsAsync<IllegalArgumentException>(() => userService.CreateAsync("global", userCreator));
 
             Assert.Equal("USER_EXISTS", exception.Code);
         }
@@ -222,7 +223,7 @@ namespace Codex.Users.Api.Tests
 
             var userService = new UserService(userRepository.Object, daprClient.Object, passwordHasher.Object);
 
-            var exception = await Assert.ThrowsAsync<IllegalArgumentException>(() => userService.CreateAsync(userCreator));
+            var exception = await Assert.ThrowsAsync<IllegalArgumentException>(() => userService.CreateAsync("global",userCreator));
 
             Assert.Equal("USER_EXISTS", exception.Code);
         }
@@ -248,6 +249,103 @@ namespace Codex.Users.Api.Tests
             Assert.NotNull(userResult);
             Assert.Equal(userId, userResult!.Id);
             Assert.Equal("login", userResult!.Login);
+        }
+
+        [Fact]
+        public async Task ActivateUser()
+        {
+            var userRepository = new Mock<IUserRepository>();
+            var passwordHasher = new Mock<IPasswordHasher>();
+            var daprClient = new Mock<DaprClient>();
+
+            string activationCode = "221212313521";
+            string userId = "User1";
+            var user = new User { Id = userId, Login = "login", ActivationCode = activationCode, ActivationValidity = DateTime.Now.AddDays(1) };
+
+            userRepository.Setup(x => x.UpdateActivationCodeAsync(It.IsAny<string>(), It.IsAny<string>())).Returns(
+                Task.FromResult((User?)new User { Id = userId, Login = "login" })
+            );
+
+            var userService = new UserService(userRepository.Object, daprClient.Object, passwordHasher.Object);
+
+            var userResult = await userService.ActivateUserAsync(user, activationCode);
+
+            Assert.NotNull(userResult);
+            Assert.Equal(userId, userResult!.Id);
+            Assert.Equal("login", userResult!.Login);
+
+            userRepository.Verify(x => x.UpdateActivationCodeAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task ActivateUser_User_ActivationCode_Null()
+        {
+            var userRepository = new Mock<IUserRepository>();
+            var passwordHasher = new Mock<IPasswordHasher>();
+            var daprClient = new Mock<DaprClient>();
+
+            string activationCode = "221212313521";
+            string userId = "User1";
+            var user = new User { Id = userId, Login = "login", ActivationCode = null, ActivationValidity = DateTime.Now.AddDays(1) };
+
+            userRepository.Setup(x => x.UpdateActivationCodeAsync(It.IsAny<string>(), It.IsAny<string>())).Returns(
+                Task.FromResult((User?)new User { Id = userId, Login = "login" })
+            );
+
+            var userService = new UserService(userRepository.Object, daprClient.Object, passwordHasher.Object);
+
+            var exception = await Assert.ThrowsAsync<InvalidUserValidationCodeException>(async() => await userService.ActivateUserAsync(user, activationCode));
+
+            Assert.NotNull(exception);
+            Assert.Equal("INVALID_VALIDATION_CODE", exception.Code);
+
+            userRepository.Verify(x => x.UpdateActivationCodeAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task ActivateUser_Bad_ActivationCode()
+        {
+            var userRepository = new Mock<IUserRepository>();
+            var passwordHasher = new Mock<IPasswordHasher>();
+            var daprClient = new Mock<DaprClient>();
+
+            string activationCode = "221212313521";
+            string userId = "User1";
+            var user = new User { Id = userId, Login = "login", ActivationCode = "25554545445", ActivationValidity = DateTime.Now.AddDays(1) };
+
+            userRepository.Setup(x => x.UpdateActivationCodeAsync(It.IsAny<string>(), It.IsAny<string>())).Returns(
+                Task.FromResult((User?)new User { Id = userId, Login = "login" })
+            );
+
+            var userService = new UserService(userRepository.Object, daprClient.Object, passwordHasher.Object);
+
+            var exception = await Assert.ThrowsAsync<InvalidUserValidationCodeException>(async () => await userService.ActivateUserAsync(user, activationCode));
+
+            Assert.NotNull(exception);
+            Assert.Equal("INVALID_VALIDATION_CODE", exception.Code);
+
+            userRepository.Verify(x => x.UpdateActivationCodeAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task ActivateUser_Expired_ActivationCode()
+        {
+            var userRepository = new Mock<IUserRepository>();
+            var passwordHasher = new Mock<IPasswordHasher>();
+            var daprClient = new Mock<DaprClient>();
+
+            string activationCode = "221212313521";
+            string userId = "User1";
+            var user = new User { Id = userId, Login = "login", ActivationCode = activationCode, ActivationValidity = DateTime.Now.AddDays(-1) };
+
+            var userService = new UserService(userRepository.Object, daprClient.Object, passwordHasher.Object);
+
+            var exception = await Assert.ThrowsAsync<ExpiredUserValidationCodeException>(async () => await userService.ActivateUserAsync(user, activationCode));
+
+            Assert.NotNull(exception);
+            Assert.Equal("EXPIRED_VALIDATION_CODE", exception.Code);
+
+            userRepository.Verify(x => x.UpdateActivationCodeAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
         }
     }
 }

@@ -1,11 +1,14 @@
-﻿using Codex.Core.Exceptions;
+﻿using Codex.Core;
+using Codex.Core.Exceptions;
 using Codex.Core.Interfaces;
 using Codex.Core.Models;
 using Codex.Core.Tools;
 using Codex.Models.Users;
+using Codex.Users.Api.Exceptions;
 using Codex.Users.Api.Repositories.Interfaces;
 using Codex.Users.Api.Services.Interfaces;
 using Dapr.Client;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -34,7 +37,7 @@ namespace Codex.Users.Api.Services.Implementations
             return await _userRepository.FindOneAsync(id);
         }
 
-        public async Task<User> CreateAsync(UserCreator userCreator)
+        public async Task<User> CreateAsync(string tenantId, UserCreator userCreator)
         {
             if (string.IsNullOrWhiteSpace(userCreator.Password))
                 throw new IllegalArgumentException(code: "USER_PASSWORD_INVALID", message: "Password must be not null or whitespace");
@@ -56,14 +59,39 @@ namespace Codex.Users.Api.Services.Implementations
 
             var user = userCreator.ToUser(passwordHash: _passwordHasher.GenerateHash(userCreator.Password!, salt));
 
-            return await _userRepository.InsertAsync(user);
+            // generate activation code for 30 days
+            user = user with { ActivationCode = StringUtils.RandomString(50), ActivationValidity = DateTime.Now.AddDays(30) };
 
-            // TODO send mail to user for verify his email
+            user = await _userRepository.InsertAsync(user);
+
+            await SendActivationUserEmailAsync(user, tenantId);
+
+            return user;
         }
 
         public async Task<User?> UpdateAsync(User user)
         {
             return await _userRepository.UpdateAsync(user);
+        }
+
+        private async Task SendActivationUserEmailAsync(User user, string tenantId)
+        {
+            await _daprClient.PublishEventAsync(ConfigConstant.CodexPubSubName, TopicConstant.SendActivationUserMail, new TopicData<User>(TopicType.Modify, user, tenantId));
+        }
+
+        public async Task<User?> ActivateUserAsync(User user, string activationCode)
+        {
+            if (user.ActivationCode == null || user.ActivationCode != activationCode)
+            {
+                throw new InvalidUserValidationCodeException("Validation code is invalid", code: "INVALID_VALIDATION_CODE");
+            }
+
+            if (user.ActivationValidity == null || DateTime.Now > user.ActivationValidity!)
+            {
+                throw new ExpiredUserValidationCodeException("Validation code is expired", code: "EXPIRED_VALIDATION_CODE");
+            }
+
+            return await _userRepository.UpdateActivationCodeAsync(user.Id!, activationCode);
         }
     }
 }

@@ -26,6 +26,8 @@ using System.Text.Json.Serialization;
 using Codex.Users.Api.Providers.Implementations;
 using System.Diagnostics.CodeAnalysis;
 using Codex.Core.Cache;
+using Codex.Core.RazorHelpers.Implementations;
+using Codex.Core.RazorHelpers.Interfaces;
 
 namespace Codex.Users.Api
 {
@@ -46,6 +48,14 @@ namespace Codex.Users.Api
 
             services.AddSingleton(sp =>
                 sp.GetRequiredService<IOptions<MongoDbSettings>>().Value);
+
+            services.AddRazorPages();
+
+            /*
+            services.AddMvc().AddRazorOptions(options =>
+            {
+                options.PageViewLocationFormats.Add("/Templates/{0}.cshtml");
+            });*/
 
             services.AddDaprClient();
 
@@ -100,9 +110,11 @@ namespace Codex.Users.Api
             //it will be one instance per tenant
             _ = tenant;
 
-            containerBuilder.RegisterType<UserRepository>().As<IUserRepository>().SingleInstance();
-            containerBuilder.RegisterType<UserService>().As<IUserService>().SingleInstance();
-            containerBuilder.RegisterType<AuthenticationService>().As<IAuthenticationService>().SingleInstance();
+            containerBuilder.RegisterType<RazorPartialToStringRenderer>().As<IRazorPartialToStringRenderer>().InstancePerLifetimeScope();
+            containerBuilder.RegisterType<UserRepository>().As<IUserRepository>().InstancePerLifetimeScope();
+            containerBuilder.RegisterType<UserService>().As<IUserService>().InstancePerLifetimeScope();
+            containerBuilder.RegisterType<UserMailService>().As<IUserMailService>().InstancePerLifetimeScope();
+            containerBuilder.RegisterType<AuthenticationService>().As<IAuthenticationService>().InstancePerLifetimeScope();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -15,13 +15,13 @@
           "ADMIN"
         ],
         "passwordHash": "G3JsGuJkkF/nLP27fnsyzGpL+jIU0YgVIVd5qoKiepE=",
-        "emailConfirmed": false,
-        "phoneConfirmed": false,
+        "activationCode": null,
+        "activationValidity": null,
         "active": true
       },
       {
         "_id": {
-          "$oid" : "5fb92118da7ed3521e4a7d60"
+          "$oid": "5fb92118da7ed3521e4a7d60"
         },
         "login": "user2",
         "email": "test2@gmail.com",
@@ -32,8 +32,8 @@
           "TENANT_MANAGER"
         ],
         "passwordHash": "G3JsGuJkkF/nLP27fnsyzGpL+jIU0YgVIVd5qoKiepE=",
-        "emailConfirmed": false,
-        "phoneConfirmed": false,
+        "activationCode": null,
+        "activationValidity": null,
         "active": true
       }
     ]

@@ -23,7 +23,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Codex.Users.Api", "Codex.Us
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Codex.Models", "Codex.Models\Codex.Models.csproj", "{9C31B262-73FB-45DA-BD13-622B157DD0AB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Codex.Users.Api.Tests", "Tests\Codex.Users.Api.Tests\Codex.Users.Api.Tests.csproj", "{61FCC3DA-7345-4499-9CC9-53D7EE2C1EFD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Codex.Users.Api.Tests", "Tests\Codex.Users.Api.Tests\Codex.Users.Api.Tests.csproj", "{61FCC3DA-7345-4499-9CC9-53D7EE2C1EFD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

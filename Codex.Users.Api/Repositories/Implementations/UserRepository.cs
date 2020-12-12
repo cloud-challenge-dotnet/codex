@@ -7,6 +7,7 @@ using MongoDB.Driver.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Codex.Core.Extensions;
+using System;
 
 namespace Codex.Users.Api.Repositories.Interfaces
 {
@@ -16,7 +17,6 @@ namespace Codex.Users.Api.Repositories.Interfaces
             ITenantAccessService tenantAccessService) : base(mongoDbSettings, tenantAccessService)
         {
         }
-
         public async Task<List<User>> FindAllAsync(UserCriteria userCriteria)
         {
             var repository = await GetRepositoryAsync();
@@ -44,19 +44,43 @@ namespace Codex.Users.Api.Repositories.Interfaces
             var updates = new List<UpdateDefinition<User>>
             {
                 update.Set(GetMongoPropertyName(nameof(user.Login)), user.Login),
-                update.Set(GetMongoPropertyName(nameof(user.Email)), user.Email)
+                update.Set(GetMongoPropertyName(nameof(user.Email)), user.Email),
+                update.Set(GetMongoPropertyName(nameof(user.Active)), user.Active),
+                update.SetOnInsert(GetMongoPropertyName(nameof(user.CreationDate)), DateTime.Now),
+                update.Set(GetMongoPropertyName(nameof(user.ModificationDate)), DateTime.Now)
             };
             user.FirstName?.Also(x => updates.Add(update.Set(GetMongoPropertyName(nameof(user.FirstName)), user.FirstName)));
             user.LastName?.Also(x => updates.Add(update.Set(GetMongoPropertyName(nameof(user.LastName)), user.LastName)));
             user.PhoneNumber?.Also(x => updates.Add(update.Set(GetMongoPropertyName(nameof(user.PhoneNumber)), user.PhoneNumber)));
             user.Roles?.Also(x => updates.Add(update.Set(GetMongoPropertyName(nameof(user.Roles)), user.Roles)));
             user.PasswordHash?.Also(x => updates.Add(update.Set(GetMongoPropertyName(nameof(user.PasswordHash)), user.PasswordHash)));
-            updates.Add(update.Set(GetMongoPropertyName(nameof(user.EmailConfirmed)), user.EmailConfirmed));
-            updates.Add(update.Set(GetMongoPropertyName(nameof(user.PhoneConfirmed)), user.PhoneConfirmed));
-            updates.Add(update.Set(GetMongoPropertyName(nameof(user.Active)), user.Active));
+            user.ActivationCode?.Also(x => updates.Add(update.Set(GetMongoPropertyName(nameof(user.ActivationCode)), user.ActivationCode)));
+            user.ActivationValidity?.Also(x => updates.Add(update.Set(GetMongoPropertyName(nameof(user.ActivationValidity)), user.ActivationValidity)));
 
             return await repository.FindOneAndUpdateAsync(
                 Builders<User>.Filter.Where(it => it.Id == user.Id),
+                update.Combine(updates),
+                options: new FindOneAndUpdateOptions<User>
+                {
+                    ReturnDocument = ReturnDocument.After
+                }
+            );
+        }
+
+        public async Task<User?> UpdateActivationCodeAsync(string userId, string activationCode)
+        {
+            var repository = await GetRepositoryAsync();
+
+            var update = Builders<User>.Update;
+            var updates = new List<UpdateDefinition<User>>
+            {
+                update.Set(GetMongoPropertyName(nameof(User.ModificationDate)), DateTime.Now),
+                update.Set(GetMongoPropertyName(nameof(User.ActivationCode)), activationCode),
+                update.Set(GetMongoPropertyName(nameof(User.ActivationValidity)), DateTime.Now.AddMinutes(15))
+            };
+
+            return await repository.FindOneAndUpdateAsync(
+                Builders<User>.Filter.Where(it => it.Id == userId),
                 update.Combine(updates),
                 options: new FindOneAndUpdateOptions<User>
                 {

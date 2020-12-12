@@ -10,8 +10,10 @@ namespace Codex.Users.Api.Services.Interfaces
 
         Task<User?> FindOneAsync(string id);
 
-        Task<User> CreateAsync(UserCreator userCreator);
+        Task<User> CreateAsync(string tenantId, UserCreator userCreator);
 
         Task<User?> UpdateAsync(User user);
+
+        Task<User?> ActivateUserAsync(User user, string validationCode);
     }
 }

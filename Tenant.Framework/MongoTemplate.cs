@@ -71,13 +71,13 @@ namespace Codex.Tenants.Framework
             return await repository.Find(filter).Limit(1).SingleOrDefaultAsync();
         }
 
-        public async Task<TDocument> InsertAsync(TDocument tenant)
+        public async Task<TDocument> InsertAsync(TDocument document)
         {
             var repository = await GetRepositoryAsync();
 
-            await repository.InsertOneAsync(tenant);
+            await repository.InsertOneAsync(document);
 
-            return tenant;
+            return document;
         }
 
         public async Task DropDatabaseAsync()

@@ -11,5 +11,7 @@
         public const string PasswordSalt = "passwordSalt";
 
         public const string JwtSecretKey = "jwtSecret";
+
+        public const string BackOfficeUrl = "backOfficeUrl";
     }
 }

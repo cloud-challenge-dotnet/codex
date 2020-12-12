@@ -10,5 +10,7 @@ namespace Codex.Users.Api.Repositories.Interfaces
         Task<List<User>> FindAllAsync(UserCriteria userCriteria);
 
         Task<User?> UpdateAsync(User user);
+
+        Task<User?> UpdateActivationCodeAsync(string userId, string activationCode);
     }
 }

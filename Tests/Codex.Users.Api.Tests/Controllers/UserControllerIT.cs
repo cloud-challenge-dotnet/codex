@@ -197,7 +197,7 @@ namespace Codex.Users.Api.Tests
             UserCreator userCreator = new() { Login = "login" };
             var userService = new Mock<IUserService>();
 
-            userService.Setup(x => x.CreateAsync(It.IsAny<UserCreator>())).Returns(
+            userService.Setup(x => x.CreateAsync(It.IsAny<string>(), It.IsAny<UserCreator>())).Returns(
                 Task.FromResult(new User() { Id = "Id1", Login = "login" })
             );
 
@@ -205,11 +205,13 @@ namespace Codex.Users.Api.Tests
                 userService.Object
             );
 
+            userController.ControllerContext.HttpContext = new DefaultHttpContext();
+
             var authorizeAttributes = userController.GetType().GetMethod(nameof(UserController.CreateUser))?.GetCustomAttributes(typeof(AuthorizeAttribute), true);
 
             var result = await userController.CreateUser(userCreator);
 
-            userService.Verify(x => x.CreateAsync(It.IsAny<UserCreator>()), Times.Once);
+            userService.Verify(x => x.CreateAsync(It.IsAny<string>(), It.IsAny<UserCreator>()), Times.Once);
 
             var createdAtActionResult = Assert.IsType<CreatedAtActionResult>(result.Result);
             Assert.Equal(nameof(userController.FindOne), createdAtActionResult.ActionName);
@@ -420,6 +422,84 @@ namespace Codex.Users.Api.Tests
             userService.Verify(x => x.UpdateAsync(It.IsAny<User>()), Times.Never);
 
             Assert.IsType<UnauthorizedResult>(result.Result);
+        }
+
+        [Fact]
+        public async Task ActivateUser()
+        {
+            string activationCode = "1121313534";
+            string userId = "Id1";
+            var userService = new Mock<IUserService>();
+
+            userService.Setup(x => x.FindOneAsync(It.IsAny<string>())).Returns(
+                Task.FromResult((User?)new User() { Id = "Id1", Login = "login" })
+            );
+
+            userService.Setup(x => x.ActivateUserAsync(It.IsAny<User>(), It.IsAny<string>())).Returns(
+                Task.FromResult((User?)new User() { Id = "Id1", Login = "login" })
+            );
+
+            var userController = new UserController(
+                userService.Object
+            );
+
+            var httpContext = new DefaultHttpContext
+            {
+                User = new ClaimsPrincipal(
+                    new ClaimsIdentity(new List<Claim>()
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, "Id1")
+                    }, "TestAuthType")
+                )
+            };
+
+            userController.ControllerContext.HttpContext = httpContext;
+
+            var result = await userController.ActivateUser(userId, activationCode);
+            var objectResult = Assert.IsType<OkObjectResult>(result.Result);
+            var user = Assert.IsType<User>(objectResult.Value);
+            Assert.NotNull(user);
+            Assert.Equal("Id1", user.Id);
+            Assert.Equal("login", user.Login);
+
+            userService.Verify(x => x.FindOneAsync(It.IsAny<string>()), Times.Once);
+            userService.Verify(x => x.ActivateUserAsync(It.IsAny<User>(), It.IsAny<string>()), Times.Once);
+
+        }
+
+        [Fact]
+        public async Task ActivateUser_Not_Found_User()
+        {
+            string activationCode = "1121313534";
+            string userId = "Id1";
+            var userService = new Mock<IUserService>();
+
+            userService.Setup(x => x.FindOneAsync(It.IsAny<string>())).Returns(
+                Task.FromResult((User?)null)
+            );
+
+            var userController = new UserController(
+                userService.Object
+            );
+
+            var httpContext = new DefaultHttpContext
+            {
+                User = new ClaimsPrincipal(
+                    new ClaimsIdentity(new List<Claim>()
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, "Id1")
+                    }, "TestAuthType")
+                )
+            };
+
+            userController.ControllerContext.HttpContext = httpContext;
+
+            var result = await userController.ActivateUser(userId, activationCode);
+            var notFoundObjectResult = Assert.IsType<NotFoundObjectResult>(result.Result);
+            Assert.Equal("Id1", notFoundObjectResult.Value);
+
+            userService.Verify(x => x.FindOneAsync(It.IsAny<string>()), Times.Once);
+            userService.Verify(x => x.ActivateUserAsync(It.IsAny<User>(), It.IsAny<string>()), Times.Never);
         }
     }
 }
