@@ -7,4 +7,3 @@
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=cloud-challenge-dotnet_codex&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=cloud-challenge-dotnet_codex)
 [![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=cloud-challenge-dotnet_codex&metric=sqale_index)](https://sonarcloud.io/dashboard?id=cloud-challenge-dotnet_codex)
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=cloud-challenge-dotnet_codex&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=cloud-challenge-dotnet_codex)
-
