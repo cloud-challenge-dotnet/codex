@@ -67,7 +67,7 @@ namespace Codex.Core.RazorHelpers.Implementations
             var searchedLocations = getPartialResult.SearchedLocations.Concat(findPartialResult.SearchedLocations);
             var errorMessage = string.Join(
                 Environment.NewLine,
-                new[] { $"Unable to find partial '{partialName}'. The following locations were searched:" }.Concat(searchedLocations)); ;
+                new[] { $"Unable to find partial '{partialName}'. The following locations were searched:" }.Concat(searchedLocations));
             throw new InvalidOperationException(errorMessage);
         }
         private ActionContext GetActionContext()

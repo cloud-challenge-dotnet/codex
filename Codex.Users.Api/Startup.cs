@@ -51,12 +51,6 @@ namespace Codex.Users.Api
 
             services.AddRazorPages();
 
-            /*
-            services.AddMvc().AddRazorOptions(options =>
-            {
-                options.PageViewLocationFormats.Add("/Templates/{0}.cshtml");
-            });*/
-
             services.AddDaprClient();
 
             services.AddSingleton<IExceptionHandler, CoreExceptionHandler>();

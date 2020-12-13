@@ -6,9 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Codex.Tenants.Framework;
-using Codex.Core.Models;
-using Dapr.Client;
-using Codex.Users.Api.Exceptions;
 
 namespace Codex.Users.Api.Controllers
 {
