@@ -1,20 +1,13 @@
-using Codex.Core.Exceptions;
 using Codex.Tests.Framework;
 using Moq;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
-using Codex.Models.Users;
-using Codex.Core.Interfaces;
-using Dapr.Client;
-using System.Threading;
-using Codex.Core.Models;
 using Codex.Security.Api.Repositories.Interfaces;
 using Codex.Models.Security;
 using Codex.Security.Api.Services.Implementations;
 
-namespace Codex.Security.Api.Tests
+namespace Codex.Security.Api.Tests.Services
 {
     public class ApiKeyServiceIT : IClassFixture<Fixture>
     {

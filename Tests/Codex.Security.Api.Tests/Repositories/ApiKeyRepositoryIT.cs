@@ -6,7 +6,7 @@ using System;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Codex.Security.Api.Tests
+namespace Codex.Security.Api.Tests.Repositories
 {
     public class ApiKeyRepositoryIT : IClassFixture<DbFixture>
     {
