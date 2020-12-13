@@ -7,8 +7,9 @@ using Codex.Models.Tenants;
 using MongoDB.Driver.Linq;
 using Codex.Core.Models;
 using Codex.Tenants.Framework.Interfaces;
+using Codex.Tenants.Api.Repositories.Interfaces;
 
-namespace Codex.Tenants.Api
+namespace Codex.Tenants.Api.Repositories.Implementations
 {
     public class TenantRepository : MongoTemplate<Tenant>, ITenantRepository
     {

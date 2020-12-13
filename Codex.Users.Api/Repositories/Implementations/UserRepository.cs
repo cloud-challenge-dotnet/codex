@@ -8,8 +8,9 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Codex.Core.Extensions;
 using System;
+using Codex.Users.Api.Repositories.Interfaces;
 
-namespace Codex.Users.Api.Repositories.Interfaces
+namespace Codex.Users.Api.Repositories.Implementations
 {
     public class UserRepository : MongoTemplate<User>, IUserRepository
     {

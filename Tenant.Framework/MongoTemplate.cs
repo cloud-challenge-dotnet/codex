@@ -80,6 +80,14 @@ namespace Codex.Tenants.Framework
             return document;
         }
 
+        public async Task DeleteAsync(string id)
+        {
+            var repository = await GetRepositoryAsync();
+
+            var filter = Builders<TDocument>.Filter.Eq("_id", id);
+            await repository.DeleteOneAsync(filter);
+        }
+
         public async Task DropDatabaseAsync()
         {
             var tenant = await _tenantAccessService.GetTenantAsync();

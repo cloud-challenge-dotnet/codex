@@ -1,13 +1,13 @@
 ﻿using Codex.Core.Models;
 using Codex.Tenants.Framework.Interfaces;
 using Codex.Tests.Framework;
-using Codex.Users.Api.Repositories.Implementations;
-using Codex.Users.Api.Repositories.Interfaces;
+using Codex.Security.Api.Repositories.Implementations;
+using Codex.Security.Api.Repositories.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace Codex.Users.Api.Tests
+namespace Codex.Security.Api.Tests
 {
     public class Startup
     {
@@ -25,7 +25,7 @@ namespace Codex.Users.Api.Tests
             services.AddSingleton<ITenantAccessService, TestTenantAccessService>();
 
             services.AddSingleton<DbFixture, DbFixture>();
-            services.AddSingleton<IUserRepository, UserRepository>();
+            services.AddSingleton<IApiKeyRepository, ApiKeyRepository>();
         }
     }
 }

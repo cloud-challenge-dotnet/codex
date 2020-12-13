@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
+using Codex.Tenants.Api.Repositories.Interfaces;
 
 namespace Codex.Tenants.Api.Tests
 {

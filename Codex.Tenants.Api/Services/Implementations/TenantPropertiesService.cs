@@ -1,4 +1,5 @@
 ﻿using Codex.Models.Tenants;
+using Codex.Tenants.Api.Repositories.Interfaces;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 

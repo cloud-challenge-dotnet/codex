@@ -8,6 +8,6 @@ namespace Codex.Core.Interfaces
 
         Task<TDocument?> FindOneAsync(string id);
 
-        Task<TDocument> InsertAsync(TDocument tenant);
+        Task<TDocument> InsertAsync(TDocument document);
     }
 }

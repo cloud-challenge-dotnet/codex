@@ -20,6 +20,8 @@ using System.Text.Json.Serialization;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Codex.Tenants.Api.Repositories.Interfaces;
+using Codex.Tenants.Api.Repositories.Implementations;
 
 namespace Codex.Tenants.Api
 {

@@ -1,15 +1,10 @@
 using Autofac;
 using Codex.Core;
-using Codex.Core.Implementations;
 using Codex.Core.Interfaces;
 using Codex.Core.Models;
-using Codex.Core.Roles.Interfaces;
 using Codex.Tenants.Framework;
 using Codex.Tenants.Framework.Implementations;
 using Codex.Models.Tenants;
-using Codex.Users.Api.Repositories.Interfaces;
-using Codex.Users.Api.Services.Implementations;
-using Codex.Users.Api.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -23,14 +18,11 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Codex.Users.Api.Providers.Implementations;
 using System.Diagnostics.CodeAnalysis;
-using Codex.Core.Cache;
-using Codex.Core.RazorHelpers.Implementations;
-using Codex.Core.RazorHelpers.Interfaces;
-using Codex.Users.Api.Repositories.Implementations;
+using Codex.Security.Api.Repositories.Interfaces;
+using Codex.Security.Api.Repositories.Implementations;
 
-namespace Codex.Users.Api
+namespace Codex.Security.Api
 {
     [ExcludeFromCodeCoverage]
     public class Startup
@@ -55,11 +47,6 @@ namespace Codex.Users.Api
             services.AddDaprClient();
 
             services.AddSingleton<IExceptionHandler, CoreExceptionHandler>();
-            services.AddSingleton<IPasswordHasher, PasswordHasher>();
-            services.AddSingleton<IRoleProvider, DefaultRoleProvider>();
-            services.AddSingleton<IRoleService, RoleService>();
-            services.AddSingleton<IMailService, MailJetMailService>();
-            services.AddSingleton<CacheService<Tenant>, CacheService<Tenant>>();
 
             services.AddMultiTenancy()
                 .WithResolutionStrategy<HostTenantResolutionStrategy>()
@@ -75,7 +62,7 @@ namespace Codex.Users.Api
 
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Codex.Users.Api", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Codex.Security.Api", Version = "v1" });
             });
 
             var jwtSecret = Encoding.ASCII.GetBytes(Configuration.GetValue<string>(ConfigConstant.JwtSecretKey));
@@ -106,24 +93,21 @@ namespace Codex.Users.Api
             //it will be one instance per tenant
             _ = tenant;
 
-            containerBuilder.RegisterType<RazorPartialToStringRenderer>().As<IRazorPartialToStringRenderer>().InstancePerLifetimeScope();
-            containerBuilder.RegisterType<UserRepository>().As<IUserRepository>().InstancePerLifetimeScope();
-            containerBuilder.RegisterType<UserService>().As<IUserService>().InstancePerLifetimeScope();
-            containerBuilder.RegisterType<UserMailService>().As<IUserMailService>().InstancePerLifetimeScope();
-            containerBuilder.RegisterType<AuthenticationService>().As<IAuthenticationService>().InstancePerLifetimeScope();
+            containerBuilder.RegisterType<ApiKeyRepository>().As<IApiKeyRepository>().InstancePerLifetimeScope();
+            //containerBuilder.RegisterType<UserService>().As<IUserService>().InstancePerLifetimeScope();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app,
-            IWebHostEnvironment env,
-            IEnumerable<IExceptionHandler> exceptionHandlers)
+                IWebHostEnvironment env,
+                IEnumerable<IExceptionHandler> exceptionHandlers)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
 
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("v1/swagger.json", "Codex.Users.Api v1"));
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("v1/swagger.json", "Codex.Security.Api v1"));
             }
             else
             {
@@ -138,7 +122,7 @@ namespace Codex.Users.Api
 
             app.UseMultiTenancy()
                 .UseMultiTenantContainer();
-            
+
             app.UseAuthentication();
             app.UseAuthorization();
 

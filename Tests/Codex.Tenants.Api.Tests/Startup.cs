@@ -1,4 +1,6 @@
 ﻿using Codex.Core.Models;
+using Codex.Tenants.Api.Repositories.Implementations;
+using Codex.Tenants.Api.Repositories.Interfaces;
 using Codex.Tenants.Framework.Interfaces;
 using Codex.Tests.Framework;
 using Microsoft.Extensions.Configuration;
