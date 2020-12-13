@@ -132,8 +132,7 @@ namespace Codex.Tenants.Api.Controllers
 
         private async Task PublishTenantChangeEventAsync(TopicType topicType, Tenant tenant)
         {
-            await _daprClient.PublishEventAsync(ConfigConstant.CodexPubSubName, TopicConstant.Tenant, new TopicData<Tenant>(topicType, tenant));
+            await _daprClient.PublishEventAsync(ConfigConstant.CodexPubSubName, TopicConstant.Tenant, new TopicData<Tenant>(topicType, tenant, tenant.Id!));
         }
-
     }
 }

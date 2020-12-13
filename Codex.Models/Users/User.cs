@@ -1,5 +1,6 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using System;
 using System.Collections.Generic;
 
 namespace Codex.Models.Users
@@ -7,10 +8,10 @@ namespace Codex.Models.Users
     public abstract record BaseUser
     {
         public BaseUser()
-               => (Login, Email, FirstName, LastName, PhoneNumber, Roles) = ("", "", null, null, null, new());
+               => (Login, Email, FirstName, LastName, PhoneNumber, Roles, CreationDate, ModificationDate) = ("", "", null, null, null, new(), DateTime.Now, DateTime.Now);
 
         public BaseUser(string login, string email, string? firstName, string? lastName, string? phoneNumber, List<string> roles)
-               => (Login, Email, FirstName, LastName, PhoneNumber, Roles) = (login, email, firstName, lastName, phoneNumber, roles);
+               => (Login, Email, FirstName, LastName, PhoneNumber, Roles, CreationDate, ModificationDate) = (login, email, firstName, lastName, phoneNumber, roles, DateTime.Now, DateTime.Now);
 
         public string Login { get; set; }
 
@@ -23,17 +24,21 @@ namespace Codex.Models.Users
         public string? PhoneNumber { get; set; }
 
         public List<string> Roles { get; set; }
+
+        public DateTime CreationDate { get; set; }
+
+        public DateTime ModificationDate { get; set; }
     }
 
     public record User : BaseUser
     {
         public User() : base()
-            => (Id, PasswordHash, EmailConfirmed, PhoneConfirmed, Active) = (null, null, false, false, true);
+            => (Id, PasswordHash, ActivationValidity, Active) = (null, null, null, true);
 
         public User(string? id, string login, string email, string? firstName, string? lastName, string? phoneNumber, List<string> roles,
-            string? passwordHash, bool emailConfirmed, bool phoneConfirmed, bool active)
+            string? passwordHash, string? activationCode = null, DateTime? activationValidity = null, bool active = true)
             : base(login, email, firstName, lastName, phoneNumber, roles)
-            => (Id, PasswordHash, EmailConfirmed, PhoneConfirmed, Active) = (id, passwordHash, emailConfirmed, phoneConfirmed, active);
+            => (Id, PasswordHash, ActivationCode, ActivationValidity, Active) = (id, passwordHash, activationCode, activationValidity, active);
 
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
@@ -41,9 +46,9 @@ namespace Codex.Models.Users
 
         public string? PasswordHash { get; set; }
 
-        public bool EmailConfirmed { get; set; }
+        public string? ActivationCode { get; set; }
 
-        public bool PhoneConfirmed { get; set; }
+        public DateTime? ActivationValidity { get; set; }
 
         public bool Active { get; set; }
     }
@@ -64,9 +69,7 @@ namespace Codex.Models.Users
             phoneNumber: PhoneNumber,
             roles: Roles,
             active: true,
-            passwordHash: passwordHash,
-            emailConfirmed: false,
-            phoneConfirmed: false
+            passwordHash: passwordHash
         );
     }
 }

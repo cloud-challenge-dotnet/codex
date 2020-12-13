@@ -48,7 +48,8 @@ namespace Codex.Users.Api.Controllers
         [Authorize(Roles = RoleConstant.TENANT_MANAGER)]
         public async Task<ActionResult<User>> CreateUser([FromBody] UserCreator userCreator)
         {
-            var user = await _userService.CreateAsync(userCreator);
+            string? tenantId = HttpContext.GetTenant()?.Id;
+            var user = await _userService.CreateAsync(tenantId!, userCreator);
 
             return CreatedAtAction(nameof(FindOne), new { id = user.Id }, user);
         }
@@ -76,10 +77,10 @@ namespace Codex.Users.Api.Controllers
                 user = user with
                 { // current user without TENANT_MANAGER Role can't update all user fields
                     PasswordHash = null,
+                    ActivationCode = null,
+                    ActivationValidity = null,
                     Roles = userResult.Roles,
-                    Active = userResult.Active,
-                    PhoneConfirmed = userResult.PhoneConfirmed,
-                    EmailConfirmed = userResult.EmailConfirmed
+                    Active = userResult.Active                    
                 };
             }
 
@@ -90,6 +91,20 @@ namespace Codex.Users.Api.Controllers
             }
 
             return AcceptedAtAction(nameof(FindOne), new { id = user.Id }, userResult);
+        }
+
+        [HttpGet("{userId}/activation")]
+        public async Task<ActionResult<User>> ActivateUser([FromQuery] string userId, [FromQuery] string activationCode)
+        {
+            var user = await _userService.FindOneAsync(userId);
+            if (user == null)
+            {
+                return NotFound(userId);
+            }
+
+            user = await _userService.ActivateUserAsync(user, activationCode);
+
+            return Ok(user);
         }
     }
 }

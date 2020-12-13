@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Codex.Core.Extensions
 {
+    [ExcludeFromCodeCoverage]
     public static class ObjectExtensions
     {
         // Kotlin: fun <T, R> T.let(block: (T) -> R): R

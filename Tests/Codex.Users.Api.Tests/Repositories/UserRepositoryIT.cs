@@ -2,6 +2,7 @@ using Codex.Models.Users;
 using Codex.Tests.Framework;
 using Codex.Users.Api.Repositories.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -99,11 +100,12 @@ namespace Codex.Users.Api.Tests
         }
 
         [Fact]
-        public async Task Update()
+        public async Task Insert()
         {
-            await _fixture.UseDataSetAsync(locations: @"Resources/users.json");
+            await _fixture.DropDatabaseAsync();
 
-            var user = await _userRepository.UpdateAsync(new() {
+            var user = await _userRepository.InsertAsync(new()
+            {
                 Id = "5fb92118da7ed3521e4a7d59",
                 Login = "user-login",
                 Email = "user-email",
@@ -115,8 +117,41 @@ namespace Codex.Users.Api.Tests
                     "ADMIN",
                     "USER"
                 },
-                EmailConfirmed = true,
-                PhoneConfirmed = true,
+                ActivationCode = "123456",
+                ActivationValidity = DateTime.Now.AddDays(1),
+                PasswordHash = "test",
+                Active = true
+            });
+
+            Assert.NotNull(user);
+            Assert.Equal("user-login", user!.Login);
+            Assert.True(user!.CreationDate > DateTime.Now.Date);
+            Assert.True(user!.ModificationDate > DateTime.Now.Date);
+
+            //Not updated
+            Assert.Equal("5fb92118da7ed3521e4a7d59", user!.Id);
+        }
+
+        [Fact]
+        public async Task Update()
+        {
+            await _fixture.UseDataSetAsync(locations: @"Resources/users.json");
+
+            var user = await _userRepository.UpdateAsync(new()
+            {
+                Id = "5fb92118da7ed3521e4a7d59",
+                Login = "user-login",
+                Email = "user-email",
+                FirstName = "user-firstName",
+                LastName = "user-lastName",
+                PhoneNumber = "user-phoneNumber",
+                Roles = new()
+                {
+                    "ADMIN",
+                    "USER"
+                },
+                ActivationCode = "123456",
+                ActivationValidity = DateTime.Now.AddDays(1),
                 PasswordHash = "test",
                 Active = true
             });
@@ -127,17 +162,36 @@ namespace Codex.Users.Api.Tests
             Assert.Equal("user-firstName", user!.FirstName);
             Assert.Equal("user-lastName", user!.LastName);
             Assert.Equal("user-phoneNumber", user!.PhoneNumber);
+            Assert.NotEqual(new DateTime(2020, 12, 12), user!.ModificationDate);
             Assert.NotNull(user!.Roles);
             Assert.Equal(2, user!.Roles.Count);
             Assert.Equal("ADMIN", user!.Roles[0]);
             Assert.Equal("USER", user!.Roles[1]);
-            Assert.True(user!.EmailConfirmed);
-            Assert.True(user!.PhoneConfirmed);
+            Assert.Equal("123456", user!.ActivationCode);
             Assert.Equal("test", user!.PasswordHash);
             Assert.True(user!.Active);
 
             //Not updated
             Assert.Equal("5fb92118da7ed3521e4a7d59", user!.Id);
+            Assert.Equal(new DateTime(2020, 12, 12), user!.CreationDate);
+        }
+
+
+        [Fact]
+        public async Task UpdateActivationCode()
+        {
+            await _fixture.UseDataSetAsync(locations: @"Resources/users.json");
+
+            var user = await _userRepository.UpdateActivationCodeAsync("5fb92118da7ed3521e4a7d59", "56458646456");
+
+            Assert.NotNull(user);
+            Assert.NotEqual(new DateTime(2020, 12, 12), user!.ModificationDate);
+            Assert.Equal("56458646456", user!.ActivationCode);
+            Assert.NotNull(user!.ActivationValidity);
+
+            //Not updated
+            Assert.Equal("5fb92118da7ed3521e4a7d59", user!.Id);
+            Assert.Equal(new DateTime(2020, 12, 12), user!.CreationDate);
         }
     }
 }

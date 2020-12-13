@@ -9,14 +9,14 @@ using System.Threading.Tasks;
 
 namespace Codex.Users.Api.Controllers
 {
-    public class TopicController : ControllerBase
+    public class TenantTopicController : ControllerBase
     {
-        private readonly ILogger<TopicController> _logger;
+        private readonly ILogger<TenantTopicController> _logger;
         private readonly DaprClient _daprClient;
         private readonly CacheService<Tenant> _tenantCacheService;
 
-        public TopicController(
-            ILogger<TopicController> logger,
+        public TenantTopicController(
+            ILogger<TenantTopicController> logger,
             DaprClient daprClient,
             CacheService<Tenant> tenantCacheService)
         {

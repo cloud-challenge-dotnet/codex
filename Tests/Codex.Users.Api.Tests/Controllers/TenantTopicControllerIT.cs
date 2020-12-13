@@ -5,7 +5,6 @@ using Moq;
 using System.Threading.Tasks;
 using Xunit;
 using Dapr.Client;
-using System.Threading;
 using Codex.Users.Api.Controllers;
 using Codex.Core.Models;
 using Microsoft.Extensions.Logging;
@@ -13,23 +12,23 @@ using Codex.Core.Cache;
 
 namespace Codex.Users.Api.Tests
 {
-    public class TopicControllerIT : IClassFixture<Fixture>
+    public class TenantTopicControllerIT : IClassFixture<Fixture>
     {
-        public TopicControllerIT()
+        public TenantTopicControllerIT()
         {
         }
 
         [Fact]
         public async Task ProcessTenantTopic_with_Tenant_Id_Null()
         {
-            var logger = new Mock<ILogger<TopicController>>();
+            var logger = new Mock<ILogger<TenantTopicController>>();
             var daprClient = new Mock<DaprClient>();
             var tenantCacheService = new Mock<CacheService<Tenant>>();
 
             Tenant tenant = new();
-            TopicData<Tenant> tenantTopicData = new(TopicType.Modify, tenant);
+            TopicData<Tenant> tenantTopicData = new(TopicType.Modify, tenant, "global");
 
-            var topicController = new TopicController(
+            var topicController = new TenantTopicController(
                 logger.Object,
                 daprClient.Object,
                 tenantCacheService.Object
@@ -46,14 +45,14 @@ namespace Codex.Users.Api.Tests
         [Fact]
         public async Task ProcessTenantTopic_Modify_Topic()
         {
-            var logger = new Mock<ILogger<TopicController>>();
+            var logger = new Mock<ILogger<TenantTopicController>>();
             var daprClient = new Mock<DaprClient>();
             var tenantCacheService = new Mock<CacheService<Tenant>>();
 
             Tenant tenant = new(id: "global", name: "tenant_global");
-            TopicData<Tenant> tenantTopicData = new(TopicType.Modify, tenant);
+            TopicData<Tenant> tenantTopicData = new(TopicType.Modify, tenant, tenant.Id!);
 
-            var topicController = new TopicController(
+            var topicController = new TenantTopicController(
                 logger.Object,
                 daprClient.Object,
                 tenantCacheService.Object
@@ -70,14 +69,14 @@ namespace Codex.Users.Api.Tests
         [Fact]
         public async Task ProcessTenantTopic_Remove_Topic()
         {
-            var logger = new Mock<ILogger<TopicController>>();
+            var logger = new Mock<ILogger<TenantTopicController>>();
             var daprClient = new Mock<DaprClient>();
             var tenantCacheService = new Mock<CacheService<Tenant>>();
 
             Tenant tenant = new(id: "global", name: "tenant_global");
-            TopicData<Tenant> tenantTopicData = new(TopicType.Remove, tenant);
+            TopicData<Tenant> tenantTopicData = new(TopicType.Remove, tenant, tenant.Id!);
 
-            var topicController = new TopicController(
+            var topicController = new TenantTopicController(
                 logger.Object,
                 daprClient.Object,
                 tenantCacheService.Object
