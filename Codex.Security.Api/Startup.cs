@@ -21,6 +21,9 @@ using System.Text.Json.Serialization;
 using System.Diagnostics.CodeAnalysis;
 using Codex.Security.Api.Repositories.Interfaces;
 using Codex.Security.Api.Repositories.Implementations;
+using Codex.Core.Cache;
+using Codex.Security.Api.Services.Interfaces;
+using Codex.Security.Api.Services.Implementations;
 
 namespace Codex.Security.Api
 {
@@ -47,6 +50,7 @@ namespace Codex.Security.Api
             services.AddDaprClient();
 
             services.AddSingleton<IExceptionHandler, CoreExceptionHandler>();
+            services.AddSingleton<CacheService<Tenant>, CacheService<Tenant>>();
 
             services.AddMultiTenancy()
                 .WithResolutionStrategy<HostTenantResolutionStrategy>()
@@ -94,7 +98,7 @@ namespace Codex.Security.Api
             _ = tenant;
 
             containerBuilder.RegisterType<ApiKeyRepository>().As<IApiKeyRepository>().InstancePerLifetimeScope();
-            //containerBuilder.RegisterType<UserService>().As<IUserService>().InstancePerLifetimeScope();
+            containerBuilder.RegisterType<ApiKeyService>().As<IApiKeyService>().InstancePerLifetimeScope();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
