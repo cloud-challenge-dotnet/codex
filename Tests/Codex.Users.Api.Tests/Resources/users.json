@@ -17,7 +17,13 @@
         "passwordHash": "G3JsGuJkkF/nLP27fnsyzGpL+jIU0YgVIVd5qoKiepE=",
         "activationCode": null,
         "activationValidity": null,
-        "active": true
+        "active": true,
+        "creationDate": {
+          "$date": "2020-12-12T00:00:00.000Z"
+        },
+        "modificationDate": {
+          "$date": "2020-12-12T00:00:00.000Z"
+        }
       },
       {
         "_id": {
@@ -34,7 +40,13 @@
         "passwordHash": "G3JsGuJkkF/nLP27fnsyzGpL+jIU0YgVIVd5qoKiepE=",
         "activationCode": null,
         "activationValidity": null,
-        "active": true
+        "active": true,
+        "creationDate": {
+          "$date": "2020-12-12T00:00:00.000Z"
+        },
+        "modificationDate": {
+          "$date": "2020-12-12T00:00:00.000Z"
+        }
       }
     ]
   }

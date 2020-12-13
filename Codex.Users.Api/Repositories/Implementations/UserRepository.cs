@@ -17,6 +17,7 @@ namespace Codex.Users.Api.Repositories.Interfaces
             ITenantAccessService tenantAccessService) : base(mongoDbSettings, tenantAccessService)
         {
         }
+
         public async Task<List<User>> FindAllAsync(UserCriteria userCriteria)
         {
             var repository = await GetRepositoryAsync();
@@ -34,6 +35,14 @@ namespace Codex.Users.Api.Repositories.Interfaces
             }
 
             return query.ToList();
+        }
+
+        public override async Task<User> InsertAsync(User document)
+        {
+            document.CreationDate = DateTime.Now;
+            document.ModificationDate = DateTime.Now;
+
+            return await base.InsertAsync(document);
         }
 
         public async Task<User?> UpdateAsync(User user)

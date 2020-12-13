@@ -51,7 +51,7 @@ namespace Codex.Tests.Framework
             DropDatabaseAsync().GetAwaiter().GetResult();
         }
 
-        private async Task DropDatabaseAsync()
+        public async Task DropDatabaseAsync()
         {
             var tenant = await _tenantAccessService.GetTenantAsync();
 

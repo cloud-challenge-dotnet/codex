@@ -1,6 +1,4 @@
 using Codex.Core.Exceptions;
-using Codex.Users.Api.Services;
-using Codex.Models.Tenants;
 using Codex.Tests.Framework;
 using Moq;
 using System;

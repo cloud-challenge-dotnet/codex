@@ -57,6 +57,7 @@ namespace Codex.Users.Api
             services.AddSingleton<IPasswordHasher, PasswordHasher>();
             services.AddSingleton<IRoleProvider, DefaultRoleProvider>();
             services.AddSingleton<IRoleService, RoleService>();
+            services.AddSingleton<IMailService, MailJetMailService>();
             services.AddSingleton<CacheService<Tenant>, CacheService<Tenant>>();
 
             services.AddMultiTenancy()

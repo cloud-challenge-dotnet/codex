@@ -9,12 +9,14 @@ using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace Codex.Core.RazorHelpers.Implementations
 {
+    [ExcludeFromCodeCoverage]
     public class RazorPartialToStringRenderer : IRazorPartialToStringRenderer
     {
         private readonly IRazorViewEngine _viewEngine;

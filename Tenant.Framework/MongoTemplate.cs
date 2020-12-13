@@ -71,7 +71,7 @@ namespace Codex.Tenants.Framework
             return await repository.Find(filter).Limit(1).SingleOrDefaultAsync();
         }
 
-        public async Task<TDocument> InsertAsync(TDocument document)
+        public virtual async Task<TDocument> InsertAsync(TDocument document)
         {
             var repository = await GetRepositoryAsync();
 

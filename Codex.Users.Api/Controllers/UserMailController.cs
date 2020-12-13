@@ -17,7 +17,7 @@ namespace Codex.Users.Api.Controllers
         }
 
         [HttpPost("activation")]
-        //[Authorize(Roles = "TENANT_MANAGER")] // TODO add role
+        //[Authorize(Roles = RoleConstant.ADMIN)] // TODO add role
         public async Task<ActionResult> SendActivateUserMail([FromHeader]string tenantId, [FromBody] User user)
         {
             await _userMailService.SendActivateUserMailAsync(tenantId, user);

@@ -3,7 +3,6 @@ using Codex.Tests.Framework;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using System.Threading.Tasks;
-using System.Linq;
 using Xunit;
 using Codex.Users.Api.Services.Interfaces;
 using Codex.Models.Users;

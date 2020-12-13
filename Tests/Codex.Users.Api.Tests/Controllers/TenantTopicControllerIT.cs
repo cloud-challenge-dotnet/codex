@@ -5,7 +5,6 @@ using Moq;
 using System.Threading.Tasks;
 using Xunit;
 using Dapr.Client;
-using System.Threading;
 using Codex.Users.Api.Controllers;
 using Codex.Core.Models;
 using Microsoft.Extensions.Logging;
@@ -13,9 +12,9 @@ using Codex.Core.Cache;
 
 namespace Codex.Users.Api.Tests
 {
-    public class TopicControllerIT : IClassFixture<Fixture>
+    public class TenantTopicControllerIT : IClassFixture<Fixture>
     {
-        public TopicControllerIT()
+        public TenantTopicControllerIT()
         {
         }
 
