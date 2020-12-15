@@ -126,7 +126,7 @@ namespace Codex.Users.Api
             //it will be one instance per tenant
             _ = tenant;
 
-            containerBuilder.RegisterType<RazorPartialToStringRenderer>().As<IRazorPartialToStringRenderer>().InstancePerLifetimeScope();
+            containerBuilder.RegisterType<RazorPartialToStringRenderer>().As<IRazorPartialToStringRenderer>().SingleInstance();
             containerBuilder.RegisterType<UserRepository>().As<IUserRepository>().InstancePerLifetimeScope();
             containerBuilder.RegisterType<UserService>().As<IUserService>().InstancePerLifetimeScope();
             containerBuilder.RegisterType<UserMailService>().As<IUserMailService>().InstancePerLifetimeScope();

@@ -45,7 +45,7 @@ namespace Codex.Users.Api.Tests
 
 
             // TODO add authorization role
-            /*var authorizeAttributes = userMailController.GetType().GetMethod(nameof(UserMailController.SendActivateUserMail))?.GetCustomAttributes(typeof(AuthorizeAttribute), true);
+            /*var authorizeAttributes = userMailController.GetType().GetMethod(nameof(UserMailController.SendActivateUserMail))?.GetCustomAttributes(typeof(TenantAuthorizeAttribute), true);
             Assert.NotNull(authorizeAttributes);
             Assert.Single(authorizeAttributes);
             var authorizeAttribute = Assert.IsType<AuthorizeAttribute>(authorizeAttributes![0]);

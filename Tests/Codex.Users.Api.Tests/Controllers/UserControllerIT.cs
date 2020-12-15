@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 using Codex.Models.Roles;
 using Microsoft.AspNetCore.Authorization;
+using Codex.Core.Security;
 
 namespace Codex.Users.Api.Tests
 {
@@ -43,7 +44,7 @@ namespace Codex.Users.Api.Tests
                 roles: new() { RoleConstant.TENANT_MANAGER }
             );
 
-            var authorizeAttributes = userController.GetType().GetMethod(nameof(UserController.FindOne))?.GetCustomAttributes(typeof(AuthorizeAttribute), true);
+            var authorizeAttributes = userController.GetType().GetMethod(nameof(UserController.FindOne))?.GetCustomAttributes(typeof(TenantAuthorizeAttribute), true);
 
             var result = await userController.FindOne("Id1");
 
@@ -57,7 +58,7 @@ namespace Codex.Users.Api.Tests
 
             Assert.NotNull(authorizeAttributes);
             Assert.Single(authorizeAttributes);
-            var authorizeAttribute = Assert.IsType<AuthorizeAttribute>(authorizeAttributes![0]);
+            var authorizeAttribute = Assert.IsType<TenantAuthorizeAttribute>(authorizeAttributes![0]);
             Assert.Equal($"{RoleConstant.TENANT_MANAGER},{RoleConstant.USER}", authorizeAttribute.Roles);
         }
 
@@ -166,7 +167,7 @@ namespace Codex.Users.Api.Tests
                 userService.Object
             );
 
-            var authorizeAttributes = userController.GetType().GetMethod(nameof(UserController.FindAll))?.GetCustomAttributes(typeof(AuthorizeAttribute), true);
+            var authorizeAttributes = userController.GetType().GetMethod(nameof(UserController.FindAll))?.GetCustomAttributes(typeof(TenantAuthorizeAttribute), true);
 
             userController.ControllerContext.HttpContext = Fixture.CreateHttpContext(
                 tenantId: "global",
@@ -186,7 +187,7 @@ namespace Codex.Users.Api.Tests
 
             Assert.NotNull(authorizeAttributes);
             Assert.Single(authorizeAttributes);
-            var authorizeAttribute = Assert.IsType<AuthorizeAttribute>(authorizeAttributes![0]);
+            var authorizeAttribute = Assert.IsType<TenantAuthorizeAttribute>(authorizeAttributes![0]);
             Assert.Equal(RoleConstant.TENANT_MANAGER, authorizeAttribute.Roles);
         }
 
@@ -206,7 +207,7 @@ namespace Codex.Users.Api.Tests
 
             userController.ControllerContext.HttpContext = new DefaultHttpContext();
 
-            var authorizeAttributes = userController.GetType().GetMethod(nameof(UserController.CreateUser))?.GetCustomAttributes(typeof(AuthorizeAttribute), true);
+            var authorizeAttributes = userController.GetType().GetMethod(nameof(UserController.CreateUser))?.GetCustomAttributes(typeof(TenantAuthorizeAttribute), true);
 
             var result = await userController.CreateUser(userCreator);
 
@@ -221,7 +222,7 @@ namespace Codex.Users.Api.Tests
 
             Assert.NotNull(authorizeAttributes);
             Assert.Single(authorizeAttributes);
-            var authorizeAttribute = Assert.IsType<AuthorizeAttribute>(authorizeAttributes![0]);
+            var authorizeAttribute = Assert.IsType<TenantAuthorizeAttribute>(authorizeAttributes![0]);
             Assert.Equal(RoleConstant.TENANT_MANAGER, authorizeAttribute.Roles);
         }
 
@@ -240,7 +241,7 @@ namespace Codex.Users.Api.Tests
                 userService.Object
             );
 
-            var authorizeAttributes = userController.GetType().GetMethod(nameof(UserController.UpdateUser))?.GetCustomAttributes(typeof(AuthorizeAttribute), true);
+            var authorizeAttributes = userController.GetType().GetMethod(nameof(UserController.UpdateUser))?.GetCustomAttributes(typeof(TenantAuthorizeAttribute), true);
 
             var httpContext = Fixture.CreateHttpContext(
                 tenantId: "global",
@@ -265,7 +266,7 @@ namespace Codex.Users.Api.Tests
 
             Assert.NotNull(authorizeAttributes);
             Assert.Single(authorizeAttributes);
-            var authorizeAttribute = Assert.IsType<AuthorizeAttribute>(authorizeAttributes![0]);
+            var authorizeAttribute = Assert.IsType<TenantAuthorizeAttribute>(authorizeAttributes![0]);
             Assert.Equal($"{RoleConstant.TENANT_MANAGER},{RoleConstant.USER}", authorizeAttribute.Roles);
         }
 

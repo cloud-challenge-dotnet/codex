@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Codex.Security.Api.Services.Interfaces;
 using Codex.Models.Security;
 using Codex.Security.Api.Controllers;
+using Codex.Core.Security;
 
 namespace Codex.Security.Api.Tests
 {
@@ -35,7 +36,7 @@ namespace Codex.Security.Api.Tests
                 apiKeyService.Object
             );
 
-            var authorizeAttributes = apiKeyController.GetType().GetMethod(nameof(ApiKeyController.FindOne))?.GetCustomAttributes(typeof(AuthorizeAttribute), true);
+            var authorizeAttributes = apiKeyController.GetType().GetMethod(nameof(ApiKeyController.FindOne))?.GetCustomAttributes(typeof(TenantAuthorizeAttribute), true);
 
             var result = await apiKeyController.FindOne("Id1");
 
@@ -48,7 +49,7 @@ namespace Codex.Security.Api.Tests
 
             Assert.NotNull(authorizeAttributes);
             Assert.Single(authorizeAttributes);
-            var authorizeAttribute = Assert.IsType<AuthorizeAttribute>(authorizeAttributes![0]);
+            var authorizeAttribute = Assert.IsType<TenantAuthorizeAttribute>(authorizeAttributes![0]);
             Assert.Equal(RoleConstant.TENANT_MANAGER, authorizeAttribute.Roles);
         }
 
@@ -90,7 +91,7 @@ namespace Codex.Security.Api.Tests
                 apiKeyService.Object
             );
 
-            var authorizeAttributes = apiKeyController.GetType().GetMethod(nameof(ApiKeyController.FindAll))?.GetCustomAttributes(typeof(AuthorizeAttribute), true);
+            var authorizeAttributes = apiKeyController.GetType().GetMethod(nameof(ApiKeyController.FindAll))?.GetCustomAttributes(typeof(TenantAuthorizeAttribute), true);
 
             var result = await apiKeyController.FindAll(apiKeyCriteria);
 
@@ -103,7 +104,7 @@ namespace Codex.Security.Api.Tests
 
             Assert.NotNull(authorizeAttributes);
             Assert.Single(authorizeAttributes);
-            var authorizeAttribute = Assert.IsType<AuthorizeAttribute>(authorizeAttributes![0]);
+            var authorizeAttribute = Assert.IsType<TenantAuthorizeAttribute>(authorizeAttributes![0]);
             Assert.Equal(RoleConstant.TENANT_MANAGER, authorizeAttribute.Roles);
         }
 
@@ -123,7 +124,7 @@ namespace Codex.Security.Api.Tests
 
             apiKeyController.ControllerContext.HttpContext = new DefaultHttpContext();
 
-            var authorizeAttributes = apiKeyController.GetType().GetMethod(nameof(ApiKeyController.CreateApiKey))?.GetCustomAttributes(typeof(AuthorizeAttribute), true);
+            var authorizeAttributes = apiKeyController.GetType().GetMethod(nameof(ApiKeyController.CreateApiKey))?.GetCustomAttributes(typeof(TenantAuthorizeAttribute), true);
 
             var result = await apiKeyController.CreateApiKey(apiKeyCreator);
 
@@ -137,7 +138,7 @@ namespace Codex.Security.Api.Tests
 
             Assert.NotNull(authorizeAttributes);
             Assert.Single(authorizeAttributes);
-            var authorizeAttribute = Assert.IsType<AuthorizeAttribute>(authorizeAttributes![0]);
+            var authorizeAttribute = Assert.IsType<TenantAuthorizeAttribute>(authorizeAttributes![0]);
             Assert.Equal(RoleConstant.TENANT_MANAGER, authorizeAttribute.Roles);
         }
 
@@ -155,7 +156,7 @@ namespace Codex.Security.Api.Tests
                 apiKeyService.Object
             );
 
-            var authorizeAttributes = apiKeyController.GetType().GetMethod(nameof(ApiKeyController.UpdateApiKey))?.GetCustomAttributes(typeof(AuthorizeAttribute), true);
+            var authorizeAttributes = apiKeyController.GetType().GetMethod(nameof(ApiKeyController.UpdateApiKey))?.GetCustomAttributes(typeof(TenantAuthorizeAttribute), true);
 
             var result = await apiKeyController.UpdateApiKey("Id1", apiKey);
 
@@ -170,7 +171,7 @@ namespace Codex.Security.Api.Tests
 
             Assert.NotNull(authorizeAttributes);
             Assert.Single(authorizeAttributes);
-            var authorizeAttribute = Assert.IsType<AuthorizeAttribute>(authorizeAttributes![0]);
+            var authorizeAttribute = Assert.IsType<TenantAuthorizeAttribute>(authorizeAttributes![0]);
             Assert.Equal(RoleConstant.TENANT_MANAGER, authorizeAttribute.Roles);
         }
 
@@ -188,7 +189,7 @@ namespace Codex.Security.Api.Tests
                 apiKeyService.Object
             );
 
-            var authorizeAttributes = apiKeyController.GetType().GetMethod(nameof(ApiKeyController.UpdateApiKey))?.GetCustomAttributes(typeof(AuthorizeAttribute), true);
+            var authorizeAttributes = apiKeyController.GetType().GetMethod(nameof(ApiKeyController.UpdateApiKey))?.GetCustomAttributes(typeof(TenantAuthorizeAttribute), true);
 
             var result = await apiKeyController.UpdateApiKey("Id1", apiKey);
 

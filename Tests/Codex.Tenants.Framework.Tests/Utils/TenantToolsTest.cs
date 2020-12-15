@@ -1,5 +1,6 @@
 ﻿using Codex.Core.Cache;
 using Codex.Core.Exceptions;
+using Codex.Core.Models;
 using Codex.Models.Tenants;
 using Codex.Tenants.Framework.Exceptions;
 using Codex.Tenants.Framework.Utils;
@@ -9,6 +10,7 @@ using Dapr.Client.Http;
 using Grpc.Core;
 using Microsoft.Extensions.Logging;
 using Moq;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -33,6 +35,12 @@ namespace Codex.Tenants.Framework.Tests.Utils
 
             var tenantCacheService = new Mock<CacheService<Tenant>>();
 
+            daprClient.Setup(x => x.GetSecretAsync(It.IsAny<string>(), It.IsAny<string>(),
+               It.IsAny<Dictionary<string, string>>(), It.IsAny<CancellationToken>()))
+            .Returns(new ValueTask<Dictionary<string, string>>(
+                new Dictionary<string, string>() { { ConfigConstant.MicroserviceApiKey, "" } }
+            ));
+
             daprClient.Setup(x => x.InvokeMethodAsync<Tenant>(
                 It.IsAny<string>(), It.IsAny<string>(), It.IsAny<HTTPExtension>(), It.IsAny<CancellationToken>()))
                 .Returns(new ValueTask<Tenant>(new Tenant("global", "", null)));
@@ -43,6 +51,10 @@ namespace Codex.Tenants.Framework.Tests.Utils
             Assert.Equal("global", tenant.Id);
 
             tenantCacheService.Verify(v => v.GetCacheAsync(daprClient.Object, It.IsAny<string>()), Times.Once);
+            daprClient.Verify(v => v.InvokeMethodAsync<Tenant>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<HTTPExtension>(), It.IsAny<CancellationToken>()), Times.Once);
+            daprClient.Verify(x => x.GetSecretAsync(It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<Dictionary<string, string>>(), It.IsAny<CancellationToken>()), Times.Once);
+            tenantCacheService.Verify(v => v.UpdateCacheAsync(daprClient.Object, It.IsAny<string>(), It.IsAny<Tenant>()), Times.Once);
         }
 
         [Fact]
@@ -64,6 +76,10 @@ namespace Codex.Tenants.Framework.Tests.Utils
             Assert.Equal("global", tenant.Id);
 
             tenantCacheService.Verify(v => v.GetCacheAsync(daprClient.Object, It.IsAny<string>()), Times.Once);
+            daprClient.Verify(v => v.InvokeMethodAsync<Tenant>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<HTTPExtension>(), It.IsAny<CancellationToken>()), Times.Never);
+            daprClient.Verify(x => x.GetSecretAsync(It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<Dictionary<string, string>>(), It.IsAny<CancellationToken>()), Times.Never);
+            tenantCacheService.Verify(v => v.UpdateCacheAsync(daprClient.Object, It.IsAny<string>(), It.IsAny<Tenant>()), Times.Never);
         }
 
         [Fact]
@@ -117,6 +133,12 @@ namespace Codex.Tenants.Framework.Tests.Utils
 
             var daprClient = new Mock<DaprClient>();
 
+            daprClient.Setup(x => x.GetSecretAsync(It.IsAny<string>(), It.IsAny<string>(),
+               It.IsAny<Dictionary<string, string>>(), It.IsAny<CancellationToken>()))
+            .Returns(new ValueTask<Dictionary<string, string>>(
+                new Dictionary<string, string>() { { ConfigConstant.MicroserviceApiKey, "" } }
+            ));
+
             var tenantCacheService = new Mock<CacheService<Tenant>>();
 
             daprClient.Setup(x => x.InvokeMethodAsync<Tenant>(
@@ -130,6 +152,8 @@ namespace Codex.Tenants.Framework.Tests.Utils
             Assert.Equal("TENANT_NOT_FOUND", invalidTenantIdException.Code);
 
             tenantCacheService.Verify(v => v.GetCacheAsync(daprClient.Object, It.IsAny<string>()), Times.Once);
+            daprClient.Verify(x => x.GetSecretAsync(It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<Dictionary<string, string>>(), It.IsAny<CancellationToken>()), Times.Once);
         }
     }
 }

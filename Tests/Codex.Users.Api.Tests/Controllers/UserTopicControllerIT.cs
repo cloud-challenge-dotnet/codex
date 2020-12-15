@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Codex.Models.Users;
 using Dapr.Client.Http;
 using System.Threading;
+using System.Collections.Generic;
 
 namespace Codex.Users.Api.Tests
 {
@@ -24,6 +25,12 @@ namespace Codex.Users.Api.Tests
         {
             var logger = new Mock<ILogger<UserTopicController>>();
             var daprClient = new Mock<DaprClient>();
+
+            daprClient.Setup(x => x.GetSecretAsync(It.IsAny<string>(), It.IsAny<string>(),
+               It.IsAny<Dictionary<string, string>>(), It.IsAny<CancellationToken>()))
+            .Returns(new ValueTask<Dictionary<string, string>>(
+                new Dictionary<string, string>() { { ConfigConstant.MicroserviceApiKey, "" } }
+            ));
 
             User user = new() { Id = "Id1" };
             TopicData<User> userTopicData = new(TopicType.Modify, user, "global");

@@ -11,6 +11,7 @@ using Dapr.Client;
 using Dapr;
 using System.Threading;
 using Codex.Core.Models;
+using Codex.Models.Roles;
 
 namespace Codex.Tenants.Api.Tests
 {
@@ -46,6 +47,13 @@ namespace Codex.Tenants.Api.Tests
                 tenantService.Object,
                 tenantPropertiesService.Object,
                 daprClient.Object
+            );
+
+            tenantController.ControllerContext.HttpContext = Fixture.CreateHttpContext(
+                tenantId: "global",
+                userId: "Id1",
+                userName: "login",
+                roles: new() { RoleConstant.TENANT_MANAGER }
             );
 
             var result = await tenantController.FindOne("Id1");
@@ -99,6 +107,13 @@ namespace Codex.Tenants.Api.Tests
                 tenantService.Object,
                 tenantPropertiesService.Object,
                 daprClient.Object
+            );
+
+            tenantController.ControllerContext.HttpContext = Fixture.CreateHttpContext(
+                tenantId: "global",
+                userId: "Id1",
+                userName: "login",
+                roles: new() { RoleConstant.TENANT_MANAGER }
             );
 
             var result = await tenantController.FindAll();
