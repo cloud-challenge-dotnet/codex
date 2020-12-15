@@ -1,4 +1,5 @@
-﻿using Codex.Core.Roles.Interfaces;
+﻿using Codex.Core.Roles.Implementations;
+using Codex.Core.Roles.Interfaces;
 using Codex.Models.Roles;
 using Codex.Tests.Framework;
 using Codex.Users.Api.Services.Implementations;

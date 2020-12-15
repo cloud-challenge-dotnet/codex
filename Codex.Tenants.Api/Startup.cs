@@ -22,6 +22,12 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Codex.Tenants.Api.Repositories.Interfaces;
 using Codex.Tenants.Api.Repositories.Implementations;
+using Codex.Core.ApiKeys.Models;
+using Codex.Core.ApiKeys.Extensions;
+using Codex.Core.Roles.Interfaces;
+using Codex.Core.Roles.Implementations;
+using Codex.Core.Cache;
+using Codex.Models.Security;
 
 namespace Codex.Tenants.Api
 {
@@ -47,6 +53,9 @@ namespace Codex.Tenants.Api
             services.AddDaprClient();
 
             services.AddSingleton<IExceptionHandler, CoreExceptionHandler>();
+            services.AddSingleton<IRoleProvider, DefaultRoleProvider>();
+            services.AddSingleton<IRoleService, RoleService>();
+            services.AddSingleton<CacheService<ApiKey>, CacheService<ApiKey>>();
 
             services.AddMultiTenancy()
                 .WithResolutionStrategy<GlobalTenantResolutionStrategy>()
@@ -69,9 +78,22 @@ namespace Codex.Tenants.Api
 
             services.AddAuthentication(x =>
             {
-                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultAuthenticateScheme = "customAuthScheme";
+                x.DefaultChallengeScheme = "customAuthScheme";
             })
+            .AddPolicyScheme("customAuthScheme", "Authorization Bearer or ApiKey", options =>
+            {
+                options.ForwardDefaultSelector = context =>
+                {
+                    if (context.Request.Headers.ContainsKey("X-Api-Key"))
+                    {
+                        return ApiKeyAuthenticationOptions.DefaultScheme;
+                    }
+
+                    return JwtBearerDefaults.AuthenticationScheme;
+                };
+            })
+            .AddApiKeySupport(options => { })
             .AddJwtBearer(x =>
             {
                 x.RequireHttpsMetadata = false;

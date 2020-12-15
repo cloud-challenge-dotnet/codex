@@ -22,7 +22,8 @@ namespace Codex.Tenants.Framework
             {
                 if (context.RequestServices.GetService(typeof(ITenantAccessService)) is ITenantAccessService tenantService)
                 {
-                    context.Items.Add(Constants.HttpContextTenantKey, await tenantService.GetTenantAsync());
+                    var tenant = await tenantService.GetTenantAsync();
+                    context.Items.Add(Constants.HttpContextTenantKey, tenant);
                 }
             }
 

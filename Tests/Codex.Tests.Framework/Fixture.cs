@@ -33,7 +33,7 @@ namespace Codex.Tests.Framework
             {
                 new Claim(ClaimTypes.NameIdentifier, userId),
                 new Claim(ClaimTypes.Name, userName),
-                new Claim(ClaimConstant.Tenant, tenantId),
+                new Claim(ClaimConstant.TenantId, tenantId),
             };
             claimList.AddRange(roles.Select(r =>
                 new Claim(ClaimTypes.Role, r)

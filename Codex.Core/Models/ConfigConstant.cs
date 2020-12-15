@@ -20,6 +20,8 @@
 
         public const string MailJetSecretKey = "secretKey";
 
+        public const string MicroserviceApiKey = "microserviceApiKey";
+
         public const string SenderEmail = "senderEmail";
     }
 }

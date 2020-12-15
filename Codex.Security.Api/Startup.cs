@@ -24,6 +24,12 @@ using Codex.Security.Api.Repositories.Implementations;
 using Codex.Core.Cache;
 using Codex.Security.Api.Services.Interfaces;
 using Codex.Security.Api.Services.Implementations;
+using Codex.Core.ApiKeys.Extensions;
+using Codex.Models.Security;
+using Codex.Core.ApiKeys.Models;
+using Codex.Core.Roles.Interfaces;
+using Codex.Core.Roles.Implementations;
+using System.Linq;
 
 namespace Codex.Security.Api
 {
@@ -50,7 +56,10 @@ namespace Codex.Security.Api
             services.AddDaprClient();
 
             services.AddSingleton<IExceptionHandler, CoreExceptionHandler>();
+            services.AddSingleton<IRoleProvider, DefaultRoleProvider>();
+            services.AddSingleton<IRoleService, RoleService>();
             services.AddSingleton<CacheService<Tenant>, CacheService<Tenant>>();
+            services.AddSingleton<CacheService<ApiKey>, CacheService<ApiKey>>();
 
             services.AddMultiTenancy()
                 .WithResolutionStrategy<HostTenantResolutionStrategy>()
@@ -73,9 +82,22 @@ namespace Codex.Security.Api
 
             services.AddAuthentication(x =>
             {
-                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultAuthenticateScheme = "customAuthScheme";
+                x.DefaultChallengeScheme = "customAuthScheme";
             })
+            .AddPolicyScheme("customAuthScheme", "Authorization Bearer or ApiKey", options =>
+            {
+                options.ForwardDefaultSelector = context =>
+                {
+                    if (context.Request.Headers.ContainsKey("X-Api-Key"))
+                    {
+                        return ApiKeyAuthenticationOptions.DefaultScheme;
+                    }
+
+                    return JwtBearerDefaults.AuthenticationScheme;
+                };
+            })
+            .AddApiKeySupport(options => { })
             .AddJwtBearer(x =>
             {
                 x.RequireHttpsMetadata = false;

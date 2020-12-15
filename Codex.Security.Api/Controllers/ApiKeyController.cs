@@ -1,4 +1,5 @@
-﻿using Codex.Models.Roles;
+﻿using Codex.Core.Security;
+using Codex.Models.Roles;
 using Codex.Models.Security;
 using Codex.Security.Api.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -20,7 +21,7 @@ namespace Codex.Security.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize(Roles = RoleConstant.TENANT_MANAGER)]
+        [TenantAuthorize(Roles = RoleConstant.TENANT_MANAGER)]
         public async Task<ActionResult<ApiKey>> FindOne(string id)
         {
             var apiKey = await _apiKeyService.FindOneAsync(id);
@@ -29,7 +30,7 @@ namespace Codex.Security.Api.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = RoleConstant.TENANT_MANAGER)]
+        [TenantAuthorize(Roles = RoleConstant.TENANT_MANAGER)]
         public async Task<ActionResult<IEnumerable<ApiKey>>> FindAll([FromQuery] ApiKeyCriteria apiKeyCriteria)
         {
             var apiKeyList = await _apiKeyService.FindAllAsync(apiKeyCriteria);
@@ -38,7 +39,7 @@ namespace Codex.Security.Api.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = RoleConstant.TENANT_MANAGER)]
+        [TenantAuthorize(Roles = RoleConstant.TENANT_MANAGER)]
         public async Task<ActionResult<ApiKey>> CreateApiKey([FromBody] ApiKey apiKey)
         {
             apiKey = await _apiKeyService.CreateAsync(apiKey);
@@ -47,8 +48,8 @@ namespace Codex.Security.Api.Controllers
         }
 
         [HttpPut("{apiKeyId}")]
-        [Authorize(Roles = RoleConstant.TENANT_MANAGER)]
-        public async Task<ActionResult<ApiKey>> UpdateApiKey([FromQuery] string apiKeyId, [FromBody] ApiKey apiKey)
+        [TenantAuthorize(Roles = RoleConstant.TENANT_MANAGER)]
+        public async Task<ActionResult<ApiKey>> UpdateApiKey(string apiKeyId, [FromBody] ApiKey apiKey)
         {
             apiKey = apiKey with { Id = apiKeyId };
 
@@ -62,8 +63,8 @@ namespace Codex.Security.Api.Controllers
         }
 
         [HttpDelete("{apiKeyId}")]
-        [Authorize(Roles = RoleConstant.TENANT_MANAGER)]
-        public async Task<ActionResult> DeleteApiKey([FromQuery] string apiKeyId)
+        [TenantAuthorize(Roles = RoleConstant.TENANT_MANAGER)]
+        public async Task<ActionResult> DeleteApiKey(string apiKeyId)
         {
             await _apiKeyService.DeleteAsync(apiKeyId);
 

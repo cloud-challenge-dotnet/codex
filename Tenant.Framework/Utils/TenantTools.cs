@@ -22,8 +22,18 @@ namespace Codex.Tenants.Framework.Utils
 
                 if (tenant == null)
                 {
-                    // TODO Add api key ADMIN from global tenant and add tenant Id to header
-                    tenant = await daprClient.InvokeMethodAsync<Tenant>("tenantapi", $"Tenant/{tenantId}", new HTTPExtension() { Verb = HTTPVerb.Get });
+                    var secretValues = await daprClient.GetSecretAsync(ConfigConstant.CodexKey, ConfigConstant.MicroserviceApiKey);
+                    var microserviceApiKey = secretValues[ConfigConstant.MicroserviceApiKey];
+
+                    tenant = await daprClient.InvokeMethodAsync<Tenant>("tenantapi", $"Tenant/{tenantId}",
+                        new HTTPExtension() {
+                            Verb = HTTPVerb.Get,
+                            Headers = {
+                                { "tenantId", tenantId },
+                                { "X-Api-Key", $"{tenantId}.{microserviceApiKey}" }
+                            }
+                        }
+                    );
                     await tenantCacheService.UpdateCacheAsync(daprClient, cacheKey, tenant);
                     return tenant;
                 }

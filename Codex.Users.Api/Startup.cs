@@ -23,12 +23,15 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Codex.Users.Api.Providers.Implementations;
 using System.Diagnostics.CodeAnalysis;
 using Codex.Core.Cache;
 using Codex.Core.RazorHelpers.Implementations;
 using Codex.Core.RazorHelpers.Interfaces;
 using Codex.Users.Api.Repositories.Implementations;
+using Codex.Core.ApiKeys.Extensions;
+using Codex.Models.Security;
+using Codex.Core.ApiKeys.Models;
+using Codex.Core.Roles.Implementations;
 
 namespace Codex.Users.Api
 {
@@ -58,8 +61,12 @@ namespace Codex.Users.Api
             services.AddSingleton<IPasswordHasher, PasswordHasher>();
             services.AddSingleton<IRoleProvider, DefaultRoleProvider>();
             services.AddSingleton<IRoleService, RoleService>();
-            services.AddSingleton<IMailService, MailJetMailService>();
             services.AddSingleton<CacheService<Tenant>, CacheService<Tenant>>();
+            services.AddSingleton<CacheService<ApiKey>, CacheService<ApiKey>>();
+            services.AddSingleton<IUserRepository, UserRepository>(); // for try authenticate without tenantId inside request header
+            services.AddSingleton<IUserService, UserService>(); // for try authenticate without tenantId inside request header
+            services.AddSingleton<IAuthenticationService, AuthenticationService>(); // for try authenticate without tenantId inside request header
+            services.AddSingleton<IMailService, MailJetMailService>();
 
             services.AddMultiTenancy()
                 .WithResolutionStrategy<HostTenantResolutionStrategy>()
@@ -82,9 +89,22 @@ namespace Codex.Users.Api
 
             services.AddAuthentication(x =>
             {
-                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultAuthenticateScheme = "customAuthScheme";
+                x.DefaultChallengeScheme = "customAuthScheme";
             })
+            .AddPolicyScheme("customAuthScheme", "Authorization Bearer or ApiKey", options =>
+            {
+                options.ForwardDefaultSelector = context =>
+                {
+                    if (context.Request.Headers.ContainsKey("X-Api-Key"))
+                    {
+                        return ApiKeyAuthenticationOptions.DefaultScheme;
+                    }
+
+                    return JwtBearerDefaults.AuthenticationScheme;
+                };
+            })
+            .AddApiKeySupport(options => { })
             .AddJwtBearer(x =>
             {
                 x.RequireHttpsMetadata = false;

@@ -3,7 +3,7 @@ using Codex.Models.Roles;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Codex.Users.Api.Providers.Implementations
+namespace Codex.Core.Roles.Implementations
 {
     [ExcludeFromCodeCoverage]
     public class DefaultRoleProvider : IRoleProvider

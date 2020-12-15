@@ -18,6 +18,7 @@ using Codex.Models.Roles;
 using Codex.Models.Tenants;
 using Codex.Core.Models;
 using Codex.Core.Cache;
+using Codex.Core.Roles.Interfaces;
 
 namespace Codex.Users.Api.Services.Implementations
 {
@@ -96,7 +97,7 @@ namespace Codex.Users.Api.Services.Implementations
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id!),
                 new Claim(ClaimTypes.Name, user.Login!),
-                new Claim(ClaimConstant.Tenant, tenant.Id!)
+                new Claim(ClaimConstant.TenantId, tenant.Id!)
             };
             claimList.AddRange(user.Roles.Select(r =>
                 new Claim(ClaimTypes.Role, r)

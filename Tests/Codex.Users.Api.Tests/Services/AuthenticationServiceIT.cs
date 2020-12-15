@@ -1,6 +1,7 @@
 ﻿using Codex.Core.Cache;
 using Codex.Core.Interfaces;
 using Codex.Core.Models;
+using Codex.Core.Roles.Interfaces;
 using Codex.Models.Roles;
 using Codex.Models.Tenants;
 using Codex.Models.Users;
