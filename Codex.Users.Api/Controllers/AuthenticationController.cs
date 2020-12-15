@@ -25,10 +25,10 @@ namespace Codex.Users.Api.Controllers
                 throw new ArgumentException("Tenant id inside header must be same than user tenant id");
             }
 
-            return AuthenticateInternalAsync(tenantId, userLogin);
+            return AuthenticateInternalAsync(userLogin);
         }
 
-        public async Task<ActionResult<Auth>> AuthenticateInternalAsync([FromHeader] string tenantId, [FromBody] UserLogin userLogin)
+        public async Task<ActionResult<Auth>> AuthenticateInternalAsync([FromBody] UserLogin userLogin)
         {
             Auth auth = await _authenticationService.AuthenticateAsync(userLogin);
 

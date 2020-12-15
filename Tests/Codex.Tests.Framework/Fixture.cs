@@ -1,5 +1,6 @@
 ﻿using Codex.Core.Models;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Primitives;
 using MongoDB.Bson.Serialization.Conventions;
 using System;
 using System.Collections.Generic;
@@ -27,7 +28,8 @@ namespace Codex.Tests.Framework
             get => _services;
         }
 
-        public static HttpContext CreateHttpContext(string tenantId, string userId, string userName, List<string> roles)
+        public static HttpContext CreateHttpContext(string tenantId, string userId, string userName,
+            List<string> roles, Dictionary<string, StringValues>? headers = null)
         {
             List<Claim> claimList = new()
             {
@@ -39,12 +41,22 @@ namespace Codex.Tests.Framework
                 new Claim(ClaimTypes.Role, r)
             ));
 
-            return new DefaultHttpContext
+            var httpContext = new DefaultHttpContext
             {
                 User = new ClaimsPrincipal(
                     new ClaimsIdentity(claimList, "TestAuthType")
                 )
             };
+
+            if (headers != null)
+            {
+                foreach (var keyVal in headers)
+                {
+                    httpContext.Request.Headers.Append(keyVal.Key, keyVal.Value);
+                }
+            }
+
+            return httpContext;
         }
     }
 }
