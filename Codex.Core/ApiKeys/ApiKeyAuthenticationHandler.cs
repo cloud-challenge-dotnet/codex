@@ -1,7 +1,5 @@
-﻿
-using Codex.Core.ApiKeys.Models;
+﻿using Codex.Core.ApiKeys.Models;
 using Codex.Core.Cache;
-using Codex.Core.Exceptions;
 using Codex.Core.Models;
 using Codex.Core.Roles.Interfaces;
 using Codex.Models.Roles;
@@ -124,7 +122,6 @@ namespace Codex.Core.ApiKeys
                     new Claim(ClaimConstant.TenantId, tenantId!)
                 };
 
-                //TODO add sub role
                 var roles = _roleService.GetRoles();
 
                 var completedRoles = new List<string>();

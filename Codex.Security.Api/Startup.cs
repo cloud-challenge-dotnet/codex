@@ -29,7 +29,6 @@ using Codex.Models.Security;
 using Codex.Core.ApiKeys.Models;
 using Codex.Core.Roles.Interfaces;
 using Codex.Core.Roles.Implementations;
-using System.Linq;
 
 namespace Codex.Security.Api
 {

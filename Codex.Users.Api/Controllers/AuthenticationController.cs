@@ -18,13 +18,18 @@ namespace Codex.Users.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Auth>> Authenticate([FromHeader]string tenantId, [FromBody] UserLogin userLogin)
+        public Task<ActionResult<Auth>> Authenticate([FromHeader]string tenantId, [FromBody] UserLogin userLogin)
         {
             if(tenantId != userLogin.TenantId)
             {
                 throw new ArgumentException("Tenant id inside header must be same than user tenant id");
             }
 
+            return AuthenticateInternalAsync(tenantId, userLogin);
+        }
+
+        public async Task<ActionResult<Auth>> AuthenticateInternalAsync([FromHeader] string tenantId, [FromBody] UserLogin userLogin)
+        {
             Auth auth = await _authenticationService.AuthenticateAsync(userLogin);
 
             return new OkObjectResult(auth);
