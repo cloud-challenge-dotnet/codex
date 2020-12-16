@@ -25,7 +25,6 @@ namespace Codex.Core.ApiKeys
     public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthenticationOptions>
     {
         private const string ProblemDetailsContentType = "application/problem+json";
-        private const string ApiKeyHeaderName = "X-Api-Key";
         private readonly DaprClient _daprClient;
         private readonly CacheService<ApiKey> _apiKeyCacheService;
         private readonly IRoleService _roleService;
@@ -49,7 +48,7 @@ namespace Codex.Core.ApiKeys
 
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
         {
-            if (!Request.Headers.TryGetValue(ApiKeyHeaderName, out var apiKeyHeaderValues))
+            if (!Request.Headers.TryGetValue(HttpHeaderConstant.ApiKey, out var apiKeyHeaderValues))
             {
                 return AuthenticateResult.NoResult();
             }
@@ -91,8 +90,8 @@ namespace Codex.Core.ApiKeys
                             {
                                 Verb = HTTPVerb.Get,
                                 Headers = {
-                                    { "tenantId", tenantId },
-                                    { ApiKeyHeaderName, $"{tenantId}.{microserviceApiKey}" }
+                                    { HttpHeaderConstant.TenantId, tenantId },
+                                    { HttpHeaderConstant.ApiKey, $"{tenantId}.{microserviceApiKey}" }
                                 }
                             }
                         );

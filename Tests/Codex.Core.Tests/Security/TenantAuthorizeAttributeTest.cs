@@ -1,4 +1,5 @@
-﻿using Codex.Core.Security;
+﻿using Codex.Core.Models;
+using Codex.Core.Security;
 using Codex.Models.Roles;
 using Codex.Tests.Framework;
 using Microsoft.AspNetCore.Http;
@@ -29,7 +30,7 @@ namespace Codex.Core.Tests.Security
                     userName: "login",
                     roles: new() { RoleConstant.TENANT_MANAGER },
                     headers: new() {
-                        { "tenantId", new StringValues("global") }
+                        { HttpHeaderConstant.TenantId, new StringValues("global") }
                     }
                 ),
                 new(),
@@ -57,7 +58,7 @@ namespace Codex.Core.Tests.Security
                     roles: new() { RoleConstant.TENANT_MANAGER },
                     headers: new()
                     {
-                        { "tenantId", new StringValues("demo") }
+                        { HttpHeaderConstant.TenantId, new StringValues("demo") }
                     }
                 ),
                 new(),

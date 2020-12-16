@@ -2,6 +2,7 @@
 using Codex.Tenants.Framework.Interfaces;
 using System.Linq;
 using System.Threading.Tasks;
+using Codex.Core.Models;
 
 namespace Codex.Tenants.Framework.Implementations
 {
@@ -24,7 +25,7 @@ namespace Codex.Tenants.Framework.Implementations
         /// <returns></returns>
         public async Task<string?> GetTenantIdentifierAsync()
         {
-            string? tenantId = _httpContextAccessor.HttpContext?.Request?.Headers["tenantId"].FirstOrDefault();
+            string? tenantId = _httpContextAccessor.HttpContext?.Request?.Headers[HttpHeaderConstant.TenantId].FirstOrDefault();
             return await Task.FromResult(tenantId);
         }
     }

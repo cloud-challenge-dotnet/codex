@@ -27,7 +27,7 @@ namespace Codex.Core.Security
                 return;
             }
             
-            if (context.HttpContext.Request.Headers.TryGetValue("tenantId", out var tenantIdValues))
+            if (context.HttpContext.Request.Headers.TryGetValue(HttpHeaderConstant.TenantId, out var tenantIdValues))
             {
                 var tenantId = tenantIdValues.FirstOrDefault();
                 var claimTenantId = user.FindAll(ClaimConstant.TenantId)?.FirstOrDefault()?.Value;

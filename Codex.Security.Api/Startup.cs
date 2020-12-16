@@ -88,7 +88,7 @@ namespace Codex.Security.Api
             {
                 options.ForwardDefaultSelector = context =>
                 {
-                    if (context.Request.Headers.ContainsKey("X-Api-Key"))
+                    if (context.Request.Headers.ContainsKey(HttpHeaderConstant.ApiKey))
                     {
                         return ApiKeyAuthenticationOptions.DefaultScheme;
                     }

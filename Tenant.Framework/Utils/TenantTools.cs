@@ -29,8 +29,8 @@ namespace Codex.Tenants.Framework.Utils
                         new HTTPExtension() {
                             Verb = HTTPVerb.Get,
                             Headers = {
-                                { "tenantId", tenantId },
-                                { "X-Api-Key", $"{tenantId}.{microserviceApiKey}" }
+                                { HttpHeaderConstant.TenantId, tenantId },
+                                { HttpHeaderConstant.ApiKey, $"{tenantId}.{microserviceApiKey}" }
                             }
                         }
                     );

@@ -41,8 +41,8 @@ namespace Codex.Users.Api.Controllers
                     httpExtension: new HTTPExtension() { 
                         Verb = HTTPVerb.Post,
                         Headers = {
-                            { "tenantId", topicData.TenantId },
-                            { "X-Api-Key", $"{topicData.TenantId}.{microserviceApiKey}" }
+                            { HttpHeaderConstant.TenantId, topicData.TenantId },
+                            { HttpHeaderConstant.ApiKey, $"{topicData.TenantId}.{microserviceApiKey}" }
                         }
                     }
                 );

@@ -101,8 +101,8 @@ namespace Codex.Core.Tests.ApiKeys
                 roles: new() { RoleConstant.TENANT_MANAGER },
                 headers: new()
                 {
-                    { "tenantId", new StringValues("global") },
-                    { "X-Api-Key", new StringValues("       ") }
+                    { HttpHeaderConstant.TenantId, new StringValues("global") },
+                    { HttpHeaderConstant.ApiKey, new StringValues("       ") }
                 }
             );
 
@@ -151,8 +151,8 @@ namespace Codex.Core.Tests.ApiKeys
                 roles: new() { RoleConstant.TENANT_MANAGER },
                 headers: new()
                 {
-                    { "tenantId", new StringValues(tenantId) },
-                    { "X-Api-Key", new StringValues(apiKey) }
+                    { HttpHeaderConstant.TenantId, new StringValues(tenantId) },
+                    { HttpHeaderConstant.ApiKey, new StringValues(apiKey) }
                 }
             );
 
@@ -214,8 +214,8 @@ namespace Codex.Core.Tests.ApiKeys
                 roles: new() { RoleConstant.TENANT_MANAGER },
                 headers: new()
                 {
-                    { "tenantId", new StringValues("global") },
-                    { "X-Api-Key", new StringValues(apiKey) }
+                    { HttpHeaderConstant.TenantId, new StringValues("global") },
+                    { HttpHeaderConstant.ApiKey, new StringValues(apiKey) }
                 }
             );
 
@@ -292,8 +292,8 @@ namespace Codex.Core.Tests.ApiKeys
                 roles: new() { RoleConstant.TENANT_MANAGER },
                 headers: new()
                 {
-                    { "tenantId", new StringValues("global") },
-                    { "X-Api-Key", new StringValues(apiKey) }
+                    { HttpHeaderConstant.TenantId, new StringValues("global") },
+                    { HttpHeaderConstant.ApiKey, new StringValues(apiKey) }
                 }
             );
 
@@ -364,8 +364,8 @@ namespace Codex.Core.Tests.ApiKeys
                 roles: new() { RoleConstant.TENANT_MANAGER },
                 headers: new()
                 {
-                    { "tenantId", new StringValues("global") },
-                    { "X-Api-Key", new StringValues(apiKey) }
+                    { HttpHeaderConstant.TenantId, new StringValues("global") },
+                    { HttpHeaderConstant.ApiKey, new StringValues(apiKey) }
                 }
             );
 
@@ -431,8 +431,8 @@ namespace Codex.Core.Tests.ApiKeys
                 roles: new() { RoleConstant.TENANT_MANAGER },
                 headers: new()
                 {
-                    { "tenantId", new StringValues("global") },
-                    { "X-Api-Key", new StringValues(apiKey) }
+                    { HttpHeaderConstant.TenantId, new StringValues("global") },
+                    { HttpHeaderConstant.ApiKey, new StringValues(apiKey) }
                 }
             );
 
@@ -498,8 +498,8 @@ namespace Codex.Core.Tests.ApiKeys
                 roles: new() { RoleConstant.TENANT_MANAGER },
                 headers: new()
                 {
-                    { "tenantId", new StringValues("global") },
-                    { "X-Api-Key", new StringValues(apiKey) }
+                    { HttpHeaderConstant.TenantId, new StringValues("global") },
+                    { HttpHeaderConstant.ApiKey, new StringValues(apiKey) }
                 }
             );
 
