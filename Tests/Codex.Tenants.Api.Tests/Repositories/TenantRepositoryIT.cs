@@ -42,11 +42,38 @@ namespace Codex.Tenants.Api.Tests
 
             var tenant = await _tenantRepository.UpdateAsync(new(
                 id: "TenantId",
+                name: "tenant-test",
+                properties: new()
+                {
+                    {"test" , new (){ "test data" } }
+                }
+            ));
+
+            Assert.NotNull(tenant);
+            Assert.Equal("tenant-test", tenant!.Name);
+            Assert.NotNull(tenant!.Properties);
+            Assert.Single(tenant!.Properties);
+            Assert.True(tenant!.Properties!.ContainsKey("test"));
+
+            //Not updated
+            Assert.Equal("TenantId", tenant.Id);
+        }
+
+        [Fact]
+        public async Task Update_Without_Properties()
+        {
+            await _fixture.UseDataSetAsync(locations: @"Resources/tenants.json");
+
+            var tenant = await _tenantRepository.UpdateAsync(new(
+                id: "TenantId",
                 name: "tenant-test"
             ));
 
             Assert.NotNull(tenant);
             Assert.Equal("tenant-test", tenant!.Name);
+            Assert.NotNull(tenant!.Properties);
+            Assert.Single(tenant!.Properties);
+            Assert.True(tenant!.Properties!.ContainsKey("data"));
 
             //Not updated
             Assert.Equal("TenantId", tenant.Id);

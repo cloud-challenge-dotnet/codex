@@ -22,7 +22,6 @@ using System.Threading.Tasks;
 
 namespace Codex.Core.ApiKeys
 {
-    [ExcludeFromCodeCoverage]
     public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthenticationOptions>
     {
         private const string ProblemDetailsContentType = "application/problem+json";
@@ -57,7 +56,7 @@ namespace Codex.Core.ApiKeys
 
             var providedApiKey = apiKeyHeaderValues.FirstOrDefault();
 
-            if (apiKeyHeaderValues.Count == 0 || string.IsNullOrWhiteSpace(providedApiKey))
+            if (string.IsNullOrWhiteSpace(providedApiKey))
             {
                 return AuthenticateResult.NoResult();
             }
@@ -164,6 +163,7 @@ namespace Codex.Core.ApiKeys
             return roleList;
         }
 
+        [ExcludeFromCodeCoverage]
         protected override async Task HandleChallengeAsync(AuthenticationProperties properties)
         {
             Response.StatusCode = 401;
@@ -185,6 +185,7 @@ namespace Codex.Core.ApiKeys
             await Response.WriteAsync(JsonSerializer.Serialize(problemDetails, jsonSerializerOptions));
         }
 
+        [ExcludeFromCodeCoverage]
         protected override async Task HandleForbiddenAsync(AuthenticationProperties properties)
         {
             Response.StatusCode = 403;

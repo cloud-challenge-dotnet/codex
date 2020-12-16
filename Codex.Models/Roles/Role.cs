@@ -3,5 +3,5 @@
 namespace Codex.Models.Roles
 {
     [ExcludeFromCodeCoverage]
-    public record Role(string Code, string? UpperRoleCode);
+    public record Role(string Code, string? UpperRoleCode = null);
 }
