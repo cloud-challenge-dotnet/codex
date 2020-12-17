@@ -32,6 +32,7 @@ using Codex.Core.ApiKeys.Extensions;
 using Codex.Models.Security;
 using Codex.Core.ApiKeys.Models;
 using Codex.Core.Roles.Implementations;
+using Codex.Core.Tools;
 
 namespace Codex.Users.Api
 {
@@ -55,7 +56,20 @@ namespace Codex.Users.Api
 
             services.AddRazorPages();
 
-            services.AddDaprClient();
+            services.AddDaprClient(configure =>
+            {
+                var options = new JsonSerializerOptions()
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    WriteIndented = true,
+                    IgnoreNullValues = true
+                };
+                // Adds automatic json parsing to ObjectId.
+                options.Converters.Add(new ObjectIdConverter());
+                options.Converters.Add(new JsonStringEnumConverter());
+
+                configure.UseJsonSerializationOptions(options);
+            });
 
             services.AddSingleton<IExceptionHandler, CoreExceptionHandler>();
             services.AddSingleton<IPasswordHasher, PasswordHasher>();
@@ -78,6 +92,8 @@ namespace Codex.Users.Api
                 options.JsonSerializerOptions.WriteIndented = true;
                 options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
                 options.JsonSerializerOptions.IgnoreNullValues = true;
+                // Adds automatic json parsing to ObjectId.
+                options.JsonSerializerOptions.Converters.Add(new ObjectIdConverter());
             }).AddDapr();
 
             services.AddSwaggerGen(c =>

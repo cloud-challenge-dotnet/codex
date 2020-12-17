@@ -28,6 +28,7 @@ using Codex.Core.Roles.Interfaces;
 using Codex.Core.Roles.Implementations;
 using Codex.Core.Cache;
 using Codex.Models.Security;
+using Codex.Core.Tools;
 
 namespace Codex.Tenants.Api
 {
@@ -50,7 +51,20 @@ namespace Codex.Tenants.Api
             services.AddSingleton(sp =>
                 sp.GetRequiredService<IOptions<MongoDbSettings>>().Value);
 
-            services.AddDaprClient();
+            services.AddDaprClient(configure =>
+            {
+                var options = new JsonSerializerOptions()
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    WriteIndented = true,
+                    IgnoreNullValues = true
+                };
+                // Adds automatic json parsing to ObjectId.
+                options.Converters.Add(new ObjectIdConverter());
+                options.Converters.Add(new JsonStringEnumConverter());
+
+                configure.UseJsonSerializationOptions(options);
+            });
 
             services.AddSingleton<IExceptionHandler, CoreExceptionHandler>();
             services.AddSingleton<IRoleProvider, DefaultRoleProvider>();
@@ -67,6 +81,8 @@ namespace Codex.Tenants.Api
                 options.JsonSerializerOptions.WriteIndented = true;
                 options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
                 options.JsonSerializerOptions.IgnoreNullValues = true;
+                // Adds automatic json parsing to ObjectId.
+                options.JsonSerializerOptions.Converters.Add(new ObjectIdConverter());
             });
 
             services.AddSwaggerGen(c =>
