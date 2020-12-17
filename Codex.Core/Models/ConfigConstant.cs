@@ -14,11 +14,9 @@
 
         public const string PasswordSalt = "passwordSalt";
 
-        public const string MailJetProvider = "mailJetProvider";
+        public const string MailJetApiKey = "mailJetProvider:apiKey";
 
-        public const string MailJetApiKey = "apiKey";
-
-        public const string MailJetSecretKey = "secretKey";
+        public const string MailJetSecretKey = "mailJetProvider:secretKey";
 
         public const string MicroserviceApiKey = "microserviceApiKey";
 

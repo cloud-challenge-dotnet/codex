@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Codex.Security.Api.Repositories.Interfaces
 {
-    public interface IApiKeyRepository : IRepository<ApiKey>
+    public interface IApiKeyRepository : IRepository<ApiKey, string>
     {
         Task<List<ApiKey>> FindAllAsync(ApiKeyCriteria apiKeyCriteria);
 

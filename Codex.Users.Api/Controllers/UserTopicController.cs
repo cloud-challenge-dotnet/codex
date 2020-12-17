@@ -29,7 +29,7 @@ namespace Codex.Users.Api.Controllers
         public async Task<IActionResult> ProcessSendActivationUserMailTopic([FromBody] TopicData<User> topicData)
         {
             User? user = topicData.Data;
-            if (!string.IsNullOrWhiteSpace(user?.Id))
+            if (user?.Id != null)
             {
                 _logger.LogInformation($"Receive send activation user mail topic, user id: {user.Id}");
 

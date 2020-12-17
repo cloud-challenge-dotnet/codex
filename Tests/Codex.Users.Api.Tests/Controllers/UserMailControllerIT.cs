@@ -7,6 +7,7 @@ using Xunit;
 using Codex.Users.Api.Services.Interfaces;
 using Codex.Models.Users;
 using Codex.Models.Roles;
+using MongoDB.Bson;
 
 namespace Codex.Users.Api.Tests
 {
@@ -20,7 +21,8 @@ namespace Codex.Users.Api.Tests
         public async Task SendActivateUserMail()
         {
             string tenantId = "global";
-            User user = new() { Id = "Id1", Login = "login" };
+            var userId = ObjectId.GenerateNewId();
+            User user = new() { Id = userId, Login = "login" };
             var userMailService = new Mock<IUserMailService>();
 
             userMailService.Setup(x => x.SendActivateUserMailAsync(It.IsAny<string>(), It.IsAny<User>())).Returns(
@@ -33,7 +35,7 @@ namespace Codex.Users.Api.Tests
 
             userMailController.ControllerContext.HttpContext = Fixture.CreateHttpContext(
                 tenantId: "global",
-                userId: "Id1",
+                userId: userId.ToString(),
                 userName: "login",
                 roles: new() { RoleConstant.TENANT_MANAGER }
             );

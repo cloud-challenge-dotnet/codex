@@ -13,6 +13,7 @@ using Codex.Core.Models;
 using System.Web;
 using Codex.Core.Interfaces;
 using Codex.Core.Models.Mail;
+using MongoDB.Bson;
 
 namespace Codex.Users.Api.Services.Implementations
 {
@@ -43,7 +44,7 @@ namespace Codex.Users.Api.Services.Implementations
 
         public async Task SendActivateUserMailAsync(string tenantId, User user)
         {
-            var foundUser = await _userService.FindOneAsync(user.Id!);
+            var foundUser = await _userService.FindOneAsync((ObjectId)user.Id!);
 
             if (foundUser == null)
             {

@@ -5,7 +5,7 @@ using Codex.Models.Tenants;
 
 namespace Codex.Tenants.Api.Repositories.Interfaces
 {
-    public interface ITenantRepository: IRepository<Tenant>
+    public interface ITenantRepository: IRepository<Tenant, string>
     {
         Task<List<Tenant>> FindAllAsync();
 

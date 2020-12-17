@@ -15,6 +15,7 @@ using Codex.Core.Cache;
 using Codex.Models.Tenants;
 using Codex.Core.Interfaces;
 using Codex.Users.Api.Models;
+using MongoDB.Bson;
 
 namespace Codex.Users.Api.Tests
 {
@@ -28,7 +29,8 @@ namespace Codex.Users.Api.Tests
         public async Task SendActivateUserMail()
         {
             string tenantId = "global";
-            User user = new() { Id = "Id1", Login = "login" };
+            var userId = ObjectId.GenerateNewId();
+            User user = new() { Id = userId, Login = "login" };
             var logger = new Mock<ILogger<UserMailService>>();
             var daprClient = new Mock<DaprClient>();
             var userService = new Mock<IUserService>();
@@ -36,7 +38,7 @@ namespace Codex.Users.Api.Tests
             var razorPartialToStringRenderer = new Mock<IRazorPartialToStringRenderer>();
             var tenantCacheService = new Mock<CacheService<Tenant>>();
 
-            userService.Setup(x => x.FindOneAsync(It.IsAny<string>())).Returns(
+            userService.Setup(x => x.FindOneAsync(It.IsAny<ObjectId>())).Returns(
                 Task.FromResult((User?)user)
             );
 
@@ -68,7 +70,7 @@ namespace Codex.Users.Api.Tests
 
             await userMailService.SendActivateUserMailAsync(tenantId, user);
 
-            userService.Verify(x => x.FindOneAsync(It.IsAny<string>()), Times.Once);
+            userService.Verify(x => x.FindOneAsync(It.IsAny<ObjectId>()), Times.Once);
             daprClient.Verify(x => x.GetSecretAsync(It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<Dictionary<string, string>>(), It.IsAny<CancellationToken>()));
             razorPartialToStringRenderer.Verify(x => x.RenderPartialToStringAsync(It.IsAny<string>(), It.IsAny<UserNameActivationModel>()), Times.Once);
@@ -79,7 +81,8 @@ namespace Codex.Users.Api.Tests
         public async Task SendActivateUserMail_Not_Found_User()
         {
             string tenantId = "global";
-            User user = new() { Id = "Id1", Login = "login" };
+            var userId = ObjectId.GenerateNewId();
+            User user = new() { Id = userId, Login = "login" };
             var logger = new Mock<ILogger<UserMailService>>();
             var daprClient = new Mock<DaprClient>();
             var userService = new Mock<IUserService>();
@@ -87,7 +90,7 @@ namespace Codex.Users.Api.Tests
             var razorPartialToStringRenderer = new Mock<IRazorPartialToStringRenderer>();
             var tenantCacheService = new Mock<CacheService<Tenant>>();
 
-            userService.Setup(x => x.FindOneAsync(It.IsAny<string>())).Returns(
+            userService.Setup(x => x.FindOneAsync(It.IsAny<ObjectId>())).Returns(
                 Task.FromResult((User?)null)
             );
 
@@ -102,7 +105,7 @@ namespace Codex.Users.Api.Tests
 
             await userMailService.SendActivateUserMailAsync(tenantId, user);
 
-            userService.Verify(x => x.FindOneAsync(It.IsAny<string>()), Times.Once);
+            userService.Verify(x => x.FindOneAsync(It.IsAny<ObjectId>()), Times.Once);
             daprClient.Verify(x => x.GetSecretAsync(It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<Dictionary<string, string>>(), It.IsAny<CancellationToken>()), Times.Never);
             razorPartialToStringRenderer.Verify(x => x.RenderPartialToStringAsync(It.IsAny<string>(), It.IsAny<UserNameActivationModel>()), Times.Never);
