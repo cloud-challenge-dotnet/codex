@@ -2,6 +2,7 @@ using Codex.Models.Users;
 using Codex.Tests.Framework;
 using Codex.Users.Api.Repositories.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
+using MongoDB.Bson;
 using System;
 using System.Threading.Tasks;
 using Xunit;
@@ -31,8 +32,8 @@ namespace Codex.Users.Api.Tests
             Assert.Equal(2, userList.Count);
 
             //Not updated
-            Assert.Equal("5fb92118da7ed3521e4a7d59", userList[0].Id);
-            Assert.Equal("5fb92118da7ed3521e4a7d60", userList[1].Id);
+            Assert.Equal("5fb92118da7ed3521e4a7d59", userList[0].Id.ToString());
+            Assert.Equal("5fb92118da7ed3521e4a7d60", userList[1].Id.ToString());
         }
 
 
@@ -48,7 +49,7 @@ namespace Codex.Users.Api.Tests
             Assert.Single(userList);
 
             //Not updated
-            Assert.Equal("5fb92118da7ed3521e4a7d59", userList[0].Id);
+            Assert.Equal("5fb92118da7ed3521e4a7d59", userList[0].Id.ToString());
             Assert.Equal("user1", userList[0].Login);
             Assert.Equal("test1@gmail.com", userList[0].Email);
         }
@@ -65,7 +66,7 @@ namespace Codex.Users.Api.Tests
             Assert.Single(userList);
 
             //Not updated
-            Assert.Equal("5fb92118da7ed3521e4a7d59", userList[0].Id);
+            Assert.Equal("5fb92118da7ed3521e4a7d59", userList[0].Id.ToString());
             Assert.Equal("user1", userList[0].Login);
             Assert.Equal("test1@gmail.com", userList[0].Email);
         }
@@ -82,7 +83,7 @@ namespace Codex.Users.Api.Tests
             Assert.Single(userList);
 
             //Not updated
-            Assert.Equal("5fb92118da7ed3521e4a7d59", userList[0].Id);
+            Assert.Equal("5fb92118da7ed3521e4a7d59", userList[0].Id.ToString());
             Assert.Equal("user1", userList[0].Login);
             Assert.Equal("test1@gmail.com", userList[0].Email);
         }
@@ -106,7 +107,7 @@ namespace Codex.Users.Api.Tests
 
             var user = await _userRepository.InsertAsync(new()
             {
-                Id = "5fb92118da7ed3521e4a7d59",
+                Id = new ObjectId("5fb92118da7ed3521e4a7d59"),
                 Login = "user-login",
                 Email = "user-email",
                 FirstName = "user-firstName",
@@ -129,7 +130,7 @@ namespace Codex.Users.Api.Tests
             Assert.True(user!.ModificationDate > DateTime.Now.Date);
 
             //Not updated
-            Assert.Equal("5fb92118da7ed3521e4a7d59", user!.Id);
+            Assert.Equal("5fb92118da7ed3521e4a7d59", user!.Id.ToString());
         }
 
         [Fact]
@@ -139,7 +140,7 @@ namespace Codex.Users.Api.Tests
 
             var user = await _userRepository.UpdateAsync(new()
             {
-                Id = "5fb92118da7ed3521e4a7d59",
+                Id = new ObjectId("5fb92118da7ed3521e4a7d59"),
                 Login = "user-login",
                 Email = "user-email",
                 FirstName = "user-firstName",
@@ -172,7 +173,7 @@ namespace Codex.Users.Api.Tests
             Assert.True(user!.Active);
 
             //Not updated
-            Assert.Equal("5fb92118da7ed3521e4a7d59", user!.Id);
+            Assert.Equal("5fb92118da7ed3521e4a7d59", user!.Id.ToString());
             Assert.Equal(new DateTime(2020, 12, 12), user!.CreationDate);
         }
 
@@ -182,7 +183,7 @@ namespace Codex.Users.Api.Tests
         {
             await _fixture.UseDataSetAsync(locations: @"Resources/users.json");
 
-            var user = await _userRepository.UpdateActivationCodeAsync("5fb92118da7ed3521e4a7d59", "56458646456");
+            var user = await _userRepository.UpdateActivationCodeAsync(new ObjectId("5fb92118da7ed3521e4a7d59"), "56458646456");
 
             Assert.NotNull(user);
             Assert.NotEqual(new DateTime(2020, 12, 12), user!.ModificationDate);
@@ -190,7 +191,7 @@ namespace Codex.Users.Api.Tests
             Assert.NotNull(user!.ActivationValidity);
 
             //Not updated
-            Assert.Equal("5fb92118da7ed3521e4a7d59", user!.Id);
+            Assert.Equal("5fb92118da7ed3521e4a7d59", user!.Id.ToString());
             Assert.Equal(new DateTime(2020, 12, 12), user!.CreationDate);
         }
     }

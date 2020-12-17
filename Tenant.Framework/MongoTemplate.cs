@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace Codex.Tenants.Framework
 {
     [ExcludeFromCodeCoverage]
-    public class MongoTemplate<TDocument>
+    public class MongoTemplate<TDocument, TId>
     {
         MongoClient? _mongoClient;
         IMongoDatabase? _database;
@@ -56,14 +56,14 @@ namespace Codex.Tenants.Framework
             return GetDatabase(tenant.Id).GetCollection<TDocument>((typeof(TDocument).Name).ToCamelCase());
         }
 
-        public async Task<bool> ExistsByIdAsync(string id)
+        public async Task<bool> ExistsByIdAsync(TId id)
         {
             var repository = await GetRepositoryAsync();
 
             var filter = Builders<TDocument>.Filter.Eq("_id", id);
             return (await repository.CountDocumentsAsync(filter)) > 0;
         }
-        public async Task<TDocument?> FindOneAsync(string id)
+        public async Task<TDocument?> FindOneAsync(TId id)
         {
             var repository = await GetRepositoryAsync();
 
@@ -80,7 +80,7 @@ namespace Codex.Tenants.Framework
             return document;
         }
 
-        public async Task DeleteAsync(string id)
+        public async Task DeleteAsync(TId id)
         {
             var repository = await GetRepositoryAsync();
 

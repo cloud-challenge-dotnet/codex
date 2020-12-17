@@ -70,6 +70,8 @@ namespace Codex.Security.Api
                 options.JsonSerializerOptions.WriteIndented = true;
                 options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
                 options.JsonSerializerOptions.IgnoreNullValues = true;
+                // Adds automatic json parsing to BsonDocuments.
+                options.JsonSerializerOptions.Converters.Add(new ObjectIdConverter());
             }).AddDapr();
 
             services.AddSwaggerGen(c =>

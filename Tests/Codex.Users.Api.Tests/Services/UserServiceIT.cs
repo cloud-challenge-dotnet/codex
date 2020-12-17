@@ -13,6 +13,7 @@ using Dapr.Client;
 using System.Threading;
 using Codex.Core.Models;
 using Codex.Users.Api.Exceptions;
+using MongoDB.Bson;
 
 namespace Codex.Users.Api.Tests
 {
@@ -29,12 +30,14 @@ namespace Codex.Users.Api.Tests
             var passwordHasher = new Mock<IPasswordHasher>();
             var daprClient = new Mock<DaprClient>();
             UserCriteria userCriteria = new();
+            var userId1 = ObjectId.GenerateNewId();
+            var userId2 = ObjectId.GenerateNewId();
 
             userRepository.Setup(x => x.FindAllAsync(It.IsAny<UserCriteria>())).Returns(
                 Task.FromResult(new List<User>()
                 {
-                    new(){ Id = "User1" },
-                    new(){ Id = "User2" }
+                    new(){ Id = userId1 },
+                    new(){ Id = userId2 }
                 })
             );
 
@@ -45,8 +48,8 @@ namespace Codex.Users.Api.Tests
             Assert.NotNull(userList);
             Assert.Equal(2, userList.Count);
 
-            Assert.Equal("User1", userList[0].Id);
-            Assert.Equal("User2", userList[1].Id);
+            Assert.Equal(userId1, userList[0].Id);
+            Assert.Equal(userId2, userList[1].Id);
         }
 
         [Fact]
@@ -55,11 +58,10 @@ namespace Codex.Users.Api.Tests
             var userRepository = new Mock<IUserRepository>();
             var passwordHasher = new Mock<IPasswordHasher>();
             var daprClient = new Mock<DaprClient>();
+            var userId = ObjectId.GenerateNewId();
 
-            string userId = "User1";
-
-            userRepository.Setup(x => x.FindOneAsync(It.IsAny<string>())).Returns(
-                Task.FromResult((User?)new User { Id = "User1" })
+            userRepository.Setup(x => x.FindOneAsync(It.IsAny<ObjectId>())).Returns(
+                Task.FromResult((User?)new User { Id = userId })
             );
 
             var userService = new UserService(userRepository.Object, daprClient.Object, passwordHasher.Object);
@@ -76,6 +78,7 @@ namespace Codex.Users.Api.Tests
             var userRepository = new Mock<IUserRepository>();
             var passwordHasher = new Mock<IPasswordHasher>();
             var daprClient = new Mock<DaprClient>();
+            var userId = ObjectId.GenerateNewId();
 
             daprClient.Setup(x => x.GetSecretAsync(It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<Dictionary<string, string>>(), It.IsAny<CancellationToken>()))
@@ -90,7 +93,7 @@ namespace Codex.Users.Api.Tests
            );
 
             userRepository.Setup(x => x.InsertAsync(It.IsAny<User>())).Returns(
-                Task.FromResult(new User() { Id = "User1", Login = "Login", Email = "test@gmail.com" })
+                Task.FromResult(new User() { Id = userId, Login = "Login", Email = "test@gmail.com" })
             );
 
             var userService = new UserService(userRepository.Object, daprClient.Object, passwordHasher.Object);
@@ -233,7 +236,7 @@ namespace Codex.Users.Api.Tests
             var passwordHasher = new Mock<IPasswordHasher>();
             var daprClient = new Mock<DaprClient>();
 
-            string userId = "User1";
+            var userId = ObjectId.GenerateNewId();
             var user = new User { Id = userId };
 
             userRepository.Setup(x => x.UpdateAsync(It.IsAny<User>())).Returns(
@@ -257,10 +260,10 @@ namespace Codex.Users.Api.Tests
             var daprClient = new Mock<DaprClient>();
 
             string activationCode = "221212313521";
-            string userId = "User1";
+            var userId = ObjectId.GenerateNewId();
             var user = new User { Id = userId, Login = "login", ActivationCode = activationCode, ActivationValidity = DateTime.Now.AddDays(1) };
 
-            userRepository.Setup(x => x.UpdateActivationCodeAsync(It.IsAny<string>(), It.IsAny<string>())).Returns(
+            userRepository.Setup(x => x.UpdateActivationCodeAsync(It.IsAny<ObjectId>(), It.IsAny<string>())).Returns(
                 Task.FromResult((User?)new User { Id = userId, Login = "login" })
             );
 
@@ -272,7 +275,7 @@ namespace Codex.Users.Api.Tests
             Assert.Equal(userId, userResult!.Id);
             Assert.Equal("login", userResult!.Login);
 
-            userRepository.Verify(x => x.UpdateActivationCodeAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
+            userRepository.Verify(x => x.UpdateActivationCodeAsync(It.IsAny<ObjectId>(), It.IsAny<string>()), Times.Once);
         }
 
         [Fact]
@@ -283,10 +286,10 @@ namespace Codex.Users.Api.Tests
             var daprClient = new Mock<DaprClient>();
 
             string activationCode = "221212313521";
-            string userId = "User1";
+            var userId = ObjectId.GenerateNewId();
             var user = new User { Id = userId, Login = "login", ActivationCode = null, ActivationValidity = DateTime.Now.AddDays(1) };
 
-            userRepository.Setup(x => x.UpdateActivationCodeAsync(It.IsAny<string>(), It.IsAny<string>())).Returns(
+            userRepository.Setup(x => x.UpdateActivationCodeAsync(It.IsAny<ObjectId>(), It.IsAny<string>())).Returns(
                 Task.FromResult((User?)new User { Id = userId, Login = "login" })
             );
 
@@ -297,7 +300,7 @@ namespace Codex.Users.Api.Tests
             Assert.NotNull(exception);
             Assert.Equal("INVALID_VALIDATION_CODE", exception.Code);
 
-            userRepository.Verify(x => x.UpdateActivationCodeAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+            userRepository.Verify(x => x.UpdateActivationCodeAsync(It.IsAny<ObjectId>(), It.IsAny<string>()), Times.Never);
         }
 
         [Fact]
@@ -308,10 +311,10 @@ namespace Codex.Users.Api.Tests
             var daprClient = new Mock<DaprClient>();
 
             string activationCode = "221212313521";
-            string userId = "User1";
+            var userId = ObjectId.GenerateNewId();
             var user = new User { Id = userId, Login = "login", ActivationCode = "25554545445", ActivationValidity = DateTime.Now.AddDays(1) };
 
-            userRepository.Setup(x => x.UpdateActivationCodeAsync(It.IsAny<string>(), It.IsAny<string>())).Returns(
+            userRepository.Setup(x => x.UpdateActivationCodeAsync(It.IsAny<ObjectId>(), It.IsAny<string>())).Returns(
                 Task.FromResult((User?)new User { Id = userId, Login = "login" })
             );
 
@@ -322,7 +325,7 @@ namespace Codex.Users.Api.Tests
             Assert.NotNull(exception);
             Assert.Equal("INVALID_VALIDATION_CODE", exception.Code);
 
-            userRepository.Verify(x => x.UpdateActivationCodeAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+            userRepository.Verify(x => x.UpdateActivationCodeAsync(It.IsAny<ObjectId>(), It.IsAny<string>()), Times.Never);
         }
 
         [Fact]
@@ -333,7 +336,7 @@ namespace Codex.Users.Api.Tests
             var daprClient = new Mock<DaprClient>();
 
             string activationCode = "221212313521";
-            string userId = "User1";
+            var userId = ObjectId.GenerateNewId();
             var user = new User { Id = userId, Login = "login", ActivationCode = activationCode, ActivationValidity = DateTime.Now.AddDays(-1) };
 
             var userService = new UserService(userRepository.Object, daprClient.Object, passwordHasher.Object);
@@ -343,7 +346,7 @@ namespace Codex.Users.Api.Tests
             Assert.NotNull(exception);
             Assert.Equal("EXPIRED_VALIDATION_CODE", exception.Code);
 
-            userRepository.Verify(x => x.UpdateActivationCodeAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+            userRepository.Verify(x => x.UpdateActivationCodeAsync(It.IsAny<ObjectId>(), It.IsAny<string>()), Times.Never);
         }
     }
 }

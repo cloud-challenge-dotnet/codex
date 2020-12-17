@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Codex.Tenants.Framework;
 using Codex.Core.Security;
+using MongoDB.Bson;
 
 namespace Codex.Users.Api.Controllers
 {
@@ -31,7 +32,7 @@ namespace Codex.Users.Api.Controllers
                 return Unauthorized();
             }
 
-            var user = await _userService.FindOneAsync(id);
+            var user = await _userService.FindOneAsync(new ObjectId(id));
 
             return user == null ? NotFound(id) : Ok(user);
         }
@@ -65,12 +66,12 @@ namespace Codex.Users.Api.Controllers
                 return Unauthorized();
             }
 
-            user = user with { Id = userId };
+            user = user with { Id = new ObjectId(userId) };
 
             User? userResult;
             if (!HttpContext.User.IsInRole(RoleConstant.TENANT_MANAGER) && contextUserId == userId)
             {
-                userResult = await _userService.FindOneAsync(userId);
+                userResult = await _userService.FindOneAsync(new ObjectId(userId));
                 if (userResult == null)
                 {
                     return NotFound(userId);
@@ -97,7 +98,7 @@ namespace Codex.Users.Api.Controllers
         [HttpGet("{userId}/activation")]
         public async Task<ActionResult<User>> ActivateUser(string userId, [FromQuery] string activationCode)
         {
-            var user = await _userService.FindOneAsync(userId);
+            var user = await _userService.FindOneAsync(new ObjectId(userId));
             if (user == null)
             {
                 return NotFound(userId);

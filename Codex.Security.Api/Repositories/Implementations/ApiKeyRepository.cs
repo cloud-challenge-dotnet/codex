@@ -9,7 +9,7 @@ using Codex.Security.Api.Repositories.Interfaces;
 
 namespace Codex.Security.Api.Repositories.Implementations
 {
-    public class ApiKeyRepository : MongoTemplate<ApiKey>, IApiKeyRepository
+    public class ApiKeyRepository : MongoTemplate<ApiKey, string>, IApiKeyRepository
     {
         public ApiKeyRepository(MongoDbSettings mongoDbSettings,
             ITenantAccessService tenantAccessService) : base(mongoDbSettings, tenantAccessService)

@@ -11,6 +11,7 @@ using Codex.Models.Users;
 using Dapr.Client.Http;
 using System.Threading;
 using System.Collections.Generic;
+using MongoDB.Bson;
 
 namespace Codex.Users.Api.Tests
 {
@@ -32,7 +33,7 @@ namespace Codex.Users.Api.Tests
                 new Dictionary<string, string>() { { ConfigConstant.MicroserviceApiKey, "" } }
             ));
 
-            User user = new() { Id = "Id1" };
+            User user = new() { Id = ObjectId.GenerateNewId() };
             TopicData<User> userTopicData = new(TopicType.Modify, user, "global");
 
             var topicController = new UserTopicController(

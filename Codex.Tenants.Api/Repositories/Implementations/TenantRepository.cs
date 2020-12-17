@@ -12,7 +12,7 @@ using Codex.Core.Extensions;
 
 namespace Codex.Tenants.Api.Repositories.Implementations
 {
-    public class TenantRepository : MongoTemplate<Tenant>, ITenantRepository
+    public class TenantRepository : MongoTemplate<Tenant, string>, ITenantRepository
     {
         public TenantRepository(MongoDbSettings mongoDbSettings,
             ITenantAccessService tenantAccessService) : base(mongoDbSettings, tenantAccessService)

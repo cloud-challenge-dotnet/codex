@@ -20,6 +20,7 @@ using Codex.Core.Models;
 using Codex.Core.Cache;
 using Codex.Core.Roles.Interfaces;
 using Dapr.Client.Http;
+using MongoDB.Bson;
 
 namespace Codex.Users.Api.Services.Implementations
 {
@@ -104,7 +105,7 @@ namespace Codex.Users.Api.Services.Implementations
             if (!await CheckPasswordAsync(user.PasswordHash, userLogin.Password))
                 throw new InvalidCredentialsException("Invalid login", code: "INVALID_LOGIN");
 
-            Auth auth = new(Id: user.Id!, Login: user.Login, Token: CreateToken(user, tenant));
+            Auth auth = new(Id: ((ObjectId)user.Id!).ToString() ?? "", Login: user.Login, Token: CreateToken(user, tenant));
 
             return await Task.FromResult(auth);
         }
@@ -125,7 +126,7 @@ namespace Codex.Users.Api.Services.Implementations
             user = CompleteUserWithParentRoles(user);
             List<Claim> claimList = new()
             {
-                new Claim(ClaimTypes.NameIdentifier, user.Id!),
+                new Claim(ClaimTypes.NameIdentifier, user.Id?.ToString() ?? ""),
                 new Claim(ClaimTypes.Name, user.Login!),
                 new Claim(ClaimConstant.TenantId, tenant.Id!)
             };
