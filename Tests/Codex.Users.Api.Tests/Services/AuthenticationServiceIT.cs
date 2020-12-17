@@ -46,7 +46,7 @@ namespace Codex.Users.Api.Tests.Services
 
             userService.Setup(x => x.FindAllAsync(It.IsAny<UserCriteria>()))
                 .Returns(Task.FromResult(new List<User>(){
-                    new () { Id= "Id1", PasswordHash="123123313" , Active = true, Roles = new(){ RoleConstant.ADMIN } }
+                    new () { Id= "Id1", Login = "Login", PasswordHash="123123313" , Active = true, Roles = new(){ RoleConstant.ADMIN } }
                 })
             );
 
@@ -242,7 +242,7 @@ namespace Codex.Users.Api.Tests.Services
 
             userService.Setup(x => x.FindAllAsync(It.IsAny<UserCriteria>()))
                 .Returns(Task.FromResult(new List<User>() {
-                    new () { Id= "Id1", PasswordHash="123123313" , Active = false, Roles = new(){ RoleConstant.ADMIN } }
+                    new () { Id= "Id1", Login= "Login", PasswordHash="123123313" , Active = false, Roles = new(){ RoleConstant.ADMIN } }
                 })
             );
 

@@ -36,7 +36,7 @@ namespace Codex.Users.Api.Controllers
                 var secretValues = await _daprClient.GetSecretAsync(ConfigConstant.CodexKey, ConfigConstant.MicroserviceApiKey);
                 var microserviceApiKey = secretValues[ConfigConstant.MicroserviceApiKey];
 
-                await _daprClient.InvokeMethodAsync("userapi", $"UserMail/activation",
+                await _daprClient.InvokeMethodAsync(ApiNameConstant.UserApi, $"UserMail/activation",
                     data: user,
                     httpExtension: new HTTPExtension() { 
                         Verb = HTTPVerb.Post,

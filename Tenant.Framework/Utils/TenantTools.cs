@@ -25,7 +25,7 @@ namespace Codex.Tenants.Framework.Utils
                     var secretValues = await daprClient.GetSecretAsync(ConfigConstant.CodexKey, ConfigConstant.MicroserviceApiKey);
                     var microserviceApiKey = secretValues[ConfigConstant.MicroserviceApiKey];
 
-                    tenant = await daprClient.InvokeMethodAsync<Tenant>("tenantapi", $"Tenant/{tenantId}",
+                    tenant = await daprClient.InvokeMethodAsync<Tenant>(ApiNameConstant.TenantApi, $"Tenant/{tenantId}",
                         new HTTPExtension() {
                             Verb = HTTPVerb.Get,
                             Headers = {

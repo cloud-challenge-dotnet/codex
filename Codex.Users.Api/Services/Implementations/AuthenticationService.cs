@@ -19,6 +19,7 @@ using Codex.Models.Tenants;
 using Codex.Core.Models;
 using Codex.Core.Cache;
 using Codex.Core.Roles.Interfaces;
+using Dapr.Client.Http;
 
 namespace Codex.Users.Api.Services.Implementations
 {
@@ -63,7 +64,36 @@ namespace Codex.Users.Api.Services.Implementations
 
             Tenant tenant = await TenantTools.SearchTenantByIdAsync(_logger, _tenantCacheService, _daprClient, userLogin.TenantId);
 
-            var user = (await _userService.FindAllAsync(new(Login: userLogin.Login))).FirstOrDefault();
+            var userCriteria = new UserCriteria(Login: userLogin.Login);
+            var user = (await _userService.FindAllAsync(userCriteria)).Where(u => u.Login == userLogin.Login).FirstOrDefault();
+
+            if (user == null && userLogin.TenantId != "global")
+            {
+                // Search user on global instance (user inter tenant for administration
+                var secretValues = await _daprClient.GetSecretAsync(ConfigConstant.CodexKey, ConfigConstant.MicroserviceApiKey);
+                var microserviceApiKey = secretValues[ConfigConstant.MicroserviceApiKey];
+
+                try {
+                    user = (await _daprClient.InvokeMethodAsync<List<User>>(ApiNameConstant.UserApi, "User",
+                        httpExtension: new HTTPExtension()
+                        {
+                            Verb = HTTPVerb.Get,
+                            QueryString = new Dictionary<string, string>()
+                            {
+                                { "Login", userLogin.Login }
+                            },
+                            Headers = {
+                                { HttpHeaderConstant.TenantId, "global" },
+                                { HttpHeaderConstant.ApiKey, $"global.{microserviceApiKey}" }
+                            }
+                        }
+                    )).Where(u => u.Login == userLogin.Login).FirstOrDefault();
+                }
+                catch (Exception exception)
+                {
+                    _logger.LogError(exception, $"Unable to find User '{userLogin.Login}' inside global instance");
+                }
+            }
 
             if(user == null)
                 throw new InvalidCredentialsException("Invalid login", code: "INVALID_LOGIN");
@@ -136,11 +166,14 @@ namespace Codex.Users.Api.Services.Implementations
         private List<Role> GetLowerRoles(List<Role> roles, Role role)
         {
             List<Role> roleList = new();
-            var parentRole = roles.FirstOrDefault(r => r.UpperRoleCode == role.Code);
-            if (parentRole != null)
+            var parentRoles = roles.Where(r => r.UpperRoleCode == role.Code);
+            foreach (var parentRole in parentRoles)
             {
-                roleList.Add(parentRole);
-                roleList.AddRange(GetLowerRoles(roles, parentRole));
+                if (parentRole != null)
+                {
+                    roleList.Add(parentRole);
+                    roleList.AddRange(GetLowerRoles(roles, parentRole));
+                }
             }
             return roleList;
         }

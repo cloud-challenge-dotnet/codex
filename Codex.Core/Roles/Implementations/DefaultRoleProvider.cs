@@ -16,7 +16,7 @@ namespace Codex.Core.Roles.Implementations
 
                 new(Code: RoleConstant.TENANT_MANAGER, UpperRoleCode: RoleConstant.ADMIN),
 
-                new(Code: RoleConstant.USER, UpperRoleCode: RoleConstant.ADMIN)
+                new(Code: RoleConstant.USER, UpperRoleCode: RoleConstant.TENANT_MANAGER)
             };
         }
     }

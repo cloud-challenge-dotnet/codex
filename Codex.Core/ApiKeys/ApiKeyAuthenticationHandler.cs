@@ -85,7 +85,7 @@ namespace Codex.Core.ApiKeys
                     apiKey = await _apiKeyCacheService.GetCacheAsync(_daprClient, cacheKey);
                     if (apiKey == null)
                     {
-                        apiKey = await _daprClient.InvokeMethodAsync<ApiKey>("securityapi", $"ApiKey/{providedApiKey}",
+                        apiKey = await _daprClient.InvokeMethodAsync<ApiKey>(ApiNameConstant.SecurityApi, $"ApiKey/{providedApiKey}",
                             new HTTPExtension()
                             {
                                 Verb = HTTPVerb.Get,
@@ -153,11 +153,14 @@ namespace Codex.Core.ApiKeys
         private List<Role> GetLowerRoles(List<Role> roles, Role role)
         {
             List<Role> roleList = new();
-            var parentRole = roles.FirstOrDefault(r => r.UpperRoleCode == role.Code);
-            if (parentRole != null)
+            var parentRoles = roles.Where(r => r.UpperRoleCode == role.Code);
+            foreach (var parentRole in parentRoles)
             {
-                roleList.Add(parentRole);
-                roleList.AddRange(GetLowerRoles(roles, parentRole));
+                if (parentRole != null)
+                {
+                    roleList.Add(parentRole);
+                    roleList.AddRange(GetLowerRoles(roles, parentRole));
+                }
             }
             return roleList;
         }
