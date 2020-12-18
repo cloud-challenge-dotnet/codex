@@ -1,4 +1,6 @@
 ﻿using Codex.Core.Models;
+using Codex.Models.Tenants;
+using Codex.Tenants.Framework.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using MongoDB.Bson.Serialization.Conventions;
@@ -47,6 +49,7 @@ namespace Codex.Tests.Framework
                     new ClaimsIdentity(claimList, "TestAuthType")
                 )
             };
+            httpContext.Items.Add(Constants.HttpContextTenantKey, new Tenant() { Id = tenantId, Name = "tenantId" });
 
             if (headers != null)
             {

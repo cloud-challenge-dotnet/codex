@@ -131,7 +131,12 @@ namespace Codex.Security.Api.Tests
                 daprClient.Object
             );
 
-            apiKeyController.ControllerContext.HttpContext = new DefaultHttpContext();
+            apiKeyController.ControllerContext.HttpContext = Fixture.CreateHttpContext(
+                tenantId: "global",
+                userId: "Id1",
+                userName: "login",
+                roles: new() { RoleConstant.USER }
+            );
 
             var authorizeAttributes = apiKeyController.GetType().GetMethod(nameof(ApiKeyController.CreateApiKey))?.GetCustomAttributes(typeof(TenantAuthorizeAttribute), true);
 
@@ -165,6 +170,13 @@ namespace Codex.Security.Api.Tests
             var apiKeyController = new ApiKeyController(
                 apiKeyService.Object,
                 daprClient.Object
+            );
+
+            apiKeyController.ControllerContext.HttpContext = Fixture.CreateHttpContext(
+                tenantId: "global",
+                userId: "Id1",
+                userName: "login",
+                roles: new() { RoleConstant.USER }
             );
 
             var authorizeAttributes = apiKeyController.GetType().GetMethod(nameof(ApiKeyController.UpdateApiKey))?.GetCustomAttributes(typeof(TenantAuthorizeAttribute), true);
@@ -227,6 +239,13 @@ namespace Codex.Security.Api.Tests
             var apiKeyController = new ApiKeyController(
                 apiKeyService.Object,
                 daprClient.Object
+            );
+
+            apiKeyController.ControllerContext.HttpContext = Fixture.CreateHttpContext(
+                tenantId: "global",
+                userId: "Id1",
+                userName: "login",
+                roles: new() { RoleConstant.USER }
             );
 
             var result = await apiKeyController.DeleteApiKey(apiKeyId);
