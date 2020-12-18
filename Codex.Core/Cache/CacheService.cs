@@ -11,7 +11,7 @@ namespace Codex.Core.Cache
     {
         private readonly int ExpireTimeInMinutes;
 
-        public CacheService(int expireTimeInMinutes)
+        protected CacheService(int expireTimeInMinutes)
         {
             ExpireTimeInMinutes = expireTimeInMinutes;
         }

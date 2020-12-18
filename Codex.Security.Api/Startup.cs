@@ -25,7 +25,6 @@ using Codex.Core.Cache;
 using Codex.Security.Api.Services.Interfaces;
 using Codex.Security.Api.Services.Implementations;
 using Codex.Core.ApiKeys.Extensions;
-using Codex.Models.Security;
 using Codex.Core.ApiKeys.Models;
 using Codex.Core.Roles.Interfaces;
 using Codex.Core.Roles.Implementations;

@@ -66,7 +66,7 @@ namespace Codex.Users.Api.Services.Implementations
             Tenant tenant = await TenantTools.SearchTenantByIdAsync(_logger, _tenantCacheService, _daprClient, userLogin.TenantId);
 
             var userCriteria = new UserCriteria(Login: userLogin.Login);
-            var user = (await _userService.FindAllAsync(userCriteria)).Where(u => u.Login == userLogin.Login).FirstOrDefault();
+            var user = (await _userService.FindAllAsync(userCriteria)).FirstOrDefault(u => u.Login == userLogin.Login);
 
             if (user == null && userLogin.TenantId != "global")
             {
@@ -88,7 +88,7 @@ namespace Codex.Users.Api.Services.Implementations
                                 { HttpHeaderConstant.ApiKey, $"global.{microserviceApiKey}" }
                             }
                         }
-                    )).Where(u => u.Login == userLogin.Login).FirstOrDefault();
+                    )).FirstOrDefault(u => u.Login == userLogin.Login);
                 }
                 catch (Exception exception)
                 {

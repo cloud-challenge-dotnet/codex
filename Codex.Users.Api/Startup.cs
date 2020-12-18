@@ -29,7 +29,6 @@ using Codex.Core.RazorHelpers.Implementations;
 using Codex.Core.RazorHelpers.Interfaces;
 using Codex.Users.Api.Repositories.Implementations;
 using Codex.Core.ApiKeys.Extensions;
-using Codex.Models.Security;
 using Codex.Core.ApiKeys.Models;
 using Codex.Core.Roles.Implementations;
 using Codex.Core.Tools;

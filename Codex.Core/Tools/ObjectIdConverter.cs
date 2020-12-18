@@ -1,5 +1,6 @@
 ﻿
 
+using Codex.Core.Exceptions;
 using MongoDB.Bson;
 using System;
 using System.Diagnostics.CodeAnalysis;
@@ -30,7 +31,7 @@ namespace Codex.Core.Tools
         {
             if (reader.TokenType != JsonTokenType.String)
             {
-                throw new Exception(
+                throw new IllegalArgumentException(
                     String.Format("Unexpected token parsing ObjectId. Expected String, got {0}.",
                                   reader.TokenType));
             }
@@ -48,7 +49,7 @@ namespace Codex.Core.Tools
             }
             else
             {
-                throw new Exception("Expected ObjectId value.");
+                throw new IllegalArgumentException("Expected ObjectId value.");
             }
         }
     }
