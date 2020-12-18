@@ -41,7 +41,7 @@ namespace Codex.Users.Api.Tests.Services
             var configuration = new Mock<IConfiguration>();
             var configurationSection = new Mock<IConfigurationSection>();
             var roleService = new Mock<IRoleService>();
-            var tenantCacheService = new Mock<CacheService<Tenant>>();
+            var tenantCacheService = new Mock<TenantCacheService>();
 
             tenantCacheService.Setup(x => x.GetCacheAsync(
                 daprClient.Object, It.IsAny<string>()))
@@ -104,7 +104,7 @@ namespace Codex.Users.Api.Tests.Services
             var configuration = new Mock<IConfiguration>();
             var configurationSection = new Mock<IConfigurationSection>();
             var roleService = new Mock<IRoleService>();
-            var tenantCacheService = new Mock<CacheService<Tenant>>();
+            var tenantCacheService = new Mock<TenantCacheService>();
 
             AuthenticationService authenticationService = new(logger.Object, daprClient.Object, passwordHasher.Object, userService.Object,
                 configuration.Object, roleService.Object, tenantCacheService.Object);
@@ -128,7 +128,7 @@ namespace Codex.Users.Api.Tests.Services
             var configuration = new Mock<IConfiguration>();
             var configurationSection = new Mock<IConfigurationSection>();
             var roleService = new Mock<IRoleService>();
-            var tenantCacheService = new Mock<CacheService<Tenant>>();
+            var tenantCacheService = new Mock<TenantCacheService>();
 
             AuthenticationService authenticationService = new(logger.Object, daprClient.Object, passwordHasher.Object, userService.Object,
                 configuration.Object, roleService.Object, tenantCacheService.Object);
@@ -152,7 +152,7 @@ namespace Codex.Users.Api.Tests.Services
             var configuration = new Mock<IConfiguration>();
             var configurationSection = new Mock<IConfigurationSection>();
             var roleService = new Mock<IRoleService>();
-            var tenantCacheService = new Mock<CacheService<Tenant>>();
+            var tenantCacheService = new Mock<TenantCacheService>();
 
             tenantCacheService.Setup(x => x.GetCacheAsync(
                 daprClient.Object, It.IsAny<string>()))
@@ -185,7 +185,7 @@ namespace Codex.Users.Api.Tests.Services
             var configuration = new Mock<IConfiguration>();
             var configurationSection = new Mock<IConfigurationSection>();
             var roleService = new Mock<IRoleService>();
-            var tenantCacheService = new Mock<CacheService<Tenant>>();
+            var tenantCacheService = new Mock<TenantCacheService>();
 
             tenantCacheService.Setup(x => x.GetCacheAsync(
                 daprClient.Object, It.IsAny<string>()))
@@ -241,7 +241,7 @@ namespace Codex.Users.Api.Tests.Services
             var configuration = new Mock<IConfiguration>();
             var configurationSection = new Mock<IConfigurationSection>();
             var roleService = new Mock<IRoleService>();
-            var tenantCacheService = new Mock<CacheService<Tenant>>();
+            var tenantCacheService = new Mock<TenantCacheService>();
 
             tenantCacheService.Setup(x => x.GetCacheAsync(
                 daprClient.Object, It.IsAny<string>()))
@@ -276,7 +276,7 @@ namespace Codex.Users.Api.Tests.Services
             var configuration = new Mock<IConfiguration>();
             var configurationSection = new Mock<IConfigurationSection>();
             var roleService = new Mock<IRoleService>();
-            var tenantCacheService = new Mock<CacheService<Tenant>>();
+            var tenantCacheService = new Mock<TenantCacheService>();
 
             tenantCacheService.Setup(x => x.GetCacheAsync(
                 daprClient.Object, It.IsAny<string>()))

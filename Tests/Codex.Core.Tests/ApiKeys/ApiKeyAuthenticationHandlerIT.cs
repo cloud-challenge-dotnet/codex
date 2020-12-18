@@ -39,7 +39,7 @@ namespace Codex.Core.Tests.ApiKeys
             var loggerFactory = new Mock<ILoggerFactory>();
             var encoder = new Mock<UrlEncoder>();
             var clock = new Mock<ISystemClock>();
-            var apiKeyCacheService = new Mock<CacheService<ApiKey>>();
+            var apiKeyCacheService = new Mock<ApiKeyCacheService>();
             var roleService = new Mock<IRoleService>();
             var daprClient = new Mock<DaprClient>();
             var logger = new Mock<ILogger<ApiKeyAuthenticationHandler>>();
@@ -76,7 +76,7 @@ namespace Codex.Core.Tests.ApiKeys
             var loggerFactory = new Mock<ILoggerFactory>();
             var encoder = new Mock<UrlEncoder>();
             var clock = new Mock<ISystemClock>();
-            var apiKeyCacheService = new Mock<CacheService<ApiKey>>();
+            var apiKeyCacheService = new Mock<ApiKeyCacheService>();
             var roleService = new Mock<IRoleService>();
             var daprClient = new Mock<DaprClient>();
             var logger = new Mock<ILogger<ApiKeyAuthenticationHandler>>();
@@ -126,7 +126,7 @@ namespace Codex.Core.Tests.ApiKeys
             var loggerFactory = new Mock<ILoggerFactory>();
             var encoder = new Mock<UrlEncoder>();
             var clock = new Mock<ISystemClock>();
-            var apiKeyCacheService = new Mock<CacheService<ApiKey>>();
+            var apiKeyCacheService = new Mock<ApiKeyCacheService>();
             var roleService = new Mock<IRoleService>();
             var daprClient = new Mock<DaprClient>();
             var logger = new Mock<ILogger<ApiKeyAuthenticationHandler>>();
@@ -177,7 +177,7 @@ namespace Codex.Core.Tests.ApiKeys
             var loggerFactory = new Mock<ILoggerFactory>();
             var encoder = new Mock<UrlEncoder>();
             var clock = new Mock<ISystemClock>();
-            var apiKeyCacheService = new Mock<CacheService<ApiKey>>();
+            var apiKeyCacheService = new Mock<ApiKeyCacheService>();
             var roleService = new Mock<IRoleService>();
             var daprClient = new Mock<DaprClient>();
             var logger = new Mock<ILogger<ApiKeyAuthenticationHandler>>();
@@ -249,7 +249,7 @@ namespace Codex.Core.Tests.ApiKeys
             var loggerFactory = new Mock<ILoggerFactory>();
             var encoder = new Mock<UrlEncoder>();
             var clock = new Mock<ISystemClock>();
-            var apiKeyCacheService = new Mock<CacheService<ApiKey>>();
+            var apiKeyCacheService = new Mock<ApiKeyCacheService>();
             var roleService = new Mock<IRoleService>();
             var daprClient = new Mock<DaprClient>();
             var logger = new Mock<ILogger<ApiKeyAuthenticationHandler>>();
@@ -327,7 +327,7 @@ namespace Codex.Core.Tests.ApiKeys
             var loggerFactory = new Mock<ILoggerFactory>();
             var encoder = new Mock<UrlEncoder>();
             var clock = new Mock<ISystemClock>();
-            var apiKeyCacheService = new Mock<CacheService<ApiKey>>();
+            var apiKeyCacheService = new Mock<ApiKeyCacheService>();
             var roleService = new Mock<IRoleService>();
             var daprClient = new Mock<DaprClient>();
             var logger = new Mock<ILogger<ApiKeyAuthenticationHandler>>();
@@ -390,7 +390,7 @@ namespace Codex.Core.Tests.ApiKeys
             var loggerFactory = new Mock<ILoggerFactory>();
             var encoder = new Mock<UrlEncoder>();
             var clock = new Mock<ISystemClock>();
-            var apiKeyCacheService = new Mock<CacheService<ApiKey>>();
+            var apiKeyCacheService = new Mock<ApiKeyCacheService>();
             var roleService = new Mock<IRoleService>();
             var daprClient = new Mock<DaprClient>();
             var logger = new Mock<ILogger<ApiKeyAuthenticationHandler>>();
@@ -457,7 +457,7 @@ namespace Codex.Core.Tests.ApiKeys
             var loggerFactory = new Mock<ILoggerFactory>();
             var encoder = new Mock<UrlEncoder>();
             var clock = new Mock<ISystemClock>();
-            var apiKeyCacheService = new Mock<CacheService<ApiKey>>();
+            var apiKeyCacheService = new Mock<ApiKeyCacheService>();
             var roleService = new Mock<IRoleService>();
             var daprClient = new Mock<DaprClient>();
             var logger = new Mock<ILogger<ApiKeyAuthenticationHandler>>();

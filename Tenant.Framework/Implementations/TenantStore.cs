@@ -16,12 +16,12 @@ namespace Codex.Tenants.Framework.Implementations
 
         private readonly DaprClient _daprClient;
 
-        private readonly CacheService<Tenant> _tenantCacheService;
+        private readonly TenantCacheService _tenantCacheService;
 
         public TenantStore(
             ILogger<TenantStore> logger,
             DaprClient daprClient,
-            CacheService<Tenant> tenantCacheService)
+            TenantCacheService tenantCacheService)
         {
             _logger = logger;
             _daprClient = daprClient;

@@ -3,5 +3,5 @@
 namespace Codex.Core.Models
 {
     [ExcludeFromCodeCoverage]
-    public record StateData<T>(T Data, long CreationTimestamp, int ExpireTimeInMinutes=30);
+    public record StateData<T>(T Data, long CreationTimestamp, int ExpireTimeInMinutes);
 }

@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
-namespace Codex.Users.Api.Controllers
+namespace Codex.Security.Api.Controllers
 {
     public class TenantTopicController : ControllerBase
     {

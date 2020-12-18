@@ -2,6 +2,7 @@
 
 using MongoDB.Bson;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -17,6 +18,7 @@ namespace Codex.Core.Tools
      * 0123 456     78  91011
      * time machine pid inc
      */
+    [ExcludeFromCodeCoverage]
     public class ObjectIdConverter : JsonConverter<ObjectId>
     {
         public override bool CanConvert(Type typeToConvert)

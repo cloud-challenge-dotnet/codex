@@ -26,7 +26,7 @@ namespace Codex.Core.ApiKeys
     {
         private const string ProblemDetailsContentType = "application/problem+json";
         private readonly DaprClient _daprClient;
-        private readonly CacheService<ApiKey> _apiKeyCacheService;
+        private readonly ApiKeyCacheService _apiKeyCacheService;
         private readonly IRoleService _roleService;
         private readonly ILogger<ApiKeyAuthenticationHandler> _logger;
 
@@ -35,7 +35,7 @@ namespace Codex.Core.ApiKeys
             ILoggerFactory loggerFactory,
             UrlEncoder encoder,
             ISystemClock clock,
-            CacheService<ApiKey> apiKeyCacheService,
+            ApiKeyCacheService apiKeyCacheService,
             IRoleService roleService,
             DaprClient daprClient,
             ILogger<ApiKeyAuthenticationHandler> logger) : base(options, loggerFactory, encoder, clock)

@@ -71,8 +71,8 @@ namespace Codex.Security.Api
             services.AddSingleton<IExceptionHandler, CoreExceptionHandler>();
             services.AddSingleton<IRoleProvider, DefaultRoleProvider>();
             services.AddSingleton<IRoleService, RoleService>();
-            services.AddSingleton<CacheService<Tenant>, CacheService<Tenant>>();
-            services.AddSingleton<CacheService<ApiKey>, CacheService<ApiKey>>();
+            services.AddSingleton<TenantCacheService, TenantCacheService>();
+            services.AddSingleton<ApiKeyCacheService, ApiKeyCacheService>();
 
             services.AddMultiTenancy()
                 .WithResolutionStrategy<HostTenantResolutionStrategy>()

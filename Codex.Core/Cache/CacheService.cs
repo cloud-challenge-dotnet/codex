@@ -7,12 +7,19 @@ using System.Threading.Tasks;
 namespace Codex.Core.Cache
 {
     [ExcludeFromCodeCoverage]
-    public class CacheService<T>
+    public abstract class CacheService<T>
     {
+        private readonly int ExpireTimeInMinutes;
+
+        public CacheService(int expireTimeInMinutes)
+        {
+            ExpireTimeInMinutes = expireTimeInMinutes;
+        }
+
         public virtual async Task UpdateCacheAsync(DaprClient daprClient, string cacheKey, T data)
         {
             var state = await daprClient.GetStateEntryAsync<StateData<T>?>(ConfigConstant.CodexStoreName, cacheKey);
-            state.Value = new StateData<T>(data, new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds());
+            state.Value = new StateData<T>(data, new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds(), ExpireTimeInMinutes);
             await state.SaveAsync();
         }
 

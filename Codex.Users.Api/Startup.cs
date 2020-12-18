@@ -75,8 +75,8 @@ namespace Codex.Users.Api
             services.AddSingleton<IPasswordHasher, PasswordHasher>();
             services.AddSingleton<IRoleProvider, DefaultRoleProvider>();
             services.AddSingleton<IRoleService, RoleService>();
-            services.AddSingleton<CacheService<Tenant>, CacheService<Tenant>>();
-            services.AddSingleton<CacheService<ApiKey>, CacheService<ApiKey>>();
+            services.AddSingleton<TenantCacheService, TenantCacheService>();
+            services.AddSingleton<ApiKeyCacheService, ApiKeyCacheService>();
             services.AddSingleton<IUserRepository, UserRepository>(); // for try authenticate without tenantId inside request header
             services.AddSingleton<IUserService, UserService>(); // for try authenticate without tenantId inside request header
             services.AddSingleton<IAuthenticationService, AuthenticationService>(); // for try authenticate without tenantId inside request header

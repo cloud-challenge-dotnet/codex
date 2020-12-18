@@ -5,12 +5,12 @@ using Moq;
 using System.Threading.Tasks;
 using Xunit;
 using Dapr.Client;
-using Codex.Users.Api.Controllers;
+using Codex.Security.Api.Controllers;
 using Codex.Core.Models;
 using Microsoft.Extensions.Logging;
 using Codex.Core.Cache;
 
-namespace Codex.Users.Api.Tests
+namespace Codex.Security.Api.Tests
 {
     public class TenantTopicControllerIT : IClassFixture<Fixture>
     {

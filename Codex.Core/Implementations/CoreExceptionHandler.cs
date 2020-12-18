@@ -1,5 +1,6 @@
 ﻿using Codex.Core.Exceptions;
 using Codex.Core.Models;
+using MongoDB.Driver;
 using System;
 using System.Net;
 
@@ -9,7 +10,8 @@ namespace Codex.Core.Interfaces
     {
         public CustomProblemDetails? Intercept(Exception exception)
         {
-            if(exception is ArgumentException || exception is ArgumentNullException)
+            if(exception is ArgumentException || exception is ArgumentNullException ||
+                exception is MongoDuplicateKeyException || exception is InvalidOperationException)
             {
                 return new()
                 {
@@ -17,13 +19,13 @@ namespace Codex.Core.Interfaces
                     Title = exception.Message
                 };
             }
-            else if (exception is IllegalArgumentException illegalArgumentException)
+            else if (exception is FunctionnalException functionnalException)
             {
                 return new()
                 {
                     Status = (int)HttpStatusCode.BadRequest,
                     Title = exception.Message,
-                    Code = illegalArgumentException.Code
+                    Code = functionnalException.Code
                 };
             }
             else if (exception is TechnicalException technicalException)

@@ -11,6 +11,7 @@ using Codex.Security.Api.Services.Interfaces;
 using Codex.Models.Security;
 using Codex.Security.Api.Controllers;
 using Codex.Core.Security;
+using Dapr.Client;
 
 namespace Codex.Security.Api.Tests
 {
@@ -27,13 +28,15 @@ namespace Codex.Security.Api.Tests
         public async Task FindOne()
         {
             var apiKeyService = new Mock<IApiKeyService>();
+            var daprClient = new Mock<DaprClient>();
 
             apiKeyService.Setup(x => x.FindOneAsync(It.IsAny<string>())).Returns(
                 Task.FromResult((ApiKey?)new ApiKey() { Id = "Id1" })
             );
 
             var apiKeyController = new ApiKeyController(
-                apiKeyService.Object
+                apiKeyService.Object,
+                daprClient.Object
             );
 
             var authorizeAttributes = apiKeyController.GetType().GetMethod(nameof(ApiKeyController.FindOne))?.GetCustomAttributes(typeof(TenantAuthorizeAttribute), true);
@@ -57,13 +60,15 @@ namespace Codex.Security.Api.Tests
         public async Task FindOne_NotFound()
         {
             var apiKeyService = new Mock<IApiKeyService>();
+            var daprClient = new Mock<DaprClient>();
 
             apiKeyService.Setup(x => x.FindOneAsync(It.IsAny<string>())).Returns(
                 Task.FromResult((ApiKey?)null)
             );
 
             var apiKeyController = new ApiKeyController(
-                apiKeyService.Object
+                apiKeyService.Object,
+                daprClient.Object
             );
 
             var result = await apiKeyController.FindOne("Id1");
@@ -79,6 +84,7 @@ namespace Codex.Security.Api.Tests
         {
             ApiKeyCriteria apiKeyCriteria = new();
             var apiKeyService = new Mock<IApiKeyService>();
+            var daprClient = new Mock<DaprClient>();
 
             apiKeyService.Setup(x => x.FindAllAsync(It.IsAny<ApiKeyCriteria>())).Returns(
                 Task.FromResult(new List<ApiKey>(){
@@ -88,7 +94,8 @@ namespace Codex.Security.Api.Tests
             );
 
             var apiKeyController = new ApiKeyController(
-                apiKeyService.Object
+                apiKeyService.Object,
+                daprClient.Object
             );
 
             var authorizeAttributes = apiKeyController.GetType().GetMethod(nameof(ApiKeyController.FindAll))?.GetCustomAttributes(typeof(TenantAuthorizeAttribute), true);
@@ -113,13 +120,15 @@ namespace Codex.Security.Api.Tests
         {
             ApiKey apiKeyCreator = new() { Name = "ApiKey 1" };
             var apiKeyService = new Mock<IApiKeyService>();
+            var daprClient = new Mock<DaprClient>();
 
             apiKeyService.Setup(x => x.CreateAsync(It.IsAny<ApiKey>())).Returns(
                 Task.FromResult(new ApiKey() { Id = "Id1" })
             );
 
             var apiKeyController = new ApiKeyController(
-                apiKeyService.Object
+                apiKeyService.Object,
+                daprClient.Object
             );
 
             apiKeyController.ControllerContext.HttpContext = new DefaultHttpContext();
@@ -147,13 +156,15 @@ namespace Codex.Security.Api.Tests
         {
             ApiKey apiKey = new() { Id = "Id1", Name = "ApiKey 1" };
             var apiKeyService = new Mock<IApiKeyService>();
+            var daprClient = new Mock<DaprClient>();
 
             apiKeyService.Setup(x => x.UpdateAsync(It.IsAny<ApiKey>())).Returns(
                 Task.FromResult((ApiKey?)new ApiKey() { Id = "Id1", Name = "ApiKey 1" })
             );
 
             var apiKeyController = new ApiKeyController(
-                apiKeyService.Object
+                apiKeyService.Object,
+                daprClient.Object
             );
 
             var authorizeAttributes = apiKeyController.GetType().GetMethod(nameof(ApiKeyController.UpdateApiKey))?.GetCustomAttributes(typeof(TenantAuthorizeAttribute), true);
@@ -180,13 +191,15 @@ namespace Codex.Security.Api.Tests
         {
             ApiKey apiKey = new() { Id = "Id1", Name = "ApiKey 1" };
             var apiKeyService = new Mock<IApiKeyService>();
+            var daprClient = new Mock<DaprClient>();
 
             apiKeyService.Setup(x => x.UpdateAsync(It.IsAny<ApiKey>())).Returns(
                 Task.FromResult((ApiKey?)null)
             );
 
             var apiKeyController = new ApiKeyController(
-                apiKeyService.Object
+                apiKeyService.Object,
+                daprClient.Object
             );
 
             var authorizeAttributes = apiKeyController.GetType().GetMethod(nameof(ApiKeyController.UpdateApiKey))?.GetCustomAttributes(typeof(TenantAuthorizeAttribute), true);
@@ -205,13 +218,15 @@ namespace Codex.Security.Api.Tests
         {
             string apiKeyId = "Id1";
             var apiKeyService = new Mock<IApiKeyService>();
+            var daprClient = new Mock<DaprClient>();
 
             apiKeyService.Setup(x => x.DeleteAsync(It.IsAny<string>())).Returns(
                 Task.CompletedTask
             );
 
             var apiKeyController = new ApiKeyController(
-                apiKeyService.Object
+                apiKeyService.Object,
+                daprClient.Object
             );
 
             var result = await apiKeyController.DeleteApiKey(apiKeyId);

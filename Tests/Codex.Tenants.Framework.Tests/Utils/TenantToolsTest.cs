@@ -33,7 +33,7 @@ namespace Codex.Tenants.Framework.Tests.Utils
 
             var daprClient = new Mock<DaprClient>();
 
-            var tenantCacheService = new Mock<CacheService<Tenant>>();
+            var tenantCacheService = new Mock<TenantCacheService>();
 
             daprClient.Setup(x => x.GetSecretAsync(It.IsAny<string>(), It.IsAny<string>(),
                It.IsAny<Dictionary<string, string>>(), It.IsAny<CancellationToken>()))
@@ -64,7 +64,7 @@ namespace Codex.Tenants.Framework.Tests.Utils
 
             var daprClient = new Mock<DaprClient>();
 
-            var tenantCacheService = new Mock<CacheService<Tenant>>();
+            var tenantCacheService = new Mock<TenantCacheService>();
 
             tenantCacheService.Setup(x => x.GetCacheAsync(
                 daprClient.Object, It.IsAny<string>()))
@@ -89,7 +89,7 @@ namespace Codex.Tenants.Framework.Tests.Utils
 
             var daprClient = new Mock<DaprClient>();
 
-            var tenantCacheService = new Mock<CacheService<Tenant>>();
+            var tenantCacheService = new Mock<TenantCacheService>();
 
             daprClient.Setup(x => x.InvokeMethodAsync<Tenant>(
                 It.IsAny<string>(), It.IsAny<string>(), It.IsAny<HTTPExtension>(), It.IsAny<CancellationToken>()))
@@ -111,7 +111,7 @@ namespace Codex.Tenants.Framework.Tests.Utils
 
             var daprClient = new Mock<DaprClient>();
 
-            var tenantCacheService = new Mock<CacheService<Tenant>>();
+            var tenantCacheService = new Mock<TenantCacheService>();
 
             daprClient.Setup(x => x.InvokeMethodAsync<Tenant>(
                 It.IsAny<string>(), It.IsAny<string>(), It.IsAny<HTTPExtension>(), It.IsAny<CancellationToken>()))
@@ -139,7 +139,7 @@ namespace Codex.Tenants.Framework.Tests.Utils
                 new Dictionary<string, string>() { { ConfigConstant.MicroserviceApiKey, "" } }
             ));
 
-            var tenantCacheService = new Mock<CacheService<Tenant>>();
+            var tenantCacheService = new Mock<TenantCacheService>();
 
             daprClient.Setup(x => x.InvokeMethodAsync<Tenant>(
                 It.IsAny<string>(), It.IsAny<string>(), It.IsAny<HTTPExtension>(), It.IsAny<CancellationToken>()))

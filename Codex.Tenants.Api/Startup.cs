@@ -69,7 +69,7 @@ namespace Codex.Tenants.Api
             services.AddSingleton<IExceptionHandler, CoreExceptionHandler>();
             services.AddSingleton<IRoleProvider, DefaultRoleProvider>();
             services.AddSingleton<IRoleService, RoleService>();
-            services.AddSingleton<CacheService<ApiKey>, CacheService<ApiKey>>();
+            services.AddSingleton<ApiKeyCacheService, ApiKeyCacheService>();
 
             services.AddMultiTenancy()
                 .WithResolutionStrategy<GlobalTenantResolutionStrategy>()
@@ -156,6 +156,8 @@ namespace Codex.Tenants.Api
             app.UseExceptionHandler(app => app.UseCustomErrors(env, exceptionHandlers));
 
             app.UseRouting();
+            
+            app.UseCloudEvents();
 
             app.UseMultiTenancy()
                 .UseMultiTenantContainer();
@@ -165,6 +167,7 @@ namespace Codex.Tenants.Api
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapSubscribeHandler();
                 endpoints.MapControllers();
             });
         }

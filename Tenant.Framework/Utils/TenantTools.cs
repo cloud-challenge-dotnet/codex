@@ -13,7 +13,7 @@ namespace Codex.Tenants.Framework.Utils
 {
     public static class TenantTools
     {
-        public static async Task<Tenant> SearchTenantByIdAsync(ILogger logger, CacheService<Tenant> tenantCacheService, DaprClient daprClient, string tenantId)
+        public static async Task<Tenant> SearchTenantByIdAsync(ILogger logger, TenantCacheService tenantCacheService, DaprClient daprClient, string tenantId)
         {
             try
             {

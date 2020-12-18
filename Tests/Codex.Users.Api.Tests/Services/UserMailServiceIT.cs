@@ -36,7 +36,7 @@ namespace Codex.Users.Api.Tests
             var userService = new Mock<IUserService>();
             var mailService = new Mock<IMailService>();
             var razorPartialToStringRenderer = new Mock<IRazorPartialToStringRenderer>();
-            var tenantCacheService = new Mock<CacheService<Tenant>>();
+            var tenantCacheService = new Mock<TenantCacheService>();
 
             userService.Setup(x => x.FindOneAsync(It.IsAny<ObjectId>())).Returns(
                 Task.FromResult((User?)user)
@@ -88,7 +88,7 @@ namespace Codex.Users.Api.Tests
             var userService = new Mock<IUserService>();
             var mailService = new Mock<IMailService>();
             var razorPartialToStringRenderer = new Mock<IRazorPartialToStringRenderer>();
-            var tenantCacheService = new Mock<CacheService<Tenant>>();
+            var tenantCacheService = new Mock<TenantCacheService>();
 
             userService.Setup(x => x.FindOneAsync(It.IsAny<ObjectId>())).Returns(
                 Task.FromResult((User?)null)

@@ -38,7 +38,7 @@ namespace Codex.Users.Api.Services.Implementations
 
         private readonly IRoleService _roleService;
 
-        private readonly CacheService<Tenant> _tenantCacheService;
+        private readonly TenantCacheService _tenantCacheService;
 
         public AuthenticationService(
             ILogger<AuthenticationService> logger,
@@ -47,7 +47,7 @@ namespace Codex.Users.Api.Services.Implementations
             IUserService userService,
             IConfiguration configuration,
             IRoleService roleService,
-            CacheService<Tenant> tenantCacheService)
+            TenantCacheService tenantCacheService)
         {
             _logger = logger;
             _daprClient = daprClient;
