@@ -29,16 +29,20 @@ namespace Codex.Users.Api.Controllers
         public async Task<IActionResult> ProcessSendActivationUserMailTopic([FromBody] TopicData<User> topicData)
         {
             User? user = topicData.Data;
-            if (!string.IsNullOrWhiteSpace(user?.Id))
+            if (user?.Id != null)
             {
                 _logger.LogInformation($"Receive send activation user mail topic, user id: {user.Id}");
-                // TODO Add api key ADMIN from global tenant and add tenant Id to header
-                await _daprClient.InvokeMethodAsync("userapi", $"UserMail/activation",
+
+                var secretValues = await _daprClient.GetSecretAsync(ConfigConstant.CodexKey, ConfigConstant.MicroserviceApiKey);
+                var microserviceApiKey = secretValues[ConfigConstant.MicroserviceApiKey];
+
+                await _daprClient.InvokeMethodAsync(ApiNameConstant.UserApi, $"UserMail/activation",
                     data: user,
                     httpExtension: new HTTPExtension() { 
                         Verb = HTTPVerb.Post,
-                        Headers = new Dictionary<string, string>(){
-                            { "tenantId", topicData.TenantId }
+                        Headers = {
+                            { HttpHeaderConstant.TenantId, topicData.TenantId },
+                            { HttpHeaderConstant.ApiKey, $"{topicData.TenantId}.{microserviceApiKey}" }
                         }
                     }
                 );

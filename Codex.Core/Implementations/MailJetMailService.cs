@@ -27,8 +27,9 @@ namespace Codex.Core.Implementations
 
         public async Task SendEmailAsync(Message message)
         {
-            var secretValues = await _daprClient.GetSecretAsync(ConfigConstant.CodexKey, ConfigConstant.MailJetProvider);
+            var secretValues = await _daprClient.GetSecretAsync(ConfigConstant.CodexKey, ConfigConstant.MailJetApiKey);
             var mailJetApiKey = secretValues[ConfigConstant.MailJetApiKey];
+            secretValues = await _daprClient.GetSecretAsync(ConfigConstant.CodexKey, ConfigConstant.MailJetSecretKey);
             var mailJetSecretKey = secretValues[ConfigConstant.MailJetSecretKey];
 
             JArray toArray = new();

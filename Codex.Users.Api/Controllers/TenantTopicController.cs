@@ -13,12 +13,12 @@ namespace Codex.Users.Api.Controllers
     {
         private readonly ILogger<TenantTopicController> _logger;
         private readonly DaprClient _daprClient;
-        private readonly CacheService<Tenant> _tenantCacheService;
+        private readonly TenantCacheService _tenantCacheService;
 
         public TenantTopicController(
             ILogger<TenantTopicController> logger,
             DaprClient daprClient,
-            CacheService<Tenant> tenantCacheService)
+            TenantCacheService tenantCacheService)
         {
             _logger = logger;
             _daprClient = daprClient;

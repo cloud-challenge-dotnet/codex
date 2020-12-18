@@ -4,10 +4,10 @@ using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 using Codex.Models.Roles;
 using Dapr.Client;
 using Codex.Core.Models;
+using Codex.Core.Security;
 
 namespace Codex.Tenants.Api.Controllers
 {
@@ -37,20 +37,29 @@ namespace Codex.Tenants.Api.Controllers
             if (tenant == null)
                 return NotFound(id);
 
+            if (!HttpContext.User.IsInRole(RoleConstant.TENANT_MANAGER))
+            {
+                tenant = tenant with { Properties = null };
+            }
+
             return Ok(tenant);
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Tenant>>> FindAll()
         {
-            var tenantList = (await _tenantService.FindAllAsync())
-                .Select(t => t with { Properties = null }).ToList();
+            var tenantList = (await _tenantService.FindAllAsync());
 
+            if (!HttpContext.User.IsInRole(RoleConstant.TENANT_MANAGER))
+            {
+                tenantList = tenantList.Select(t => t with { Properties = null }).ToList();
+            }
+            
             return Ok(tenantList);
         }
 
         [HttpPost]
-        [Authorize(Roles = RoleConstant.TENANT_MANAGER)]
+        [TenantAuthorize(Roles = RoleConstant.TENANT_MANAGER)]
         public async Task<ActionResult<Tenant>> CreateTenant([FromBody] TenantCreator tenantCreator)
         {
             var tenant = await _tenantService.CreateAsync(tenantCreator);
@@ -61,8 +70,8 @@ namespace Codex.Tenants.Api.Controllers
         }
 
         [HttpPut("{tenantId}")]
-        [Authorize(Roles = RoleConstant.TENANT_MANAGER)]
-        public async Task<ActionResult<Tenant>> UpdateTenant([FromQuery]string tenantId, [FromBody] Tenant tenant)
+        [TenantAuthorize(Roles = RoleConstant.TENANT_MANAGER)]
+        public async Task<ActionResult<Tenant>> UpdateTenant(string tenantId, [FromBody] Tenant tenant)
         {
             var tenantResult = await _tenantService.UpdateAsync(tenant with { Id = tenantId });
             if (tenantResult == null)
@@ -76,8 +85,8 @@ namespace Codex.Tenants.Api.Controllers
         }
 
         [HttpPut("{tenantId}/properties")]
-        [Authorize(Roles = RoleConstant.TENANT_MANAGER)]
-        public async Task<ActionResult<Tenant>> UpdateProperties([FromQuery] string tenantId, [FromBody] TenantProperties tenantProperties)
+        [TenantAuthorize(Roles = RoleConstant.TENANT_MANAGER)]
+        public async Task<ActionResult<Tenant>> UpdateProperties(string tenantId, [FromBody] TenantProperties tenantProperties)
         {
             var tenant = await _tenantPropertiesService.UpdatePropertiesAsync(tenantId, tenantProperties);
             if (tenant == null)
@@ -91,8 +100,8 @@ namespace Codex.Tenants.Api.Controllers
         }
 
         [HttpPut("{tenantId}/properties/{propertyKey}")]
-        [Authorize(Roles = RoleConstant.TENANT_MANAGER)]
-        public async Task<ActionResult<Tenant>> UpdateProperty([FromQuery] string tenantId, [FromQuery] string propertyKey, [FromBody] List<string> values)
+        [TenantAuthorize(Roles = RoleConstant.TENANT_MANAGER)]
+        public async Task<ActionResult<Tenant>> UpdateProperty(string tenantId, [FromQuery] string propertyKey, [FromBody] List<string> values)
         {
             var tenant = await _tenantPropertiesService.UpdatePropertyAsync(tenantId, propertyKey, values);
             if (tenant == null)
@@ -106,8 +115,8 @@ namespace Codex.Tenants.Api.Controllers
         }
 
         [HttpGet("{tenantId}/properties")]
-        [Authorize(Roles = RoleConstant.TENANT_MANAGER)]
-        public async Task<ActionResult<TenantProperties?>> FindProperties([FromQuery] string tenantId)
+        [TenantAuthorize(Roles = RoleConstant.TENANT_MANAGER)]
+        public async Task<ActionResult<TenantProperties?>> FindProperties(string tenantId)
         {
             var tenantProperties = await _tenantPropertiesService.FindPropertiesAsync(tenantId);
 
@@ -115,8 +124,8 @@ namespace Codex.Tenants.Api.Controllers
         }
 
         [HttpDelete("{tenantId}/properties/{propertyKey}")]
-        [Authorize(Roles = RoleConstant.TENANT_MANAGER)]
-        public async Task<ActionResult<Tenant>> DeleteProperty([FromQuery] string tenantId, [FromQuery] string propertyKey)
+        [TenantAuthorize(Roles = RoleConstant.TENANT_MANAGER)]
+        public async Task<ActionResult<Tenant>> DeleteProperty(string tenantId, [FromQuery] string propertyKey)
         {
             var tenant = await _tenantPropertiesService.DeletePropertyAsync(tenantId, propertyKey);
 

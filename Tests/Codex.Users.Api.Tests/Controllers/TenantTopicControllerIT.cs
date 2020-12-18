@@ -23,7 +23,7 @@ namespace Codex.Users.Api.Tests
         {
             var logger = new Mock<ILogger<TenantTopicController>>();
             var daprClient = new Mock<DaprClient>();
-            var tenantCacheService = new Mock<CacheService<Tenant>>();
+            var tenantCacheService = new Mock<TenantCacheService>();
 
             Tenant tenant = new();
             TopicData<Tenant> tenantTopicData = new(TopicType.Modify, tenant, "global");
@@ -47,7 +47,7 @@ namespace Codex.Users.Api.Tests
         {
             var logger = new Mock<ILogger<TenantTopicController>>();
             var daprClient = new Mock<DaprClient>();
-            var tenantCacheService = new Mock<CacheService<Tenant>>();
+            var tenantCacheService = new Mock<TenantCacheService>();
 
             Tenant tenant = new(id: "global", name: "tenant_global");
             TopicData<Tenant> tenantTopicData = new(TopicType.Modify, tenant, tenant.Id!);
@@ -71,7 +71,7 @@ namespace Codex.Users.Api.Tests
         {
             var logger = new Mock<ILogger<TenantTopicController>>();
             var daprClient = new Mock<DaprClient>();
-            var tenantCacheService = new Mock<CacheService<Tenant>>();
+            var tenantCacheService = new Mock<TenantCacheService>();
 
             Tenant tenant = new(id: "global", name: "tenant_global");
             TopicData<Tenant> tenantTopicData = new(TopicType.Remove, tenant, tenant.Id!);

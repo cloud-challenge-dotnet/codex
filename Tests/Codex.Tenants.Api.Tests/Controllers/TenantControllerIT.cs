@@ -11,6 +11,7 @@ using Dapr.Client;
 using Dapr;
 using System.Threading;
 using Codex.Core.Models;
+using Codex.Models.Roles;
 
 namespace Codex.Tenants.Api.Tests
 {
@@ -39,7 +40,12 @@ namespace Codex.Tenants.Api.Tests
             var tenantPropertiesService = new Mock<ITenantPropertiesService>();
 
             tenantService.Setup(x => x.FindOneAsync(It.IsAny<string>())).Returns(
-                Task.FromResult((Tenant?)new Tenant("Id1", "name", null))
+                Task.FromResult((Tenant?)new Tenant("Id1", "name",
+                    properties: new()
+                    {
+                        { "test", new() { "test data" } }
+                    }
+                ))
             );
 
             var tenantController = new TenantController(
@@ -48,12 +54,62 @@ namespace Codex.Tenants.Api.Tests
                 daprClient.Object
             );
 
+            tenantController.ControllerContext.HttpContext = Fixture.CreateHttpContext(
+                tenantId: "global",
+                userId: "Id1",
+                userName: "login",
+                roles: new() { RoleConstant.USER }
+            );
+
             var result = await tenantController.FindOne("Id1");
 
             var objectResult = Assert.IsType<OkObjectResult>(result.Result);
             var tenant = Assert.IsType<Tenant>(objectResult.Value);
             Assert.NotNull(tenant);
             Assert.Equal("Id1", tenant.Id);
+            Assert.Null(tenant!.Properties);
+            daprClient.Verify(x => x.PublishEventAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        }
+
+
+        [Fact]
+        public async Task FindOne_Role_TENANT_MANAGER()
+        {
+            var daprClient = CreateMockDaprClientWithTenant();
+            var tenantService = new Mock<ITenantService>();
+            var tenantPropertiesService = new Mock<ITenantPropertiesService>();
+
+            tenantService.Setup(x => x.FindOneAsync(It.IsAny<string>())).Returns(
+                Task.FromResult((Tenant?)new Tenant("Id1", "name",
+                    properties: new()
+                    {
+                        { "test", new() { "test data" } }
+                    }
+                ))
+            );
+
+            var tenantController = new TenantController(
+                tenantService.Object,
+                tenantPropertiesService.Object,
+                daprClient.Object
+            );
+
+            tenantController.ControllerContext.HttpContext = Fixture.CreateHttpContext(
+                tenantId: "global",
+                userId: "Id1",
+                userName: "login",
+                roles: new() { RoleConstant.TENANT_MANAGER }
+            );
+
+            var result = await tenantController.FindOne("Id1");
+
+            var objectResult = Assert.IsType<OkObjectResult>(result.Result);
+            var tenant = Assert.IsType<Tenant>(objectResult.Value);
+            Assert.NotNull(tenant);
+            Assert.Equal("Id1", tenant.Id);
+            Assert.NotNull(tenant!.Properties);
+            Assert.Single(tenant!.Properties);
+            Assert.True(tenant!.Properties!.ContainsKey("test"));
             daprClient.Verify(x => x.PublishEventAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
         }
 
@@ -90,8 +146,18 @@ namespace Codex.Tenants.Api.Tests
 
             tenantService.Setup(x => x.FindAllAsync()).Returns(
                 Task.FromResult(new List<Tenant>(){
-                    new Tenant("Id1", "name", null),
-                    new Tenant("Id2", "name", null)
+                    new Tenant("Id1", "name",
+                        properties: new()
+                        {
+                            { "test", new() { "test data" } }
+                        }
+                    ),
+                    new Tenant("Id2", "name",
+                        properties: new()
+                        {
+                            { "test", new() { "test data" } }
+                        }
+                    )
                 })
             );
 
@@ -101,12 +167,79 @@ namespace Codex.Tenants.Api.Tests
                 daprClient.Object
             );
 
+            tenantController.ControllerContext.HttpContext = Fixture.CreateHttpContext(
+                tenantId: "global",
+                userId: "Id1",
+                userName: "login",
+                roles: new() { RoleConstant.USER }
+            );
+
             var result = await tenantController.FindAll();
 
             var objectResult = Assert.IsType<OkObjectResult>(result.Result);
             var tenantList = Assert.IsType<List<Tenant>>(objectResult.Value);
             Assert.NotNull(tenantList);
             Assert.Equal(2, tenantList!.Count);
+
+            foreach (var tenant in tenantList)
+            {
+                Assert.Null(tenant!.Properties);
+            }
+
+            daprClient.Verify(x => x.PublishEventAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task FindAll_Role_TENANT_MANAGER()
+        {
+            var daprClient = CreateMockDaprClientWithTenant();
+            var tenantService = new Mock<ITenantService>();
+            var tenantPropertiesService = new Mock<ITenantPropertiesService>();
+
+            tenantService.Setup(x => x.FindAllAsync()).Returns(
+                Task.FromResult(new List<Tenant>(){
+                    new Tenant("Id1", "name",
+                        properties: new()
+                        {
+                            { "test", new() { "test data" } }
+                        }
+                    ),
+                    new Tenant("Id2", "name",
+                        properties: new()
+                        {
+                            { "test", new() { "test data" } }
+                        }
+                    )
+                })
+            );
+
+            var tenantController = new TenantController(
+                tenantService.Object,
+                tenantPropertiesService.Object,
+                daprClient.Object
+            );
+
+            tenantController.ControllerContext.HttpContext = Fixture.CreateHttpContext(
+                tenantId: "global",
+                userId: "Id1",
+                userName: "login",
+                roles: new() { RoleConstant.TENANT_MANAGER }
+            );
+
+            var result = await tenantController.FindAll();
+
+            var objectResult = Assert.IsType<OkObjectResult>(result.Result);
+            var tenantList = Assert.IsType<List<Tenant>>(objectResult.Value);
+            Assert.NotNull(tenantList);
+            Assert.Equal(2, tenantList!.Count);
+
+            foreach (var tenant in tenantList)
+            {
+                Assert.NotNull(tenant!.Properties);
+                Assert.Single(tenant!.Properties);
+                Assert.True(tenant!.Properties!.ContainsKey("test"));
+            }
+
             daprClient.Verify(x => x.PublishEventAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
         }
 

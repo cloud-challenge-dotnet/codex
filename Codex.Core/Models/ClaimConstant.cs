@@ -2,6 +2,6 @@
 {
     public static class ClaimConstant
     {
-        public const string Tenant = "tenant";
+        public const string TenantId = "tenantId";
     }
 }

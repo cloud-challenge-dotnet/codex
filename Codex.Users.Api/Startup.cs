@@ -23,11 +23,15 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Codex.Users.Api.Providers.Implementations;
 using System.Diagnostics.CodeAnalysis;
 using Codex.Core.Cache;
 using Codex.Core.RazorHelpers.Implementations;
 using Codex.Core.RazorHelpers.Interfaces;
+using Codex.Users.Api.Repositories.Implementations;
+using Codex.Core.ApiKeys.Extensions;
+using Codex.Core.ApiKeys.Models;
+using Codex.Core.Roles.Implementations;
+using Codex.Core.Tools;
 
 namespace Codex.Users.Api
 {
@@ -51,14 +55,31 @@ namespace Codex.Users.Api
 
             services.AddRazorPages();
 
-            services.AddDaprClient();
+            services.AddDaprClient(configure =>
+            {
+                var options = new JsonSerializerOptions()
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    WriteIndented = true,
+                    IgnoreNullValues = true
+                };
+                // Adds automatic json parsing to ObjectId.
+                options.Converters.Add(new ObjectIdConverter());
+                options.Converters.Add(new JsonStringEnumConverter());
+
+                configure.UseJsonSerializationOptions(options);
+            });
 
             services.AddSingleton<IExceptionHandler, CoreExceptionHandler>();
             services.AddSingleton<IPasswordHasher, PasswordHasher>();
             services.AddSingleton<IRoleProvider, DefaultRoleProvider>();
             services.AddSingleton<IRoleService, RoleService>();
+            services.AddSingleton<TenantCacheService, TenantCacheService>();
+            services.AddSingleton<ApiKeyCacheService, ApiKeyCacheService>();
+            services.AddSingleton<IUserRepository, UserRepository>(); // for try authenticate without tenantId inside request header
+            services.AddSingleton<IUserService, UserService>(); // for try authenticate without tenantId inside request header
+            services.AddSingleton<IAuthenticationService, AuthenticationService>(); // for try authenticate without tenantId inside request header
             services.AddSingleton<IMailService, MailJetMailService>();
-            services.AddSingleton<CacheService<Tenant>, CacheService<Tenant>>();
 
             services.AddMultiTenancy()
                 .WithResolutionStrategy<HostTenantResolutionStrategy>()
@@ -70,6 +91,8 @@ namespace Codex.Users.Api
                 options.JsonSerializerOptions.WriteIndented = true;
                 options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
                 options.JsonSerializerOptions.IgnoreNullValues = true;
+                // Adds automatic json parsing to ObjectId.
+                options.JsonSerializerOptions.Converters.Add(new ObjectIdConverter());
             }).AddDapr();
 
             services.AddSwaggerGen(c =>
@@ -81,9 +104,22 @@ namespace Codex.Users.Api
 
             services.AddAuthentication(x =>
             {
-                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultAuthenticateScheme = "customAuthScheme";
+                x.DefaultChallengeScheme = "customAuthScheme";
             })
+            .AddPolicyScheme("customAuthScheme", "Authorization Bearer or ApiKey", options =>
+            {
+                options.ForwardDefaultSelector = context =>
+                {
+                    if (context.Request.Headers.ContainsKey(HttpHeaderConstant.ApiKey))
+                    {
+                        return ApiKeyAuthenticationOptions.DefaultScheme;
+                    }
+
+                    return JwtBearerDefaults.AuthenticationScheme;
+                };
+            })
+            .AddApiKeySupport(options => { })
             .AddJwtBearer(x =>
             {
                 x.RequireHttpsMetadata = false;
@@ -105,7 +141,7 @@ namespace Codex.Users.Api
             //it will be one instance per tenant
             _ = tenant;
 
-            containerBuilder.RegisterType<RazorPartialToStringRenderer>().As<IRazorPartialToStringRenderer>().InstancePerLifetimeScope();
+            containerBuilder.RegisterType<RazorPartialToStringRenderer>().As<IRazorPartialToStringRenderer>().SingleInstance();
             containerBuilder.RegisterType<UserRepository>().As<IUserRepository>().InstancePerLifetimeScope();
             containerBuilder.RegisterType<UserService>().As<IUserService>().InstancePerLifetimeScope();
             containerBuilder.RegisterType<UserMailService>().As<IUserMailService>().InstancePerLifetimeScope();

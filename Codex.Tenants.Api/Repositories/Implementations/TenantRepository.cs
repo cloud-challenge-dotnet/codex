@@ -7,10 +7,12 @@ using Codex.Models.Tenants;
 using MongoDB.Driver.Linq;
 using Codex.Core.Models;
 using Codex.Tenants.Framework.Interfaces;
+using Codex.Tenants.Api.Repositories.Interfaces;
+using Codex.Core.Extensions;
 
-namespace Codex.Tenants.Api
+namespace Codex.Tenants.Api.Repositories.Implementations
 {
-    public class TenantRepository : MongoTemplate<Tenant>, ITenantRepository
+    public class TenantRepository : MongoTemplate<Tenant, string>, ITenantRepository
     {
         public TenantRepository(MongoDbSettings mongoDbSettings,
             ITenantAccessService tenantAccessService) : base(mongoDbSettings, tenantAccessService)
@@ -33,11 +35,15 @@ namespace Codex.Tenants.Api
             var repository = await GetRepositoryAsync();
 
             var update = Builders<Tenant>.Update;
-            var updateDef = update.Set(GetMongoPropertyName(nameof(tenant.Name)), tenant.Name);
+            var updates = new List<UpdateDefinition<Tenant>>
+            {
+                update.Set(GetMongoPropertyName(nameof(tenant.Name)), tenant.Name)
+            };
+            tenant.Properties?.Also(x => updates.Add(update.Set(GetMongoPropertyName(nameof(tenant.Properties)), tenant.Properties)));
 
             return await repository.FindOneAndUpdateAsync(
                 Builders<Tenant>.Filter.Where(it => it.Id == tenant.Id),
-                updateDef,
+                update.Combine(updates),
                 options: new FindOneAndUpdateOptions<Tenant>
                 {
                     ReturnDocument = ReturnDocument.After

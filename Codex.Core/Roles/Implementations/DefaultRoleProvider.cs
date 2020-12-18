@@ -3,7 +3,7 @@ using Codex.Models.Roles;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Codex.Users.Api.Providers.Implementations
+namespace Codex.Core.Roles.Implementations
 {
     [ExcludeFromCodeCoverage]
     public class DefaultRoleProvider : IRoleProvider
@@ -16,7 +16,7 @@ namespace Codex.Users.Api.Providers.Implementations
 
                 new(Code: RoleConstant.TENANT_MANAGER, UpperRoleCode: RoleConstant.ADMIN),
 
-                new(Code: RoleConstant.USER, UpperRoleCode: RoleConstant.ADMIN)
+                new(Code: RoleConstant.USER, UpperRoleCode: RoleConstant.TENANT_MANAGER)
             };
         }
     }

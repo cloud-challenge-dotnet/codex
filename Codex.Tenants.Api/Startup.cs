@@ -20,6 +20,14 @@ using System.Text.Json.Serialization;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Codex.Tenants.Api.Repositories.Interfaces;
+using Codex.Tenants.Api.Repositories.Implementations;
+using Codex.Core.ApiKeys.Models;
+using Codex.Core.ApiKeys.Extensions;
+using Codex.Core.Roles.Interfaces;
+using Codex.Core.Roles.Implementations;
+using Codex.Core.Cache;
+using Codex.Core.Tools;
 
 namespace Codex.Tenants.Api
 {
@@ -42,9 +50,25 @@ namespace Codex.Tenants.Api
             services.AddSingleton(sp =>
                 sp.GetRequiredService<IOptions<MongoDbSettings>>().Value);
 
-            services.AddDaprClient();
+            services.AddDaprClient(configure =>
+            {
+                var options = new JsonSerializerOptions()
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    WriteIndented = true,
+                    IgnoreNullValues = true
+                };
+                // Adds automatic json parsing to ObjectId.
+                options.Converters.Add(new ObjectIdConverter());
+                options.Converters.Add(new JsonStringEnumConverter());
+
+                configure.UseJsonSerializationOptions(options);
+            });
 
             services.AddSingleton<IExceptionHandler, CoreExceptionHandler>();
+            services.AddSingleton<IRoleProvider, DefaultRoleProvider>();
+            services.AddSingleton<IRoleService, RoleService>();
+            services.AddSingleton<ApiKeyCacheService, ApiKeyCacheService>();
 
             services.AddMultiTenancy()
                 .WithResolutionStrategy<GlobalTenantResolutionStrategy>()
@@ -56,6 +80,8 @@ namespace Codex.Tenants.Api
                 options.JsonSerializerOptions.WriteIndented = true;
                 options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
                 options.JsonSerializerOptions.IgnoreNullValues = true;
+                // Adds automatic json parsing to ObjectId.
+                options.JsonSerializerOptions.Converters.Add(new ObjectIdConverter());
             });
 
             services.AddSwaggerGen(c =>
@@ -67,9 +93,22 @@ namespace Codex.Tenants.Api
 
             services.AddAuthentication(x =>
             {
-                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultAuthenticateScheme = "customAuthScheme";
+                x.DefaultChallengeScheme = "customAuthScheme";
             })
+            .AddPolicyScheme("customAuthScheme", "Authorization Bearer or ApiKey", options =>
+            {
+                options.ForwardDefaultSelector = context =>
+                {
+                    if (context.Request.Headers.ContainsKey(HttpHeaderConstant.ApiKey))
+                    {
+                        return ApiKeyAuthenticationOptions.DefaultScheme;
+                    }
+
+                    return JwtBearerDefaults.AuthenticationScheme;
+                };
+            })
+            .AddApiKeySupport(options => { })
             .AddJwtBearer(x =>
             {
                 x.RequireHttpsMetadata = false;
@@ -92,9 +131,9 @@ namespace Codex.Tenants.Api
             //it will be one instance per tenant
             _= tenant;
 
-            containerBuilder.RegisterType<TenantRepository>().As<ITenantRepository>().SingleInstance();
-            containerBuilder.RegisterType<TenantService>().As<ITenantService>().SingleInstance();
-            containerBuilder.RegisterType<TenantPropertiesService>().As<ITenantPropertiesService>().SingleInstance();
+            containerBuilder.RegisterType<TenantRepository>().As<ITenantRepository>().InstancePerLifetimeScope();
+            containerBuilder.RegisterType<TenantService>().As<ITenantService>().InstancePerLifetimeScope();
+            containerBuilder.RegisterType<TenantPropertiesService>().As<ITenantPropertiesService>().InstancePerLifetimeScope();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -116,6 +155,8 @@ namespace Codex.Tenants.Api
             app.UseExceptionHandler(app => app.UseCustomErrors(env, exceptionHandlers));
 
             app.UseRouting();
+            
+            app.UseCloudEvents();
 
             app.UseMultiTenancy()
                 .UseMultiTenantContainer();
@@ -125,6 +166,7 @@ namespace Codex.Tenants.Api
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapSubscribeHandler();
                 endpoints.MapControllers();
             });
         }

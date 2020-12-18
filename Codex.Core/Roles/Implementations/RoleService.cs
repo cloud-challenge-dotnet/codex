@@ -1,10 +1,9 @@
 ﻿using Codex.Core.Roles.Interfaces;
 using Codex.Models.Roles;
-using Codex.Users.Api.Services.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Codex.Users.Api.Services.Implementations
+namespace Codex.Core.Roles.Implementations
 {
     public class RoleService : IRoleService
     {

@@ -13,6 +13,7 @@ using Codex.Core.Models;
 using System.Web;
 using Codex.Core.Interfaces;
 using Codex.Core.Models.Mail;
+using MongoDB.Bson;
 
 namespace Codex.Users.Api.Services.Implementations
 {
@@ -23,7 +24,7 @@ namespace Codex.Users.Api.Services.Implementations
         private readonly IUserService _userService;
         private readonly IMailService _mailService;
         private readonly IRazorPartialToStringRenderer _razorPartialToStringRenderer;
-        private readonly CacheService<Tenant> _tenantCacheService;
+        private readonly TenantCacheService _tenantCacheService;
 
         public UserMailService(
             ILogger<UserMailService> logger,
@@ -31,7 +32,7 @@ namespace Codex.Users.Api.Services.Implementations
             IRazorPartialToStringRenderer razorPartialToStringRenderer,
             IUserService userService,
             IMailService mailService,
-            CacheService<Tenant> tenantCacheService)
+            TenantCacheService tenantCacheService)
         {
             _logger = logger;
             _daprClient = daprClient;
@@ -43,7 +44,7 @@ namespace Codex.Users.Api.Services.Implementations
 
         public async Task SendActivateUserMailAsync(string tenantId, User user)
         {
-            var foundUser = await _userService.FindOneAsync(user.Id!);
+            var foundUser = await _userService.FindOneAsync((ObjectId)user.Id!);
 
             if (foundUser == null)
             {

@@ -1,5 +1,6 @@
 ﻿using Codex.Core.Exceptions;
 using Codex.Models.Tenants;
+using Codex.Tenants.Api.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;

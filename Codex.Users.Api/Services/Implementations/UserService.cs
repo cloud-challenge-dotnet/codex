@@ -8,6 +8,7 @@ using Codex.Users.Api.Exceptions;
 using Codex.Users.Api.Repositories.Interfaces;
 using Codex.Users.Api.Services.Interfaces;
 using Dapr.Client;
+using MongoDB.Bson;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -32,7 +33,7 @@ namespace Codex.Users.Api.Services.Implementations
             return await _userRepository.FindAllAsync(userCriteria);
         }
 
-        public async Task<User?> FindOneAsync(string id)
+        public async Task<User?> FindOneAsync(ObjectId id)
         {
             return await _userRepository.FindOneAsync(id);
         }
@@ -91,7 +92,7 @@ namespace Codex.Users.Api.Services.Implementations
                 throw new ExpiredUserValidationCodeException("Validation code is expired", code: "EXPIRED_VALIDATION_CODE");
             }
 
-            return await _userRepository.UpdateActivationCodeAsync(user.Id!, activationCode);
+            return await _userRepository.UpdateActivationCodeAsync((ObjectId)user.Id!, activationCode);
         }
     }
 }

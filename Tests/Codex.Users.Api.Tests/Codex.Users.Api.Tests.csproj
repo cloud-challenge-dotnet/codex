@@ -45,8 +45,4 @@
     <ProjectReference Include="..\Codex.Tests.Framework\Codex.Tests.Framework.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Providers\" />
-  </ItemGroup>
-
 </Project>

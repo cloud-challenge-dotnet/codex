@@ -1,0 +1,21 @@
+[
+  {
+    "collectionName": "apiKey",
+    "data": [
+      {
+        "_id": "global.1",
+        "name": "apiKey1",
+        "roles": [
+          "ADMIN"
+        ]
+      },
+      {
+        "_id": "global.2",
+        "name": "apiKey2",
+        "roles": [
+          "USER"
+        ]
+      }
+    ]
+  }
+]

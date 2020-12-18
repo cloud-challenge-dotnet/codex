@@ -1,4 +1,7 @@
-﻿namespace Codex.Models.Roles
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace Codex.Models.Roles
 {
-    public record Role(string Code, string? UpperRoleCode);
+    [ExcludeFromCodeCoverage]
+    public record Role(string Code, string? UpperRoleCode = null);
 }

@@ -21,6 +21,8 @@ ingress:
         service: tenantApi
       - path: /userApi
         service: userApi
+      - path: /securityApi
+        service: securityApi
 
 services:
 - name: tenantApi
@@ -28,6 +30,9 @@ services:
   replicas: 1
 - name: userApi
   project: Codex.Users.Api/Codex.Users.Api.csproj
+  replicas: 1
+- name: securityApi
+  project: Codex.Security.Api/Codex.Security.Api.csproj
   replicas: 1
 
 # This may conflict with the redis instance that dapr manages.

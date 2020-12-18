@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Codex.Tenants.Framework;
+using Codex.Core.Security;
+using MongoDB.Bson;
 
 namespace Codex.Users.Api.Controllers
 {
@@ -21,7 +23,7 @@ namespace Codex.Users.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize(Roles = "TENANT_MANAGER,USER")]
+        [TenantAuthorize(Roles = "TENANT_MANAGER,USER")]
         public async Task<ActionResult<User>> FindOne(string id)
         {
             string? contextUserId = HttpContext.GetUserId();
@@ -30,13 +32,13 @@ namespace Codex.Users.Api.Controllers
                 return Unauthorized();
             }
 
-            var user = await _userService.FindOneAsync(id);
+            var user = await _userService.FindOneAsync(new ObjectId(id));
 
             return user == null ? NotFound(id) : Ok(user);
         }
 
         [HttpGet]
-        [Authorize(Roles = RoleConstant.TENANT_MANAGER)]
+        [TenantAuthorize(Roles = RoleConstant.TENANT_MANAGER)]
         public async Task<ActionResult<IEnumerable<User>>> FindAll([FromQuery] UserCriteria userCriteria)
         {
             var users = await _userService.FindAllAsync(userCriteria);
@@ -45,7 +47,7 @@ namespace Codex.Users.Api.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = RoleConstant.TENANT_MANAGER)]
+        [TenantAuthorize(Roles = RoleConstant.TENANT_MANAGER)]
         public async Task<ActionResult<User>> CreateUser([FromBody] UserCreator userCreator)
         {
             string? tenantId = HttpContext.GetTenant()?.Id;
@@ -55,8 +57,8 @@ namespace Codex.Users.Api.Controllers
         }
 
         [HttpPut("{userId}")]
-        [Authorize(Roles = "TENANT_MANAGER,USER")]
-        public async Task<ActionResult<User>> UpdateUser([FromQuery] string userId, [FromBody] User user)
+        [TenantAuthorize(Roles = "TENANT_MANAGER,USER")]
+        public async Task<ActionResult<User>> UpdateUser(string userId, [FromBody] User user)
         {
             string? contextUserId = HttpContext.GetUserId();
             if (!HttpContext.User.IsInRole(RoleConstant.TENANT_MANAGER) && contextUserId != userId)
@@ -64,12 +66,12 @@ namespace Codex.Users.Api.Controllers
                 return Unauthorized();
             }
 
-            user = user with { Id = userId };
+            user = user with { Id = new ObjectId(userId) };
 
             User? userResult;
             if (!HttpContext.User.IsInRole(RoleConstant.TENANT_MANAGER) && contextUserId == userId)
             {
-                userResult = await _userService.FindOneAsync(userId);
+                userResult = await _userService.FindOneAsync(new ObjectId(userId));
                 if (userResult == null)
                 {
                     return NotFound(userId);
@@ -94,9 +96,9 @@ namespace Codex.Users.Api.Controllers
         }
 
         [HttpGet("{userId}/activation")]
-        public async Task<ActionResult<User>> ActivateUser([FromQuery] string userId, [FromQuery] string activationCode)
+        public async Task<ActionResult<User>> ActivateUser(string userId, [FromQuery] string activationCode)
         {
-            var user = await _userService.FindOneAsync(userId);
+            var user = await _userService.FindOneAsync(new ObjectId(userId));
             if (user == null)
             {
                 return NotFound(userId);

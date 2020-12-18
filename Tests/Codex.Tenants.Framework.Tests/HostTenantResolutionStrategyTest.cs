@@ -1,3 +1,4 @@
+using Codex.Core.Models;
 using Codex.Tenants.Framework.Implementations;
 using Codex.Tests.Framework;
 using Microsoft.AspNetCore.Http;
@@ -17,7 +18,7 @@ namespace Codex.Tenants.Framework.Tests
         public async Task GetTenantIdentifier()
         {
             var httpContext = new DefaultHttpContext();
-            httpContext.Request.Headers["tenantId"] = "TenantTest";
+            httpContext.Request.Headers[HttpHeaderConstant.TenantId] = "TenantTest";
 
             var httpContextAccessor = new Mock<IHttpContextAccessor>();
             httpContextAccessor.Setup(x => x.HttpContext).Returns(

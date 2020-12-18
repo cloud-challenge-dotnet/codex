@@ -5,7 +5,7 @@ namespace Codex.Core.Exceptions
     [Serializable]
     public class IllegalArgumentException : FunctionnalException
     {
-        public IllegalArgumentException(string message, string? code) : base(message, code)
+        public IllegalArgumentException(string message, string? code = null) : base(message, code)
         {
         }
     }

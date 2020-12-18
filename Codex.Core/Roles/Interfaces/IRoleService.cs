@@ -1,7 +1,7 @@
 ﻿using Codex.Models.Roles;
 using System.Collections.Generic;
 
-namespace Codex.Users.Api.Services.Interfaces
+namespace Codex.Core.Roles.Interfaces
 {
     public interface IRoleService
     {

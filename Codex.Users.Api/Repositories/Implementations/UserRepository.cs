@@ -8,10 +8,12 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Codex.Core.Extensions;
 using System;
+using Codex.Users.Api.Repositories.Interfaces;
+using MongoDB.Bson;
 
-namespace Codex.Users.Api.Repositories.Interfaces
+namespace Codex.Users.Api.Repositories.Implementations
 {
-    public class UserRepository : MongoTemplate<User>, IUserRepository
+    public class UserRepository : MongoTemplate<User, ObjectId>, IUserRepository
     {
         public UserRepository(MongoDbSettings mongoDbSettings,
             ITenantAccessService tenantAccessService) : base(mongoDbSettings, tenantAccessService)
@@ -76,7 +78,7 @@ namespace Codex.Users.Api.Repositories.Interfaces
             );
         }
 
-        public async Task<User?> UpdateActivationCodeAsync(string userId, string activationCode)
+        public async Task<User?> UpdateActivationCodeAsync(ObjectId userId, string activationCode)
         {
             var repository = await GetRepositoryAsync();
 
