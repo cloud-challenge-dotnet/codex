@@ -1,4 +1,4 @@
-﻿using Codex.Core.Exceptions;
+﻿using Codex.Models.Exceptions;
 using Codex.Core.Models;
 using MongoDB.Driver;
 using System;

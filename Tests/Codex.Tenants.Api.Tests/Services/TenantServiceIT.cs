@@ -1,4 +1,4 @@
-using Codex.Core.Exceptions;
+using Codex.Models.Exceptions;
 using Codex.Tenants.Api.Services;
 using Codex.Models.Tenants;
 using Codex.Tests.Framework;

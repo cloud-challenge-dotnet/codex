@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Codex.Core.Exceptions
+namespace Codex.Models.Exceptions
 {
     [Serializable]
     public class IllegalArgumentException : FunctionnalException

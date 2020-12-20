@@ -100,6 +100,13 @@ namespace Codex.Users.Api
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Codex.Users.Api", Version = "v1" });
             });
 
+            services.AddCors(options =>
+            {
+                options.AddPolicy(
+                    "Open",
+                    builder => builder.AllowAnyOrigin().AllowAnyHeader());
+            });
+
             var jwtSecret = Encoding.ASCII.GetBytes(Configuration.GetValue<string>(ConfigConstant.JwtSecretKey));
 
             services.AddAuthentication(x =>
@@ -168,6 +175,8 @@ namespace Codex.Users.Api
             app.UseExceptionHandler(app => app.UseCustomErrors(env, exceptionHandlers));
 
             app.UseRouting();
+
+            app.UseCors("Open");
 
             app.UseCloudEvents();
 

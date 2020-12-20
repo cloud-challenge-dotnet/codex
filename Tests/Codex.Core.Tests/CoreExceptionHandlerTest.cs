@@ -1,4 +1,4 @@
-using Codex.Core.Exceptions;
+using Codex.Models.Exceptions;
 using Codex.Core.Interfaces;
 using Codex.Tests.Framework;
 using System;

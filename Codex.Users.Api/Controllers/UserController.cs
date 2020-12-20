@@ -1,7 +1,6 @@
 ﻿using Codex.Models.Roles;
 using Codex.Models.Users;
 using Codex.Users.Api.Services.Interfaces;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;

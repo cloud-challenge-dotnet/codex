@@ -1,4 +1,4 @@
-﻿using Codex.Core.Exceptions;
+﻿using Codex.Models.Exceptions;
 using Codex.Models.Tenants;
 using Codex.Tenants.Api.Repositories.Interfaces;
 using System;

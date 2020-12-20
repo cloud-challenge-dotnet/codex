@@ -1,0 +1,31 @@
+﻿@inherits LayoutComponentBase
+@layout BaseLayout
+@inject IApplicationData ApplicationData
+
+<div class="page">
+
+    @if (LoggedIn)
+    {
+        <div class="sidebar">
+            <NavMenu />
+        </div>
+    }
+
+    <div class="main">
+        <!--div class="top-row px-4">
+            <a href="http://blazor.net" target="_blank" class="ml-md-auto">About</a>
+        </div-->
+
+        <div class="content px-4">
+            @Body
+            <Alert />
+        </div>
+    </div>
+</div>
+
+@code {
+    public bool LoggedIn
+    {
+        get { return ApplicationData.Auth != null; }
+    }
+}

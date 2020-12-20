@@ -1,4 +1,4 @@
-﻿using Codex.Core.Exceptions;
+﻿using Codex.Models.Exceptions;
 using Codex.Tenants.Framework.Exceptions;
 using Codex.Models.Tenants;
 using Dapr.Client;
