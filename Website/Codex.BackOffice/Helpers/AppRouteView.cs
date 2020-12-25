@@ -20,7 +20,13 @@ namespace Codex.BackOffice.Helpers
             var authorize = Attribute.GetCustomAttribute(RouteData.PageType, typeof(AuthorizeAttribute)) != null;
             if (authorize && ApplicationData!.Auth == null)
             {
-                var returnUrl = WebUtility.UrlEncode(new Uri(NavigationManager!.Uri).PathAndQuery);
+                var uri = new Uri(NavigationManager!.Uri);
+                var queryDictionary = System.Web.HttpUtility.ParseQueryString(uri.Query);
+                string? returnUrl;
+                if ((returnUrl = queryDictionary["returnUrl"]) == null)
+                {
+                    returnUrl = WebUtility.UrlEncode(uri.PathAndQuery);
+                }
                 NavigationManager.NavigateTo($"account/login?returnUrl={returnUrl}");
             }
             else
