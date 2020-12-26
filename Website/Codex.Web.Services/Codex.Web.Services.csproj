@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Codex.Models\Codex.Models.csproj" />
+    <ProjectReference Include="..\..\Codex.Models\Codex.Models.csproj" />
   </ItemGroup>
 
 </Project>

@@ -14,7 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Codex.Models\Codex.Models.csproj" />
-    <ProjectReference Include="..\..\Codex.Web.Services\Codex.Web.Services.csproj" />
+    <ProjectReference Include="..\Codex.Web.Services\Codex.Web.Services.csproj" />
   </ItemGroup>
 
   <ItemGroup>
