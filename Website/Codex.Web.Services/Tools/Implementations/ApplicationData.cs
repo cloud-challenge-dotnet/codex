@@ -15,7 +15,7 @@ namespace Codex.Web.Services.Tools.Implementations
             _localStorageService = localStorageService;
         }
 
-        public Auth? _auth;
+        private Auth? _auth;
 
         public Auth? Auth { get => _auth; }
 
