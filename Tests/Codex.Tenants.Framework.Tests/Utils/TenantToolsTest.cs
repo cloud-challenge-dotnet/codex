@@ -1,5 +1,5 @@
 ﻿using Codex.Core.Cache;
-using Codex.Core.Exceptions;
+using Codex.Models.Exceptions;
 using Codex.Core.Models;
 using Codex.Models.Tenants;
 using Codex.Tenants.Framework.Exceptions;

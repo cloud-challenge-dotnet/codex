@@ -1,4 +1,4 @@
-﻿using Codex.Core.Exceptions;
+﻿using Codex.Models.Exceptions;
 using System;
 using System.Diagnostics.CodeAnalysis;
 

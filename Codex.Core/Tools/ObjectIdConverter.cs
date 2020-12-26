@@ -1,6 +1,4 @@
-﻿
-
-using Codex.Core.Exceptions;
+﻿using Codex.Models.Exceptions;
 using MongoDB.Bson;
 using System;
 using System.Diagnostics.CodeAnalysis;

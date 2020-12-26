@@ -1,5 +1,5 @@
 ﻿using Codex.Core;
-using Codex.Core.Exceptions;
+using Codex.Models.Exceptions;
 using Codex.Core.Interfaces;
 using Codex.Core.Models;
 using Codex.Core.Tools;

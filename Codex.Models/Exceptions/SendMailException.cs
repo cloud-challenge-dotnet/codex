@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Codex.Core.Exceptions
+namespace Codex.Models.Exceptions
 {
     [ExcludeFromCodeCoverage]
     [Serializable]

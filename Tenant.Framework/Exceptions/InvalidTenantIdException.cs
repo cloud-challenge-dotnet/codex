@@ -1,4 +1,4 @@
-﻿using Codex.Core.Exceptions;
+﻿using Codex.Models.Exceptions;
 using System;
 
 namespace Codex.Tenants.Framework.Exceptions

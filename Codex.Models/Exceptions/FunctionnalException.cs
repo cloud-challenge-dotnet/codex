@@ -1,11 +1,11 @@
 ﻿using System;
 
-namespace Codex.Core.Exceptions
+namespace Codex.Models.Exceptions
 {
     [Serializable]
     public class FunctionnalException : Exception
     {
-        public FunctionnalException(string message, string? code) : base(message)
+        public FunctionnalException(string message, string? code = null) : base(message)
         {
             Code = code;
         }
