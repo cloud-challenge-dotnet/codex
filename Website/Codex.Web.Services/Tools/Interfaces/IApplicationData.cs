@@ -1,11 +1,18 @@
 ﻿using Codex.Models.Users;
+using System.Threading.Tasks;
 
 namespace Codex.Web.Services.Tools.Interfaces
 {
     public interface IApplicationData
     {
-        Auth? Auth { get; set; }
+        Auth? Auth { get; }
 
-        string? TenantId { get; set; }
+        Task SetAuthAsync(Auth? value);
+
+        string? TenantId { get; }
+
+        Task SetTenantIdAsync(string? value);
+
+        Task InitializeAsync();
     }
 }

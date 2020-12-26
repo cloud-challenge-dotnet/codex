@@ -135,7 +135,7 @@ namespace Codex.Web.Services.Tools.Implementations
             // auto logout on 401 response
             if (response.StatusCode == HttpStatusCode.Unauthorized)
             {
-                _navigationManager.NavigateTo("account/logout"); // TODO event
+                _navigationManager.NavigateTo("account/logout");
                 return;
             }
 

@@ -21,9 +21,6 @@ namespace Codex.BackOffice.Models.Users
         [StringLength(100, ErrorMessage = "Name length can't be more than 100.")]
         public string? LastName { get; set; }
 
-        [Phone]
-        public string? PhoneNumber { get; set; }
-
         [Required]
         [DataType(DataType.Password)]
         [StringLength(20, ErrorMessage = "Name length can't be more than 20.")]
@@ -33,5 +30,8 @@ namespace Codex.BackOffice.Models.Users
         [Required(ErrorMessage = "re-type password is required.")]
         [Compare(nameof(Password), ErrorMessage = "password dosent match")]
         public string ConfirmPassword { get; set; } = string.Empty;
+
+        [Required]
+        public string? TenantId { get; set; }
     }
 }

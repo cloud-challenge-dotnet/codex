@@ -59,8 +59,9 @@ namespace Codex.Web.Services.Tools.Implementations
             this.OnAlert?.Invoke(alert);
         }
 
-        public void Clear(string id = _defaultId)
+        public void Clear(string? id = null)
         {
+            id ??= _defaultId;
             this.OnAlert?.Invoke(new Alert { Id = id });
         }
     }

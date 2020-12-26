@@ -11,6 +11,6 @@ namespace Codex.Web.Services.Tools.Interfaces
         void Info(string message, bool keepAfterRouteChange = false, bool autoClose = true);
         void Warn(string message, bool keepAfterRouteChange = false, bool autoClose = true);
         void Alert(Alert alert);
-        void Clear(string id = null);
+        void Clear(string? id = null);
     }
 }

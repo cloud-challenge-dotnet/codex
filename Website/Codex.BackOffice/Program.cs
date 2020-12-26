@@ -1,6 +1,7 @@
 using Codex.BackOffice.Services.Users.Implementations;
 using Codex.Web.Services.Tools.Implementations;
 using Codex.Web.Services.Tools.Interfaces;
+using Codex.Web.Services.Users.Implementations;
 using Codex.Web.Services.Users.Interfaces;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,9 +19,11 @@ namespace Codex.BackOffice
             builder.RootComponents.Add<App>("#app");
 
             builder.Services
+                .AddScoped<ILocalStorageService, LocalStorageService>()
                 .AddScoped<IApplicationData, ApplicationData>()
                 .AddScoped<IHttpManager, HttpManager>()
                 .AddScoped<IAuthenticationService, AuthenticationService>()
+                .AddScoped<IUserService, UserService>()
                 .AddScoped<IAlertService, AlertService>();
 
             builder.Services.AddScoped(sp =>
@@ -30,7 +33,12 @@ namespace Codex.BackOffice
                 return new HttpClient { BaseAddress = apiUrl };
             });
 
-            await builder.Build().RunAsync();
+            var host = builder.Build();
+
+            var applicationData = host.Services.GetRequiredService<IApplicationData>();
+            await applicationData.InitializeAsync();
+
+            await host.RunAsync();
         }
     }
 }

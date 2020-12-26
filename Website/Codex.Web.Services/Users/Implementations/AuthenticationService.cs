@@ -23,22 +23,27 @@ namespace Codex.BackOffice.Services.Users.Implementations
         {
             try
             {
-                // clear Auth
-                _applicationData.Auth = null;
-                _applicationData.TenantId = userLogin.TenantId;
+                await ClearAuthenticationAsync();
+                await _applicationData.SetTenantIdAsync(userLogin.TenantId);
 
                 var auth = await _httpManager.PostAsync<Auth>("userApi/Authentication", userLogin);
 
-                _applicationData.Auth = auth;
-                _applicationData.TenantId = userLogin.TenantId;
+                await _applicationData.SetAuthAsync(auth);
+                await _applicationData.SetTenantIdAsync(userLogin.TenantId);
                 return auth;
             }
             catch
             {
-                _applicationData.Auth = null;
-                _applicationData.TenantId = null;
+                await ClearAuthenticationAsync();
                 throw;
             }
+        }
+
+        public async Task ClearAuthenticationAsync()
+        {
+            // clear Auth
+            await _applicationData.SetAuthAsync(null);
+            await _applicationData.SetTenantIdAsync(null);
         }
     }
 }
