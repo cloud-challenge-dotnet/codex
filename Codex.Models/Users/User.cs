@@ -14,21 +14,21 @@ namespace Codex.Models.Users
         public BaseUser(string login, string email, string? firstName, string? lastName, string? phoneNumber, List<string> roles)
                => (Login, Email, FirstName, LastName, PhoneNumber, Roles, CreationDate, ModificationDate) = (login, email, firstName, lastName, phoneNumber, roles, DateTime.Now, DateTime.Now);
 
-        public string Login { get; set; }
+        public string Login { get; init; }
 
-        public string Email { get; set; }
+        public string Email { get; init; }
 
-        public string? FirstName { get; set; }
+        public string? FirstName { get; init; }
 
-        public string? LastName { get; set; }
+        public string? LastName { get; init; }
 
-        public string? PhoneNumber { get; set; }
+        public string? PhoneNumber { get; init; }
 
-        public List<string> Roles { get; set; }
+        public List<string> Roles { get; init; }
 
-        public DateTime CreationDate { get; set; }
+        public DateTime CreationDate { get; init; }
 
-        public DateTime ModificationDate { get; set; }
+        public DateTime ModificationDate { get; init; }
     }
 
     public record User : BaseUser
@@ -43,15 +43,15 @@ namespace Codex.Models.Users
 
         [BsonId(IdGenerator = typeof(ObjectIdGenerator))]
         [BsonRepresentation(BsonType.ObjectId)]
-        public ObjectId? Id { get; set; }
+        public ObjectId? Id { get; init; }
 
-        public string? PasswordHash { get; set; }
+        public string? PasswordHash { get; init; }
 
-        public string? ActivationCode { get; set; }
+        public string? ActivationCode { get; init; }
 
-        public DateTime? ActivationValidity { get; set; }
+        public DateTime? ActivationValidity { get; init; }
 
-        public bool Active { get; set; }
+        public bool Active { get; init; }
     }
 
     public record UserCreator : BaseUser
@@ -59,7 +59,7 @@ namespace Codex.Models.Users
         public UserCreator() : base()
             => (Password) = (null);
 
-        public string? Password { get; set; }
+        public string? Password { get; init; }
 
         public User ToUser(string? passwordHash = null) => new User(
             id: null,

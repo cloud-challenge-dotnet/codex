@@ -30,7 +30,9 @@ namespace Codex.Security.Api.Services.Implementations
         {
             if (string.IsNullOrWhiteSpace(apiKey.Id))
             {
-                apiKey.Id = StringUtils.RandomString(50);
+                apiKey = apiKey with { 
+                    Id = StringUtils.RandomString(50)
+                };
             }
 
             return await _apiKeyRepository.InsertAsync(apiKey);
