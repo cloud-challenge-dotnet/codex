@@ -14,10 +14,10 @@ namespace Codex.Models.Security
 
         [BsonId]
         [BsonRepresentation(BsonType.String)]
-        public string? Id { get; set; }
+        public string? Id { get; init; }
 
-        public string Name { get; set; }
+        public string Name { get; init; }
 
-        public List<string> Roles { get; set; }
+        public List<string> Roles { get; init; }
     }
 }

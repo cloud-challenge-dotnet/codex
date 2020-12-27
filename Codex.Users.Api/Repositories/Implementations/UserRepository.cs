@@ -41,8 +41,11 @@ namespace Codex.Users.Api.Repositories.Implementations
 
         public override async Task<User> InsertAsync(User document)
         {
-            document.CreationDate = DateTime.Now;
-            document.ModificationDate = DateTime.Now;
+            document = document with
+            {
+                CreationDate = DateTime.Now,
+                ModificationDate = DateTime.Now
+            };
 
             return await base.InsertAsync(document);
         }

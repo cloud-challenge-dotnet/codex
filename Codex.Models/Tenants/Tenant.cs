@@ -17,11 +17,11 @@ namespace Codex.Models.Tenants
 
         [BsonId]
         [BsonRepresentation(BsonType.String)]
-        public string? Id { get; set; }
+        public string? Id { get; init; }
 
-        public string Name { get; set; }
+        public string Name { get; init; }
 
-        public TenantProperties? Properties { get; set; }
+        public TenantProperties? Properties { get; init; }
     }
 
     public record Tenant : BaseTenant

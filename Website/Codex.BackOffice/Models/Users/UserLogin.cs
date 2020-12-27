@@ -2,7 +2,7 @@
 
 namespace Codex.BackOffice.Models.Users
 {
-    public record UserLogin
+    public class UserLogin
     {
         [Required]
         public string? Login { get; set; }

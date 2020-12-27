@@ -2,7 +2,7 @@
 
 namespace Codex.BackOffice.Models.Users
 {
-    public record UserCreator
+    public class UserCreator
     {
         [Required]
         [MinLength(2, ErrorMessage = "The Login field must be a minimum of 2 characters")]
