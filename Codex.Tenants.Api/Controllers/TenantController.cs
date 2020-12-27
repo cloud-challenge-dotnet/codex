@@ -60,9 +60,9 @@ namespace Codex.Tenants.Api.Controllers
 
         [HttpPost]
         [TenantAuthorize(Roles = RoleConstant.TENANT_MANAGER)]
-        public async Task<ActionResult<Tenant>> CreateTenant([FromBody] TenantCreator tenantCreator)
+        public async Task<ActionResult<Tenant>> CreateTenant([FromBody] Tenant tenant)
         {
-            var tenant = await _tenantService.CreateAsync(tenantCreator);
+            tenant = await _tenantService.CreateAsync(tenant);
 
             await PublishTenantChangeEventAsync(TopicType.Modify, tenant);
 
@@ -116,7 +116,7 @@ namespace Codex.Tenants.Api.Controllers
 
         [HttpGet("{tenantId}/properties")]
         [TenantAuthorize(Roles = RoleConstant.TENANT_MANAGER)]
-        public async Task<ActionResult<TenantProperties?>> FindProperties(string tenantId)
+        public async Task<ActionResult<Dictionary<string, List<string>>?>> FindProperties(string tenantId)
         {
             var tenantProperties = await _tenantPropertiesService.FindPropertiesAsync(tenantId);
 

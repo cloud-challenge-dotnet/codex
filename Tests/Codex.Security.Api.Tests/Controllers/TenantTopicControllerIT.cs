@@ -49,7 +49,7 @@ namespace Codex.Security.Api.Tests
             var daprClient = new Mock<DaprClient>();
             var tenantCacheService = new Mock<TenantCacheService>();
 
-            Tenant tenant = new(id: "global", name: "tenant_global");
+            Tenant tenant = new(Id: "global", Name: "tenant_global");
             TopicData<Tenant> tenantTopicData = new(TopicType.Modify, tenant, tenant.Id!);
 
             var topicController = new TenantTopicController(
@@ -73,7 +73,7 @@ namespace Codex.Security.Api.Tests
             var daprClient = new Mock<DaprClient>();
             var tenantCacheService = new Mock<TenantCacheService>();
 
-            Tenant tenant = new(id: "global", name: "tenant_global");
+            Tenant tenant = new(Id: "global", Name: "tenant_global");
             TopicData<Tenant> tenantTopicData = new(TopicType.Remove, tenant, tenant.Id!);
 
             var topicController = new TenantTopicController(

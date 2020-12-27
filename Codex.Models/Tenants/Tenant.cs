@@ -1,60 +1,12 @@
-﻿using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Codex.Models.Tenants
 {
-    public abstract record BaseTenant
-    {
-        public BaseTenant()
-            => (Id, Name, Properties) = (null, "", null);
-
-        public BaseTenant(string? id, string name)
-           => (Id, Name, Properties) = (id, name, null);
-
-        public BaseTenant(string? id, string name, TenantProperties? properties)
-           => (Id, Name, Properties) = (id, name, properties);
-
-        [BsonId]
-        [BsonRepresentation(BsonType.String)]
-        public string? Id { get; init; }
-
-        public string Name { get; init; }
-
-        public TenantProperties? Properties { get; init; }
-    }
-
-    public record Tenant : BaseTenant
-    {
-        public Tenant() : base()
-        {
-        }
-
-        public Tenant(string? id, string name) : base(id, name)
-        {
-        }
-
-        public Tenant(string? id, string name, TenantProperties? properties) : base(id, name, properties)
-        {
-        }
-    }
-
-    public record TenantCreator : BaseTenant
-    {
-        public TenantCreator() : base()
-        {
-        }
-
-        public TenantCreator(string? id, string name) : base(id, name)
-        {
-        }
-
-        public TenantCreator(string? id, string name, TenantProperties properties) : base(id, name, properties)
-        {
-        }
-
-        public Tenant ToTenant() => new Tenant(id: Id, name: Name, properties: Properties);
-    }
+    public record Tenant(
+        string? Id = null,
+        string Name = "",
+        TenantProperties? Properties = null
+    );
 
     public class TenantProperties : Dictionary<string, List<string>>
     {

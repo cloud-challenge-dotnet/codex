@@ -10,7 +10,7 @@ namespace Codex.Tenants.Api.Services
 
         Task<Tenant?> FindOneAsync(string id);
 
-        Task<Tenant> CreateAsync(TenantCreator tenant);
+        Task<Tenant> CreateAsync(Tenant tenant);
 
         Task<Tenant?> UpdateAsync(Tenant tenant);
     }

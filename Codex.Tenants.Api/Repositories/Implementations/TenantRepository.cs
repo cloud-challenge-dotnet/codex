@@ -3,23 +3,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Codex.Tenants.Framework;
-using Codex.Models.Tenants;
 using MongoDB.Driver.Linq;
 using Codex.Core.Models;
 using Codex.Tenants.Framework.Interfaces;
 using Codex.Tenants.Api.Repositories.Interfaces;
 using Codex.Core.Extensions;
+using Codex.Tenants.Api.Repositories.Models;
 
 namespace Codex.Tenants.Api.Repositories.Implementations
 {
-    public class TenantRepository : MongoTemplate<Tenant, string>, ITenantRepository
+    public class TenantRepository : MongoTemplate<TenantRow, string>, ITenantRepository
     {
         public TenantRepository(MongoDbSettings mongoDbSettings,
             ITenantAccessService tenantAccessService) : base(mongoDbSettings, tenantAccessService)
         {
         }
 
-        public async Task<List<Tenant>> FindAllAsync()
+        public async Task<List<TenantRow>> FindAllAsync()
         {
             var repository = await GetRepositoryAsync();
 
@@ -30,77 +30,77 @@ namespace Codex.Tenants.Api.Repositories.Implementations
             return query.ToList();
         }
 
-        public async Task<Tenant?> UpdateAsync(Tenant tenant)
+        public async Task<TenantRow?> UpdateAsync(TenantRow tenant)
         {
             var repository = await GetRepositoryAsync();
 
-            var update = Builders<Tenant>.Update;
-            var updates = new List<UpdateDefinition<Tenant>>
+            var update = Builders<TenantRow>.Update;
+            var updates = new List<UpdateDefinition<TenantRow>>
             {
                 update.Set(GetMongoPropertyName(nameof(tenant.Name)), tenant.Name)
             };
             tenant.Properties?.Also(x => updates.Add(update.Set(GetMongoPropertyName(nameof(tenant.Properties)), tenant.Properties)));
 
             return await repository.FindOneAndUpdateAsync(
-                Builders<Tenant>.Filter.Where(it => it.Id == tenant.Id),
+                Builders<TenantRow>.Filter.Where(it => it.Id == tenant.Id),
                 update.Combine(updates),
-                options: new FindOneAndUpdateOptions<Tenant>
+                options: new FindOneAndUpdateOptions<TenantRow>
                 {
                     ReturnDocument = ReturnDocument.After
                 }
             );
         }
 
-        public async Task<Tenant?> UpdatePropertyAsync(string tenantId, string propertyKey, List<string> values)
+        public async Task<TenantRow?> UpdatePropertyAsync(string tenantId, string propertyKey, List<string> values)
         {
             var repository = await GetRepositoryAsync();
 
-            var update = Builders<Tenant>.Update;
-            var updateDef = update.Set(GetMongoPropertyName($"{nameof(Tenant.Properties)}.{propertyKey}"), values);
+            var update = Builders<TenantRow>.Update;
+            var updateDef = update.Set(GetMongoPropertyName($"{nameof(TenantRow.Properties)}.{propertyKey}"), values);
 
             return await repository.FindOneAndUpdateAsync(
-                Builders<Tenant>.Filter.Where(it => it.Id == tenantId),
+                Builders<TenantRow>.Filter.Where(it => it.Id == tenantId),
                 updateDef,
-                options: new FindOneAndUpdateOptions<Tenant>
+                options: new FindOneAndUpdateOptions<TenantRow>
                 {
                     ReturnDocument = ReturnDocument.After
                 }
             );
         }
 
-        public async Task<Tenant?> UpdatePropertiesAsync(string tenantId, TenantProperties tenantProperties)
+        public async Task<TenantRow?> UpdatePropertiesAsync(string tenantId, Dictionary<string, List<string>> tenantProperties)
         {
             var repository = await GetRepositoryAsync();
 
-            var update = Builders<Tenant>.Update;
-            var updates = new List<UpdateDefinition<Tenant>>();
+            var update = Builders<TenantRow>.Update;
+            var updates = new List<UpdateDefinition<TenantRow>>();
 
             foreach(var tenantProperty in tenantProperties)
             {
-                updates.Add(update.Set(GetMongoPropertyName($"{nameof(Tenant.Properties)}.{tenantProperty.Key}"), tenantProperty.Value));
+                updates.Add(update.Set(GetMongoPropertyName($"{nameof(TenantRow.Properties)}.{tenantProperty.Key}"), tenantProperty.Value));
             }
 
             return await repository.FindOneAndUpdateAsync(
-                Builders<Tenant>.Filter.Where(it => it.Id == tenantId),
+                Builders<TenantRow>.Filter.Where(it => it.Id == tenantId),
                 update.Combine(updates),
-                options: new FindOneAndUpdateOptions<Tenant>
+                options: new FindOneAndUpdateOptions<TenantRow>
                 {
                     ReturnDocument = ReturnDocument.After
                 }
             );
         }
 
-        public async Task<Tenant?> DeletePropertyAsync(string tenantId, string propertyKey)
+        public async Task<TenantRow?> DeletePropertyAsync(string tenantId, string propertyKey)
         {
             var repository = await GetRepositoryAsync();
 
-            var update = Builders<Tenant>.Update;
-            var updateDef = update.Unset($"{nameof(Tenant.Properties)}.{propertyKey}");
+            var update = Builders<TenantRow>.Update;
+            var updateDef = update.Unset($"{nameof(TenantRow.Properties)}.{propertyKey}");
 
             return await repository.FindOneAndUpdateAsync(
-                Builders<Tenant>.Filter.Where(it => it.Id == tenantId),
+                Builders<TenantRow>.Filter.Where(it => it.Id == tenantId),
                 updateDef,
-                options: new FindOneAndUpdateOptions<Tenant>
+                options: new FindOneAndUpdateOptions<TenantRow>
                 {
                     ReturnDocument = ReturnDocument.After
                 }

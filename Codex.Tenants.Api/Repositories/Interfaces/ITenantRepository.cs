@@ -1,19 +1,20 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Codex.Core.Interfaces;
-using Codex.Models.Tenants;
+using Codex.Tenants.Api.Repositories.Models;
 
 namespace Codex.Tenants.Api.Repositories.Interfaces
 {
-    public interface ITenantRepository: IRepository<Tenant, string>
+    public interface ITenantRepository: IRepository<TenantRow, string>
     {
-        Task<List<Tenant>> FindAllAsync();
+        Task<List<TenantRow>> FindAllAsync();
 
-        Task<Tenant?> UpdateAsync(Tenant tenant);
+        Task<TenantRow?> UpdateAsync(TenantRow tenant);
 
-        Task<Tenant?> UpdatePropertyAsync(string tenantId, string propertyKey, List<string> values);
-        Task<Tenant?> UpdatePropertiesAsync(string tenantId, TenantProperties tenantProperties);
+        Task<TenantRow?> UpdatePropertyAsync(string tenantId, string propertyKey, List<string> values);
 
-        Task<Tenant?> DeletePropertyAsync(string tenantId, string propertyKey);
+        Task<TenantRow?> UpdatePropertiesAsync(string tenantId, Dictionary<string, List<string>> tenantProperties);
+
+        Task<TenantRow?> DeletePropertyAsync(string tenantId, string propertyKey);
     }
 }

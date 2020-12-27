@@ -8,13 +8,25 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
 using Codex.Tenants.Api.Repositories.Interfaces;
+using Codex.Tenants.Api.Repositories.Models;
+using AutoMapper;
 
 namespace Codex.Tenants.Api.Tests
 {
     public class TenantServiceIT : IClassFixture<Fixture>
     {
+        private readonly IMapper _mapper;
+
         public TenantServiceIT()
         {
+            //auto mapper configuration
+            var mockMapper = new MapperConfiguration(cfg =>
+            {
+                cfg.AllowNullCollections = null;
+                cfg.AllowNullDestinationValues = true;
+                cfg.AddProfile(new MappingProfile());
+            });
+            _mapper = mockMapper.CreateMapper();
         }
 
         [Fact]
@@ -23,15 +35,14 @@ namespace Codex.Tenants.Api.Tests
             var tenantRepository = new Mock<ITenantRepository>();
 
             tenantRepository.Setup(x => x.FindAllAsync()).Returns(
-                Task.FromResult(new List<Tenant>()
+                Task.FromResult(new List<TenantRow>()
                 {
                     new("Id1", "Tenant 1", null),
                     new("Id2", "Tenant 2", null)
                 })
             );
 
-
-            var tenantService = new TenantService(tenantRepository.Object);
+            var tenantService = new TenantService(tenantRepository.Object, _mapper);
 
             var tenantList = await tenantService.FindAllAsync();
 
@@ -50,11 +61,11 @@ namespace Codex.Tenants.Api.Tests
             string tenandId = "Id1";
 
             tenantRepository.Setup(x => x.FindOneAsync(It.IsAny<string>())).Returns(
-                Task.FromResult((Tenant?)new Tenant("Id1", "Tenant 1", null))
+                Task.FromResult((TenantRow?)new TenantRow("Id1", "Tenant 1", null))
             );
 
 
-            var tenantService = new TenantService(tenantRepository.Object);
+            var tenantService = new TenantService(tenantRepository.Object, _mapper);
 
             var tenant = await tenantService.FindOneAsync(tenandId);
 
@@ -67,17 +78,17 @@ namespace Codex.Tenants.Api.Tests
         {
             var tenantRepository = new Mock<ITenantRepository>();
 
-            var tenantCreator = new TenantCreator("Id1", "Tenant 1");
+            var tenantCreator = new Tenant("Id1", "Tenant 1");
 
             tenantRepository.Setup(x => x.ExistsByIdAsync(It.IsAny<string>())).Returns(
                Task.FromResult(false)
            );
 
-            tenantRepository.Setup(x => x.InsertAsync(It.IsAny<Tenant>())).Returns(
-                Task.FromResult(new Tenant("Id1", "Tenant 1", null))
+            tenantRepository.Setup(x => x.InsertAsync(It.IsAny<TenantRow>())).Returns(
+                Task.FromResult(new TenantRow("Id1", "Tenant 1", null))
             );
 
-            var tenantService = new TenantService(tenantRepository.Object);
+            var tenantService = new TenantService(tenantRepository.Object, _mapper);
 
             var tenant = await tenantService.CreateAsync(tenantCreator);
 
@@ -90,13 +101,13 @@ namespace Codex.Tenants.Api.Tests
         {
             var tenantRepository = new Mock<ITenantRepository>();
 
-            var tenantCreator = new TenantCreator("Id1", "Tenant 1");
+            var tenantCreator = new Tenant("Id1", "Tenant 1");
 
             tenantRepository.Setup(x => x.ExistsByIdAsync(It.IsAny<string>())).Returns(
                 Task.FromResult(true)
             );
 
-            var tenantService = new TenantService(tenantRepository.Object);
+            var tenantService = new TenantService(tenantRepository.Object, _mapper);
 
             var exception = await Assert.ThrowsAsync<IllegalArgumentException>(() => tenantService.CreateAsync(tenantCreator));
 
@@ -109,13 +120,13 @@ namespace Codex.Tenants.Api.Tests
         {
             var tenantRepository = new Mock<ITenantRepository>();
 
-            var tenantCreator = new TenantCreator(null, "Tenant 1");
+            var tenantCreator = new Tenant(null, "Tenant 1");
 
             tenantRepository.Setup(x => x.ExistsByIdAsync(It.IsAny<string>())).Returns(
                 Task.FromResult(true)
             );
 
-            var tenantService = new TenantService(tenantRepository.Object);
+            var tenantService = new TenantService(tenantRepository.Object, _mapper);
 
             var exception = await Assert.ThrowsAsync<ArgumentException>(() => tenantService.CreateAsync(tenantCreator));
 
@@ -129,11 +140,11 @@ namespace Codex.Tenants.Api.Tests
 
             var tenant = new Tenant("Id1", "Tenant 1", null);
 
-            tenantRepository.Setup(x => x.UpdateAsync(It.IsAny<Tenant>())).Returns(
-                Task.FromResult((Tenant?)new Tenant("Id1", "Tenant 1", null))
+            tenantRepository.Setup(x => x.UpdateAsync(It.IsAny<TenantRow>())).Returns(
+                Task.FromResult((TenantRow?)new TenantRow("Id1", "Tenant 1", null))
             );
 
-            var tenantService = new TenantService(tenantRepository.Object);
+            var tenantService = new TenantService(tenantRepository.Object, _mapper);
 
             var tenantUpdated = await tenantService.UpdateAsync(tenant);
 

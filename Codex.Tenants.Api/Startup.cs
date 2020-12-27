@@ -28,6 +28,7 @@ using Codex.Core.Roles.Interfaces;
 using Codex.Core.Roles.Implementations;
 using Codex.Core.Cache;
 using Codex.Core.Tools;
+using AutoMapper;
 
 namespace Codex.Tenants.Api
 {
@@ -73,6 +74,12 @@ namespace Codex.Tenants.Api
             services.AddMultiTenancy()
                 .WithResolutionStrategy<GlobalTenantResolutionStrategy>()
                 .WithStore<GlobalTenantStore>();
+
+            services.AddAutoMapper(cfg => {
+                cfg.AllowNullCollections = null;
+                cfg.AllowNullDestinationValues = true;
+                cfg.AddProfile<MappingProfile>();
+            }, typeof(Startup));
 
             services.AddControllers().AddJsonOptions(options =>
             {

@@ -56,7 +56,7 @@ namespace Codex.Users.Api.Tests
             );
 
             tenantCacheService.Setup(x => x.GetCacheAsync(It.IsAny<DaprClient>(), It.IsAny<string>())).Returns(
-                Task.FromResult((Tenant?)new Tenant(id: "global", name: "instance global"))
+                Task.FromResult((Tenant?)new Tenant(Id: "global", Name: "instance global"))
             );
 
             var userMailService = new UserMailService(
