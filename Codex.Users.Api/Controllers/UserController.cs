@@ -1,10 +1,12 @@
-﻿using Codex.Core.Security;
+﻿using Codex.Core.Extensions;
+using Codex.Core.Security;
 using Codex.Models.Roles;
 using Codex.Models.Users;
 using Codex.Tenants.Framework;
 using Codex.Users.Api.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Codex.Users.Api.Controllers
@@ -32,7 +34,7 @@ namespace Codex.Users.Api.Controllers
 
             var user = await _userService.FindOneAsync(id);
 
-            return user == null ? NotFound(id) : Ok(user);
+            return user == null ? NotFound(id) : Ok(OffendUserFields(user));
         }
 
         [HttpGet]
@@ -41,7 +43,7 @@ namespace Codex.Users.Api.Controllers
         {
             var users = await _userService.FindAllAsync(userCriteria);
 
-            return Ok(users);
+            return Ok(users.Select(user => OffendUserFields(user)).ToList());
         }
 
         [HttpPost]
@@ -50,6 +52,7 @@ namespace Codex.Users.Api.Controllers
         {
             string? tenantId = HttpContext.GetTenant()?.Id;
             var user = await _userService.CreateAsync(tenantId!, userCreator);
+            user = OffendUserFields(user);
 
             return CreatedAtAction(nameof(FindOne), new { id = user.Id }, user);
         }
@@ -90,7 +93,7 @@ namespace Codex.Users.Api.Controllers
                 return NotFound(userId);
             }
 
-            return AcceptedAtAction(nameof(FindOne), new { id = user.Id }, userResult);
+            return AcceptedAtAction(nameof(FindOne), new { id = user.Id }, OffendUserFields(userResult));
         }
 
         [HttpGet("{userId}/activation")]
@@ -103,8 +106,22 @@ namespace Codex.Users.Api.Controllers
             }
 
             user = await _userService.ActivateUserAsync(user, activationCode);
+            if (user == null)
+            {
+                return NotFound(userId);
+            }
 
-            return Ok(user);
+            return Ok(OffendUserFields(user));
+        }
+
+        private User OffendUserFields(User user)
+        {
+            return user with
+            {
+                ActivationCode = null,
+                ActivationValidity = null,
+                PasswordHash = null
+            };
         }
     }
 }
