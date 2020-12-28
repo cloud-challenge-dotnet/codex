@@ -1,26 +1,25 @@
-﻿using Codex.Tenants.Framework.Utils;
-using Codex.Models.Users;
-using Codex.Users.Api.Services.Interfaces;
-using Dapr.Client;
-using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
-using System.Linq;
-using Codex.Users.Api.Exceptions;
-using System;
+﻿using Codex.Core.Cache;
 using Codex.Core.Interfaces;
-using Microsoft.Extensions.Configuration;
-using System.Text;
-using System.IdentityModel.Tokens.Jwt;
-using Microsoft.IdentityModel.Tokens;
-using System.Security.Claims;
-using System.Collections.Generic;
+using Codex.Core.Models;
+using Codex.Core.Roles.Interfaces;
 using Codex.Models.Roles;
 using Codex.Models.Tenants;
-using Codex.Core.Models;
-using Codex.Core.Cache;
-using Codex.Core.Roles.Interfaces;
+using Codex.Models.Users;
+using Codex.Tenants.Framework.Utils;
+using Codex.Users.Api.Exceptions;
+using Codex.Users.Api.Services.Interfaces;
+using Dapr.Client;
 using Dapr.Client.Http;
-using MongoDB.Bson;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
+using System;
+using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Security.Claims;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Codex.Users.Api.Services.Implementations
 {
@@ -74,7 +73,8 @@ namespace Codex.Users.Api.Services.Implementations
                 var secretValues = await _daprClient.GetSecretAsync(ConfigConstant.CodexKey, ConfigConstant.MicroserviceApiKey);
                 var microserviceApiKey = secretValues[ConfigConstant.MicroserviceApiKey];
 
-                try {
+                try
+                {
                     user = (await _daprClient.InvokeMethodAsync<List<User>>(ApiNameConstant.UserApi, "User",
                         httpExtension: new HTTPExtension()
                         {
@@ -96,7 +96,7 @@ namespace Codex.Users.Api.Services.Implementations
                 }
             }
 
-            if(user == null)
+            if (user == null)
                 throw new InvalidCredentialsException("Invalid login", code: "INVALID_LOGIN");
 
             if (!user.Active)
@@ -105,7 +105,7 @@ namespace Codex.Users.Api.Services.Implementations
             if (!await CheckPasswordAsync(user.PasswordHash, userLogin.Password))
                 throw new InvalidCredentialsException("Invalid login", code: "INVALID_LOGIN");
 
-            Auth auth = new(Id: ((ObjectId)user.Id!).ToString() ?? "", Login: user.Login, Token: CreateToken(user, tenant));
+            Auth auth = new(Id: user.Id!.ToString(), Login: user.Login, Token: CreateToken(user, tenant));
 
             return await Task.FromResult(auth);
         }
@@ -138,7 +138,7 @@ namespace Codex.Users.Api.Services.Implementations
             var tokenHandler = new JwtSecurityTokenHandler();
             var descriptor = new SecurityTokenDescriptor
             {
-               
+
                 Subject = new ClaimsIdentity(claimList.ToArray()),
                 Expires = DateTime.UtcNow.AddHours(EXPIRE_HOURS),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
@@ -153,9 +153,11 @@ namespace Codex.Users.Api.Services.Implementations
 
             var completedRoles = new List<string>();
 
-            user.Roles.ForEach(roleCode => {
+            user.Roles.ForEach(roleCode =>
+            {
                 var role = roles.FirstOrDefault(r => r.Code == roleCode);
-                if(role != null) {
+                if (role != null)
+                {
                     completedRoles.Add(roleCode);
                     completedRoles.AddRange(GetLowerRoles(roles, role).Select(r => r.Code));
                 }

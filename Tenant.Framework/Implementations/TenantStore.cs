@@ -1,11 +1,11 @@
-﻿using Codex.Tenants.Framework.Interfaces;
+﻿using Codex.Core.Cache;
 using Codex.Models.Tenants;
-using System.Diagnostics.CodeAnalysis;
-using System.Threading.Tasks;
+using Codex.Tenants.Framework.Interfaces;
+using Codex.Tenants.Framework.Utils;
 using Dapr.Client;
 using Microsoft.Extensions.Logging;
-using Codex.Tenants.Framework.Utils;
-using Codex.Core.Cache;
+using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
 
 namespace Codex.Tenants.Framework.Implementations
 {

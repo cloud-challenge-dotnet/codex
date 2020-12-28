@@ -1,12 +1,21 @@
 using Autofac;
+using AutoMapper;
 using Codex.Core;
+using Codex.Core.ApiKeys.Extensions;
+using Codex.Core.ApiKeys.Models;
+using Codex.Core.Cache;
 using Codex.Core.Implementations;
 using Codex.Core.Interfaces;
 using Codex.Core.Models;
+using Codex.Core.RazorHelpers.Implementations;
+using Codex.Core.RazorHelpers.Interfaces;
+using Codex.Core.Roles.Implementations;
 using Codex.Core.Roles.Interfaces;
+using Codex.Core.Tools;
+using Codex.Models.Tenants;
 using Codex.Tenants.Framework;
 using Codex.Tenants.Framework.Implementations;
-using Codex.Models.Tenants;
+using Codex.Users.Api.Repositories.Implementations;
 using Codex.Users.Api.Repositories.Interfaces;
 using Codex.Users.Api.Services.Implementations;
 using Codex.Users.Api.Services.Interfaces;
@@ -20,19 +29,11 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Diagnostics.CodeAnalysis;
-using Codex.Core.Cache;
-using Codex.Core.RazorHelpers.Implementations;
-using Codex.Core.RazorHelpers.Interfaces;
-using Codex.Users.Api.Repositories.Implementations;
-using Codex.Core.ApiKeys.Extensions;
-using Codex.Core.ApiKeys.Models;
-using Codex.Core.Roles.Implementations;
-using Codex.Core.Tools;
-using System.Globalization;
 
 namespace Codex.Users.Api
 {
@@ -101,6 +102,13 @@ namespace Codex.Users.Api
             services.AddMultiTenancy()
                 .WithResolutionStrategy<HostTenantResolutionStrategy>()
                 .WithStore<TenantStore>();
+
+            services.AddAutoMapper(cfg =>
+            {
+                cfg.AllowNullCollections = null;
+                cfg.AllowNullDestinationValues = true;
+                cfg.AddProfile<MappingProfile>();
+            }, typeof(Startup));
 
             services.AddControllers().AddJsonOptions(options =>
             {
@@ -202,7 +210,7 @@ namespace Codex.Users.Api
 
             app.UseMultiTenancy()
                 .UseMultiTenantContainer();
-            
+
             app.UseAuthentication();
             app.UseAuthorization();
 

@@ -1,19 +1,17 @@
-﻿using Codex.Models.Users;
-using Codex.Users.Api.Services.Interfaces;
-using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
-using Codex.Core.RazorHelpers.Interfaces;
-using System;
-using Codex.Users.Api.Models;
-using Codex.Tenants.Framework.Utils;
-using Codex.Core.Cache;
-using Codex.Models.Tenants;
-using Dapr.Client;
-using Codex.Core.Models;
-using System.Web;
+﻿using Codex.Core.Cache;
 using Codex.Core.Interfaces;
+using Codex.Core.Models;
 using Codex.Core.Models.Mail;
-using MongoDB.Bson;
+using Codex.Core.RazorHelpers.Interfaces;
+using Codex.Models.Users;
+using Codex.Tenants.Framework.Utils;
+using Codex.Users.Api.Models;
+using Codex.Users.Api.Services.Interfaces;
+using Dapr.Client;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Threading.Tasks;
+using System.Web;
 
 namespace Codex.Users.Api.Services.Implementations
 {
@@ -44,7 +42,7 @@ namespace Codex.Users.Api.Services.Implementations
 
         public async Task SendActivateUserMailAsync(string tenantId, User user)
         {
-            var foundUser = await _userService.FindOneAsync((ObjectId)user.Id!);
+            var foundUser = await _userService.FindOneAsync(user.Id!);
 
             if (foundUser == null)
             {

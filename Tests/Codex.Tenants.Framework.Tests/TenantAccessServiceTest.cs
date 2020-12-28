@@ -1,6 +1,6 @@
-﻿using Codex.Tenants.Framework.Implementations;
+﻿using Codex.Models.Tenants;
+using Codex.Tenants.Framework.Implementations;
 using Codex.Tenants.Framework.Interfaces;
-using Codex.Models.Tenants;
 using Codex.Tests.Framework;
 using Moq;
 using System.Threading.Tasks;

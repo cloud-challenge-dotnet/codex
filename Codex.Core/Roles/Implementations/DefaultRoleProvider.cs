@@ -12,7 +12,7 @@ namespace Codex.Core.Roles.Implementations
         {
             return new()
             {
-                new (Code: RoleConstant.ADMIN, UpperRoleCode: null),
+                new(Code: RoleConstant.ADMIN, UpperRoleCode: null),
 
                 new(Code: RoleConstant.TENANT_MANAGER, UpperRoleCode: RoleConstant.ADMIN),
 

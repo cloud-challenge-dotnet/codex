@@ -16,12 +16,19 @@ namespace Codex.Tenants.Framework
         IMongoDatabase? _database;
         private readonly MongoDbSettings _mongoDbSettings;
         private readonly ITenantAccessService _tenantAccessService;
+        private readonly string _collectionName;
 
         public MongoTemplate(MongoDbSettings mongoDbSettings,
             ITenantAccessService tenantAccessService)
         {
             _tenantAccessService = tenantAccessService;
             _mongoDbSettings = mongoDbSettings;
+
+            _collectionName = (typeof(TDocument)).Name.ToCamelCase();
+            if (_collectionName.EndsWith("Row"))
+            {
+                _collectionName = _collectionName[0..^3];
+            }
         }
 
         public MongoClient MongoClient
@@ -47,13 +54,14 @@ namespace Codex.Tenants.Framework
             return _database;
         }
 
-        public async Task<IMongoCollection<TDocument>> GetRepositoryAsync(){
+        public async Task<IMongoCollection<TDocument>> GetRepositoryAsync()
+        {
             var tenant = await _tenantAccessService.GetTenantAsync();
 
             if (string.IsNullOrWhiteSpace(tenant?.Id))
                 throw new ArgumentException("TenantId must be not null or whitespace");
 
-            return GetDatabase(tenant.Id).GetCollection<TDocument>((typeof(TDocument).Name).ToCamelCase());
+            return GetDatabase(tenant.Id).GetCollection<TDocument>(_collectionName);
         }
 
         public async Task<bool> ExistsByIdAsync(TId id)
@@ -105,7 +113,7 @@ namespace Codex.Tenants.Framework
             if (string.IsNullOrWhiteSpace(tenant?.Id))
                 throw new ArgumentException("TenantId must be not null or whitespace");
 
-            await GetDatabase(tenant.Id).DropCollectionAsync(typeof(TDocument).Name);
+            await GetDatabase(tenant.Id).DropCollectionAsync(_collectionName);
         }
     }
 }

@@ -1,35 +1,47 @@
+using AutoMapper;
+using Codex.Models.Security;
+using Codex.Security.Api.Repositories.Interfaces;
+using Codex.Security.Api.Repositories.Models;
+using Codex.Security.Api.Services.Implementations;
 using Codex.Tests.Framework;
 using Moq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
-using Codex.Security.Api.Repositories.Interfaces;
-using Codex.Models.Security;
-using Codex.Security.Api.Services.Implementations;
 
 namespace Codex.Security.Api.Tests.Services
 {
     public class ApiKeyServiceIT : IClassFixture<Fixture>
     {
+        private readonly IMapper _mapper;
+
         public ApiKeyServiceIT()
         {
+            //auto mapper configuration
+            var mockMapper = new MapperConfiguration(cfg =>
+            {
+                cfg.AllowNullCollections = null;
+                cfg.AllowNullDestinationValues = true;
+                cfg.AddProfile(new MappingProfile());
+            });
+            _mapper = mockMapper.CreateMapper();
         }
 
         [Fact]
-        public async Task FindAll() 
+        public async Task FindAll()
         {
             var apiKeyRepository = new Mock<IApiKeyRepository>();
             ApiKeyCriteria apiKeyCriteria = new();
 
             apiKeyRepository.Setup(x => x.FindAllAsync(It.IsAny<ApiKeyCriteria>())).Returns(
-                Task.FromResult(new List<ApiKey>()
+                Task.FromResult(new List<ApiKeyRow>()
                 {
                     new(){ Id = "Id1" },
                     new(){ Id = "Id2" }
                 })
             );
 
-            var apiKeyService = new ApiKeyService(apiKeyRepository.Object);
+            var apiKeyService = new ApiKeyService(apiKeyRepository.Object, _mapper);
 
             var apiKeyList = await apiKeyService.FindAllAsync(apiKeyCriteria);
 
@@ -50,10 +62,10 @@ namespace Codex.Security.Api.Tests.Services
             string apiKeyId = "Id1";
 
             apiKeyRepository.Setup(x => x.FindOneAsync(It.IsAny<string>())).Returns(
-                Task.FromResult((ApiKey?)new ApiKey { Id = "Id1" })
+                Task.FromResult((ApiKeyRow?)new ApiKeyRow { Id = "Id1" })
             );
 
-            var apiKeyService = new ApiKeyService(apiKeyRepository.Object);
+            var apiKeyService = new ApiKeyService(apiKeyRepository.Object, _mapper);
 
             var apiKey = await apiKeyService.FindOneAsync(apiKeyId);
 
@@ -70,11 +82,11 @@ namespace Codex.Security.Api.Tests.Services
 
             var apiKeyCreator = new ApiKey() { Id = "Id1", Name = "ApiKey 1" };
 
-            apiKeyRepository.Setup(x => x.InsertAsync(It.IsAny<ApiKey>())).Returns(
-                Task.FromResult(new ApiKey() { Id = "Id1", Name = "ApiKey 1" })
+            apiKeyRepository.Setup(x => x.InsertAsync(It.IsAny<ApiKeyRow>())).Returns(
+                Task.FromResult(new ApiKeyRow() { Id = "Id1", Name = "ApiKey 1" })
             );
 
-            var apiKeyService = new ApiKeyService(apiKeyRepository.Object);
+            var apiKeyService = new ApiKeyService(apiKeyRepository.Object, _mapper);
 
             var apiKey = await apiKeyService.CreateAsync(apiKeyCreator);
 
@@ -83,7 +95,7 @@ namespace Codex.Security.Api.Tests.Services
             Assert.Equal(apiKeyCreator.Id!, apiKey.Id!);
             Assert.Equal(apiKeyCreator.Name!, apiKey.Name);
 
-            apiKeyRepository.Verify(x => x.InsertAsync(It.IsAny<ApiKey>()), Times.Once);
+            apiKeyRepository.Verify(x => x.InsertAsync(It.IsAny<ApiKeyRow>()), Times.Once);
         }
 
         [Fact]
@@ -93,11 +105,11 @@ namespace Codex.Security.Api.Tests.Services
 
             var apiKeyCreator = new ApiKey() { Id = null, Name = "ApiKey 1" };
 
-            apiKeyRepository.Setup(x => x.InsertAsync(It.IsAny<ApiKey>())).Returns(
-                Task.FromResult(apiKeyCreator with { Id = "123456" })
+            apiKeyRepository.Setup(x => x.InsertAsync(It.IsAny<ApiKeyRow>())).Returns(
+                Task.FromResult(new ApiKeyRow { Id = "123456", Name = "ApiKey 1" })
             );
 
-            var apiKeyService = new ApiKeyService(apiKeyRepository.Object);
+            var apiKeyService = new ApiKeyService(apiKeyRepository.Object, _mapper);
 
             var apiKey = await apiKeyService.CreateAsync(apiKeyCreator);
 
@@ -106,7 +118,7 @@ namespace Codex.Security.Api.Tests.Services
             Assert.Equal("123456", apiKey.Id);
             Assert.Equal(apiKeyCreator.Name!, apiKey.Name);
 
-            apiKeyRepository.Verify(x => x.InsertAsync(It.IsAny<ApiKey>()), Times.Once);
+            apiKeyRepository.Verify(x => x.InsertAsync(It.IsAny<ApiKeyRow>()), Times.Once);
         }
 
         [Fact]
@@ -116,11 +128,11 @@ namespace Codex.Security.Api.Tests.Services
 
             var apiKeyCreator = new ApiKey() { Id = "", Name = "ApiKey 1" };
 
-            apiKeyRepository.Setup(x => x.InsertAsync(It.IsAny<ApiKey>())).Returns(
-                Task.FromResult(apiKeyCreator with { Id = "123456" })
+            apiKeyRepository.Setup(x => x.InsertAsync(It.IsAny<ApiKeyRow>())).Returns(
+                Task.FromResult(new ApiKeyRow { Id = "123456", Name = "ApiKey 1" })
             );
 
-            var apiKeyService = new ApiKeyService(apiKeyRepository.Object);
+            var apiKeyService = new ApiKeyService(apiKeyRepository.Object, _mapper);
 
             var apiKey = await apiKeyService.CreateAsync(apiKeyCreator);
 
@@ -129,7 +141,7 @@ namespace Codex.Security.Api.Tests.Services
             Assert.Equal("123456", apiKey.Id);
             Assert.Equal(apiKeyCreator.Name!, apiKey.Name);
 
-            apiKeyRepository.Verify(x => x.InsertAsync(It.IsAny<ApiKey>()), Times.Once);
+            apiKeyRepository.Verify(x => x.InsertAsync(It.IsAny<ApiKeyRow>()), Times.Once);
         }
 
         [Fact]
@@ -141,11 +153,11 @@ namespace Codex.Security.Api.Tests.Services
             string apiKeyName = "ApiKey 1";
             var apiKey = new ApiKey() { Id = apiKeyId, Name = apiKeyName };
 
-            apiKeyRepository.Setup(x => x.UpdateAsync(It.IsAny<ApiKey>())).Returns(
-                Task.FromResult((ApiKey?)new ApiKey { Id = apiKeyId, Name = apiKeyName })
+            apiKeyRepository.Setup(x => x.UpdateAsync(It.IsAny<ApiKeyRow>())).Returns(
+                Task.FromResult((ApiKeyRow?)new ApiKeyRow { Id = apiKeyId, Name = apiKeyName })
             );
 
-            var apiKeyService = new ApiKeyService(apiKeyRepository.Object);
+            var apiKeyService = new ApiKeyService(apiKeyRepository.Object, _mapper);
 
             var apiKeyResult = await apiKeyService.UpdateAsync(apiKey);
 
@@ -153,7 +165,7 @@ namespace Codex.Security.Api.Tests.Services
             Assert.Equal(apiKeyId, apiKeyResult!.Id);
             Assert.Equal(apiKeyName, apiKeyResult!.Name);
 
-            apiKeyRepository.Verify(x => x.UpdateAsync(It.IsAny<ApiKey>()), Times.Once);
+            apiKeyRepository.Verify(x => x.UpdateAsync(It.IsAny<ApiKeyRow>()), Times.Once);
         }
 
         [Fact]
@@ -169,7 +181,7 @@ namespace Codex.Security.Api.Tests.Services
                 Task.CompletedTask
             );
 
-            var apiKeyService = new ApiKeyService(apiKeyRepository.Object);
+            var apiKeyService = new ApiKeyService(apiKeyRepository.Object, _mapper);
 
             await apiKeyService.DeleteAsync(apiKeyId);
 

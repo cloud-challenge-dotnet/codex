@@ -2,8 +2,8 @@
 using Autofac.Core;
 using Autofac.Core.Lifetime;
 using Autofac.Core.Resolving;
-using Codex.Tenants.Framework.Interfaces;
 using Codex.Models.Tenants;
+using Codex.Tenants.Framework.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -113,7 +113,8 @@ namespace Codex.Tenants.Framework.Implementations
 
         public event EventHandler<LifetimeScopeBeginningEventArgs> ChildLifetimeScopeBeginning
         {
-            add {
+            add
+            {
                 foreach (var scope in _tenantLifetimeScopes)
                     scope.Value.ChildLifetimeScopeBeginning += value;
             }
@@ -160,7 +161,7 @@ namespace Codex.Tenants.Framework.Implementations
         }
 
         public ILifetimeScope BeginLifetimeScope(object tag)
-        {            
+        {
             return GetTenantScope(GetCurrentTenant()?.Id).BeginLifetimeScope(tag);
         }
 

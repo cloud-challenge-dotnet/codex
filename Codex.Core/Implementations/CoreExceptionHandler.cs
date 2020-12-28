@@ -1,5 +1,5 @@
-﻿using Codex.Models.Exceptions;
-using Codex.Core.Models;
+﻿using Codex.Core.Models;
+using Codex.Models.Exceptions;
 using MongoDB.Driver;
 using System;
 using System.Net;
@@ -10,7 +10,7 @@ namespace Codex.Core.Interfaces
     {
         public CustomProblemDetails? Intercept(Exception exception)
         {
-            if(exception is ArgumentException || exception is ArgumentNullException ||
+            if (exception is ArgumentException || exception is ArgumentNullException ||
                 exception is MongoDuplicateKeyException || exception is InvalidOperationException)
             {
                 return new()

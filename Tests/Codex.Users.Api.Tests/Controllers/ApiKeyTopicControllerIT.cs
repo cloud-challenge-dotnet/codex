@@ -1,15 +1,14 @@
-using Codex.Models.Tenants;
+using Codex.Core.Cache;
+using Codex.Core.Models;
+using Codex.Models.Security;
 using Codex.Tests.Framework;
+using Codex.Users.Api.Controllers;
+using Dapr.Client;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Moq;
 using System.Threading.Tasks;
 using Xunit;
-using Dapr.Client;
-using Codex.Users.Api.Controllers;
-using Codex.Core.Models;
-using Microsoft.Extensions.Logging;
-using Codex.Core.Cache;
-using Codex.Models.Security;
 
 namespace Codex.Users.Api.Tests
 {

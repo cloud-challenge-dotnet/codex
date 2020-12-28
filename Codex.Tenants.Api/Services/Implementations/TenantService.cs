@@ -1,31 +1,42 @@
-﻿using Codex.Models.Exceptions;
+﻿using AutoMapper;
+using Codex.Core.Extensions;
+using Codex.Models.Exceptions;
 using Codex.Models.Tenants;
 using Codex.Tenants.Api.Repositories.Interfaces;
+using Codex.Tenants.Api.Repositories.Models;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Codex.Tenants.Api.Services
 {
     public class TenantService : ITenantService
     {
-        public TenantService(ITenantRepository tenantRepository)
+        private readonly IMapper _mapper;
+
+        public TenantService(ITenantRepository tenantRepository,
+            IMapper mapper)
         {
             _tenantRepository = tenantRepository;
+            _mapper = mapper;
         }
 
         private readonly ITenantRepository _tenantRepository;
 
         public async Task<List<Tenant>> FindAllAsync()
         {
-            return await _tenantRepository.FindAllAsync();
+            var tenantRows = await _tenantRepository.FindAllAsync();
+
+            return tenantRows.Select(it => _mapper.Map<Tenant>(it)).ToList();
         }
 
         public async Task<Tenant?> FindOneAsync(string id)
         {
-            return await _tenantRepository.FindOneAsync(id);
+            var tenantRow = await _tenantRepository.FindOneAsync(id);
+            return tenantRow?.Let(it => _mapper.Map<Tenant>(it));
         }
-        public async Task<Tenant> CreateAsync(TenantCreator tenant)
+        public async Task<Tenant> CreateAsync(Tenant tenant)
         {
             var tenantId = tenant.Id ?? throw new ArgumentException("Tenant id is mandatory");
 
@@ -33,12 +44,14 @@ namespace Codex.Tenants.Api.Services
             {
                 throw new IllegalArgumentException(code: "TENANT_EXISTS", message: $"Tenant {tenantId} already exists");
             }
-            return await _tenantRepository.InsertAsync(tenant.ToTenant());
+            var tenantRow = await _tenantRepository.InsertAsync(_mapper.Map<TenantRow>(tenant));
+            return _mapper.Map<Tenant>(tenantRow);
         }
 
         public async Task<Tenant?> UpdateAsync(Tenant tenant)
         {
-            return await _tenantRepository.UpdateAsync(tenant);
+            var tenantRow = await _tenantRepository.UpdateAsync(_mapper.Map<TenantRow>(tenant));
+            return tenantRow?.Let(it => _mapper.Map<Tenant>(it));
         }
     }
 }

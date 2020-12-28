@@ -2,8 +2,6 @@
 using Codex.Web.Services.Models;
 using Codex.Web.Services.Tools.Interfaces;
 using Microsoft.AspNetCore.Components;
-using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -109,7 +107,7 @@ namespace Codex.Web.Services.Tools.Implementations
             using var response = await _httpClient.SendAsync(request);
 
             await HandleErrorsAsync(response);
-            
+
             return await response.Content.ReadFromJsonAsync<T>(_jsonSerializerOptions)
                 ?? throw new TechnicalException("Invalid server response");
         }

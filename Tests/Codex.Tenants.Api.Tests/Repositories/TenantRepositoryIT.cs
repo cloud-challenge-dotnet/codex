@@ -45,7 +45,7 @@ namespace Codex.Tenants.Api.Tests
                 name: "tenant-test",
                 properties: new()
                 {
-                    {"test" , new (){ "test data" } }
+                    { "test", new() { "test data" } }
                 }
             ));
 
@@ -86,7 +86,7 @@ namespace Codex.Tenants.Api.Tests
 
             TenantProperties tenantProperties = new()
             {
-                ["newProperty"] = new() {"property1", "property2"}
+                ["newProperty"] = new() { "property1", "property2" }
             };
 
             var tenant = await _tenantRepository.UpdatePropertiesAsync("TenantId", tenantProperties);
@@ -120,7 +120,8 @@ namespace Codex.Tenants.Api.Tests
 
             List<string> tenantProperty = new()
             {
-                "property1", "property2"
+                "property1",
+                "property2"
             };
 
             var tenant = await _tenantRepository.UpdatePropertyAsync("TenantId", "data", tenantProperty);

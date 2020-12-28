@@ -1,6 +1,4 @@
-﻿using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Codex.Models.Security
 {
@@ -12,8 +10,6 @@ namespace Codex.Models.Security
         public ApiKey(string? id, string name, List<string> roles)
             => (Id, Name, Roles) = (id, name, roles);
 
-        [BsonId]
-        [BsonRepresentation(BsonType.String)]
         public string? Id { get; init; }
 
         public string Name { get; init; }

@@ -1,7 +1,7 @@
-﻿using Codex.Models.Exceptions;
-using Codex.Core.Interfaces;
+﻿using Codex.Core.Interfaces;
 using Codex.Core.Models;
 using Codex.Core.Models.Mail;
+using Codex.Models.Exceptions;
 using Dapr.Client;
 using Mailjet.Client;
 using Microsoft.Extensions.Logging;
@@ -37,7 +37,7 @@ namespace Codex.Core.Implementations
                 {"Email", m.Email},
                 {"Name", m.Name}
             }));
-            
+
 
             MailjetClient mailjetClient = new(mailJetApiKey, mailJetSecretKey);
             MailjetRequest request = new MailjetRequest

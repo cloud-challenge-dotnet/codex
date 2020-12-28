@@ -1,13 +1,13 @@
-using Codex.Users.Api.Controllers;
+using Codex.Models.Roles;
+using Codex.Models.Users;
 using Codex.Tests.Framework;
+using Codex.Users.Api.Controllers;
+using Codex.Users.Api.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
 using Moq;
 using System.Threading.Tasks;
 using Xunit;
-using Codex.Users.Api.Services.Interfaces;
-using Codex.Models.Users;
-using Codex.Models.Roles;
-using MongoDB.Bson;
 
 namespace Codex.Users.Api.Tests
 {
@@ -21,7 +21,7 @@ namespace Codex.Users.Api.Tests
         public async Task SendActivateUserMail()
         {
             string tenantId = "global";
-            var userId = ObjectId.GenerateNewId();
+            var userId = ObjectId.GenerateNewId().ToString();
             User user = new() { Id = userId, Login = "login" };
             var userMailService = new Mock<IUserMailService>();
 

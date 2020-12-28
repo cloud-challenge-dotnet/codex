@@ -1,9 +1,5 @@
 ﻿using Codex.Core.Implementations;
 using Codex.Tests.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace Codex.Core.Tests.Implementations

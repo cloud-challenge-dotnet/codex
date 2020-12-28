@@ -1,13 +1,13 @@
-﻿using Codex.Tenants.Api.Services;
+﻿using Codex.Core.Models;
+using Codex.Core.Security;
+using Codex.Models.Roles;
 using Codex.Models.Tenants;
+using Codex.Tenants.Api.Services;
+using Dapr.Client;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Codex.Models.Roles;
-using Dapr.Client;
-using Codex.Core.Models;
-using Codex.Core.Security;
 
 namespace Codex.Tenants.Api.Controllers
 {
@@ -54,15 +54,15 @@ namespace Codex.Tenants.Api.Controllers
             {
                 tenantList = tenantList.Select(t => t with { Properties = null }).ToList();
             }
-            
+
             return Ok(tenantList);
         }
 
         [HttpPost]
         [TenantAuthorize(Roles = RoleConstant.TENANT_MANAGER)]
-        public async Task<ActionResult<Tenant>> CreateTenant([FromBody] TenantCreator tenantCreator)
+        public async Task<ActionResult<Tenant>> CreateTenant([FromBody] Tenant tenant)
         {
-            var tenant = await _tenantService.CreateAsync(tenantCreator);
+            tenant = await _tenantService.CreateAsync(tenant);
 
             await PublishTenantChangeEventAsync(TopicType.Modify, tenant);
 
@@ -116,7 +116,7 @@ namespace Codex.Tenants.Api.Controllers
 
         [HttpGet("{tenantId}/properties")]
         [TenantAuthorize(Roles = RoleConstant.TENANT_MANAGER)]
-        public async Task<ActionResult<TenantProperties?>> FindProperties(string tenantId)
+        public async Task<ActionResult<Dictionary<string, List<string>>?>> FindProperties(string tenantId)
         {
             var tenantProperties = await _tenantPropertiesService.FindPropertiesAsync(tenantId);
 

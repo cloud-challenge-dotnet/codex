@@ -5,7 +5,7 @@ namespace Codex.Models.Exceptions
     [Serializable]
     public class TechnicalException : Exception
     {
-        public TechnicalException(string message, string? code=null) : base(message)
+        public TechnicalException(string message, string? code = null) : base(message)
         {
             Code = code;
         }

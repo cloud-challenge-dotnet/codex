@@ -1,33 +1,34 @@
 using Autofac;
+using AutoMapper;
 using Codex.Core;
+using Codex.Core.ApiKeys.Extensions;
+using Codex.Core.ApiKeys.Models;
+using Codex.Core.Cache;
 using Codex.Core.Interfaces;
 using Codex.Core.Models;
+using Codex.Core.Roles.Implementations;
+using Codex.Core.Roles.Interfaces;
+using Codex.Core.Tools;
+using Codex.Models.Tenants;
+using Codex.Tenants.Api.Repositories.Implementations;
+using Codex.Tenants.Api.Repositories.Interfaces;
 using Codex.Tenants.Api.Services;
 using Codex.Tenants.Framework;
 using Codex.Tenants.Framework.Implementations;
-using Codex.Models.Tenants;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Text;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using Codex.Tenants.Api.Repositories.Interfaces;
-using Codex.Tenants.Api.Repositories.Implementations;
-using Codex.Core.ApiKeys.Models;
-using Codex.Core.ApiKeys.Extensions;
-using Codex.Core.Roles.Interfaces;
-using Codex.Core.Roles.Implementations;
-using Codex.Core.Cache;
-using Codex.Core.Tools;
 
 namespace Codex.Tenants.Api
 {
@@ -73,6 +74,13 @@ namespace Codex.Tenants.Api
             services.AddMultiTenancy()
                 .WithResolutionStrategy<GlobalTenantResolutionStrategy>()
                 .WithStore<GlobalTenantStore>();
+
+            services.AddAutoMapper(cfg =>
+            {
+                cfg.AllowNullCollections = null;
+                cfg.AllowNullDestinationValues = true;
+                cfg.AddProfile<MappingProfile>();
+            }, typeof(Startup));
 
             services.AddControllers().AddJsonOptions(options =>
             {
@@ -129,7 +137,7 @@ namespace Codex.Tenants.Api
             //when deciding which services to register
             //These instances are scoped to the current tenant, so in this example 
             //it will be one instance per tenant
-            _= tenant;
+            _ = tenant;
 
             containerBuilder.RegisterType<TenantRepository>().As<ITenantRepository>().InstancePerLifetimeScope();
             containerBuilder.RegisterType<TenantService>().As<ITenantService>().InstancePerLifetimeScope();
@@ -155,7 +163,7 @@ namespace Codex.Tenants.Api
             app.UseExceptionHandler(app => app.UseCustomErrors(env, exceptionHandlers));
 
             app.UseRouting();
-            
+
             app.UseCloudEvents();
 
             app.UseMultiTenancy()
