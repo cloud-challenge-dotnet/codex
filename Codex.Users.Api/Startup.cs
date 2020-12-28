@@ -32,6 +32,7 @@ using Codex.Core.ApiKeys.Extensions;
 using Codex.Core.ApiKeys.Models;
 using Codex.Core.Roles.Implementations;
 using Codex.Core.Tools;
+using System.Globalization;
 
 namespace Codex.Users.Api
 {
@@ -48,6 +49,22 @@ namespace Codex.Users.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddLocalization(options => options.ResourcesPath = "Resources");
+
+            services.Configure<RequestLocalizationOptions>(options =>
+            {
+                var supportedCultures = new List<CultureInfo>()
+                {
+                    new CultureInfo("en-US"),
+                    new CultureInfo("fr-FR")
+                };
+
+                options.DefaultRequestCulture = new(culture: "en-US", uiCulture: "en-US");
+                options.SupportedCultures = supportedCultures;
+                options.SupportedUICultures = supportedCultures;
+                options.ApplyCurrentCultureToResponseHeaders = true;
+            });
+
             services.Configure<MongoDbSettings>(Configuration.GetSection(nameof(MongoDbSettings)));
 
             services.AddSingleton(sp =>
@@ -171,6 +188,9 @@ namespace Codex.Users.Api
             {
                 app.UseHttpsRedirection();
             }
+
+            var localizationOptions = app.ApplicationServices.GetService<IOptions<RequestLocalizationOptions>>();
+            app.UseRequestLocalization(localizationOptions!.Value);
 
             app.UseExceptionHandler(app => app.UseCustomErrors(env, exceptionHandlers));
 
