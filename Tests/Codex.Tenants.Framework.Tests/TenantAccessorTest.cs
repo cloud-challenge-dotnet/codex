@@ -1,6 +1,6 @@
-﻿using Codex.Tenants.Framework.Implementations;
+﻿using Codex.Models.Tenants;
+using Codex.Tenants.Framework.Implementations;
 using Codex.Tenants.Framework.Models;
-using Codex.Models.Tenants;
 using Codex.Tests.Framework;
 using Microsoft.AspNetCore.Http;
 using Moq;

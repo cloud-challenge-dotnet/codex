@@ -1,7 +1,7 @@
 ﻿using Codex.Models.Users;
+using Codex.Web.Services.Tools.Interfaces;
 using Codex.Web.Services.Users.Interfaces;
 using System.Threading.Tasks;
-using Codex.Web.Services.Tools.Interfaces;
 
 namespace Codex.BackOffice.Services.Users.Implementations
 {

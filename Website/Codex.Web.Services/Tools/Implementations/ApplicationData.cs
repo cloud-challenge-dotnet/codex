@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Codex.Web.Services.Tools.Implementations
 {
-    public class ApplicationData: IApplicationData
+    public class ApplicationData : IApplicationData
     {
         private readonly ILocalStorageService _localStorageService;
         private readonly string _authKey = "auth";
@@ -31,7 +31,8 @@ namespace Codex.Web.Services.Tools.Implementations
             get => _tenantId;
         }
 
-        public Task SetTenantIdAsync(string? value) {
+        public Task SetTenantIdAsync(string? value)
+        {
             _tenantId = value;
             return _localStorageService.SetItem(_tenantIdKey, value);
         }

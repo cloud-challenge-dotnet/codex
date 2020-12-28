@@ -1,7 +1,4 @@
-﻿using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Bson.Serialization.IdGenerators;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace Codex.Models.Users
@@ -36,14 +33,12 @@ namespace Codex.Models.Users
         public User() : base()
             => (Id, PasswordHash, ActivationValidity, Active) = (null, null, null, true);
 
-        public User(ObjectId? id, string login, string email, string? firstName, string? lastName, string? phoneNumber, List<string> roles,
+        public User(string? id, string login, string email, string? firstName, string? lastName, string? phoneNumber, List<string> roles,
             string? passwordHash, string? activationCode = null, DateTime? activationValidity = null, bool active = true)
             : base(login, email, firstName, lastName, phoneNumber, roles)
             => (Id, PasswordHash, ActivationCode, ActivationValidity, Active) = (id, passwordHash, activationCode, activationValidity, active);
 
-        [BsonId(IdGenerator = typeof(ObjectIdGenerator))]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public ObjectId? Id { get; init; }
+        public string? Id { get; init; }
 
         public string? PasswordHash { get; init; }
 

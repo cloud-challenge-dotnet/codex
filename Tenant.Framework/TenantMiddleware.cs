@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
-using System.Threading.Tasks;
+﻿using Codex.Tenants.Framework.Interfaces;
 using Codex.Tenants.Framework.Models;
-using Codex.Tenants.Framework.Interfaces;
+using Microsoft.AspNetCore.Http;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
 
 namespace Codex.Tenants.Framework
 {

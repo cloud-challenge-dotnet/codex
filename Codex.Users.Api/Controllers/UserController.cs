@@ -1,12 +1,12 @@
-﻿using Codex.Models.Roles;
+﻿using Codex.Core.Security;
+using Codex.Models.Roles;
 using Codex.Models.Users;
+using Codex.Tenants.Framework;
 using Codex.Users.Api.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using Codex.Tenants.Framework;
-using Codex.Core.Security;
-using MongoDB.Bson;
 
 namespace Codex.Users.Api.Controllers
 {
@@ -31,9 +31,9 @@ namespace Codex.Users.Api.Controllers
                 return Unauthorized();
             }
 
-            var user = await _userService.FindOneAsync(new ObjectId(id));
+            var user = await _userService.FindOneAsync(id);
 
-            return user == null ? NotFound(id) : Ok(user);
+            return user == null ? NotFound(id) : Ok(OffendUserFields(user));
         }
 
         [HttpGet]
@@ -42,7 +42,7 @@ namespace Codex.Users.Api.Controllers
         {
             var users = await _userService.FindAllAsync(userCriteria);
 
-            return Ok(users);
+            return Ok(users.Select(user => OffendUserFields(user)).ToList());
         }
 
         [HttpPost]
@@ -51,6 +51,7 @@ namespace Codex.Users.Api.Controllers
         {
             string? tenantId = HttpContext.GetTenant()?.Id;
             var user = await _userService.CreateAsync(tenantId!, userCreator);
+            user = OffendUserFields(user);
 
             return CreatedAtAction(nameof(FindOne), new { id = user.Id }, user);
         }
@@ -65,12 +66,12 @@ namespace Codex.Users.Api.Controllers
                 return Unauthorized();
             }
 
-            user = user with { Id = new ObjectId(userId) };
+            user = user with { Id = userId };
 
             User? userResult;
             if (!HttpContext.User.IsInRole(RoleConstant.TENANT_MANAGER) && contextUserId == userId)
             {
-                userResult = await _userService.FindOneAsync(new ObjectId(userId));
+                userResult = await _userService.FindOneAsync(userId);
                 if (userResult == null)
                 {
                     return NotFound(userId);
@@ -81,7 +82,7 @@ namespace Codex.Users.Api.Controllers
                     ActivationCode = null,
                     ActivationValidity = null,
                     Roles = userResult.Roles,
-                    Active = userResult.Active                    
+                    Active = userResult.Active
                 };
             }
 
@@ -91,21 +92,39 @@ namespace Codex.Users.Api.Controllers
                 return NotFound(userId);
             }
 
-            return AcceptedAtAction(nameof(FindOne), new { id = user.Id }, userResult);
+            return AcceptedAtAction(nameof(FindOne), new { id = user.Id }, OffendUserFields(userResult));
         }
 
         [HttpGet("{userId}/activation")]
         public async Task<ActionResult<User>> ActivateUser(string userId, [FromQuery] string activationCode)
         {
-            var user = await _userService.FindOneAsync(new ObjectId(userId));
+            var user = await _userService.FindOneAsync(userId);
             if (user == null)
             {
                 return NotFound(userId);
             }
 
             user = await _userService.ActivateUserAsync(user, activationCode);
+            if (user == null)
+            {
+                return NotFound(userId);
+            }
 
-            return Ok(user);
+            return Ok(OffendUserFields(user));
+        }
+
+        private User OffendUserFields(User user)
+        {
+            if (!HttpContext.User.IsInRole(RoleConstant.TENANT_MANAGER))
+            {
+                return user with
+                {
+                    ActivationCode = null,
+                    ActivationValidity = null,
+                    PasswordHash = null
+                };
+            }
+            return user;
         }
     }
 }

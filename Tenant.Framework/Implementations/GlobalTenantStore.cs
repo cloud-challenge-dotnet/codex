@@ -1,5 +1,5 @@
-﻿using Codex.Tenants.Framework.Interfaces;
-using Codex.Models.Tenants;
+﻿using Codex.Models.Tenants;
+using Codex.Tenants.Framework.Interfaces;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
@@ -19,7 +19,7 @@ namespace Codex.Tenants.Framework.Implementations
         /// <returns></returns>
         public async Task<Tenant?> GetTenantAsync(string identifier)
         {
-            return await Task.FromResult(new Tenant(id: "global", name: "global"));
+            return await Task.FromResult(new Tenant(Id: "global", Name: "global"));
         }
     }
 }

@@ -5,7 +5,6 @@ using Dapr.Client;
 using Dapr.Client.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Codex.Users.Api.Controllers
@@ -38,7 +37,8 @@ namespace Codex.Users.Api.Controllers
 
                 await _daprClient.InvokeMethodAsync(ApiNameConstant.UserApi, $"UserMail/activation",
                     data: user,
-                    httpExtension: new HTTPExtension() { 
+                    httpExtension: new HTTPExtension()
+                    {
                         Verb = HTTPVerb.Post,
                         Headers = {
                             { HttpHeaderConstant.TenantId, topicData.TenantId },

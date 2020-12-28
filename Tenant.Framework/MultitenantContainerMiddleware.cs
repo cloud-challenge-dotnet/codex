@@ -1,9 +1,9 @@
 ﻿using Autofac.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Http;
 using Codex.Tenants.Framework.Implementations;
+using Microsoft.AspNetCore.Http;
 using System;
-using System.Threading.Tasks;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
 
 namespace Codex.Tenants.Framework
 {

@@ -1,13 +1,13 @@
-﻿using Codex.Models.Exceptions;
-using Codex.Tenants.Framework.Exceptions;
+﻿using Codex.Core.Cache;
+using Codex.Core.Models;
+using Codex.Models.Exceptions;
 using Codex.Models.Tenants;
+using Codex.Tenants.Framework.Exceptions;
 using Dapr.Client;
 using Dapr.Client.Http;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
-using Codex.Core.Models;
-using Codex.Core.Cache;
 
 namespace Codex.Tenants.Framework.Utils
 {
@@ -26,7 +26,8 @@ namespace Codex.Tenants.Framework.Utils
                     var microserviceApiKey = secretValues[ConfigConstant.MicroserviceApiKey];
 
                     tenant = await daprClient.InvokeMethodAsync<Tenant>(ApiNameConstant.TenantApi, $"Tenant/{tenantId}",
-                        new HTTPExtension() {
+                        new HTTPExtension()
+                        {
                             Verb = HTTPVerb.Get,
                             Headers = {
                                 { HttpHeaderConstant.TenantId, tenantId },

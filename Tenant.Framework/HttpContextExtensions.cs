@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
-using Codex.Models.Tenants;
+﻿using Codex.Models.Tenants;
 using Codex.Tenants.Framework.Models;
-using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
 using System.Linq;
+using System.Security.Claims;
 
 namespace Codex.Tenants.Framework
 {

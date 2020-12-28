@@ -18,9 +18,9 @@ namespace Codex.Users.Api.Controllers
         }
 
         [HttpPost]
-        public Task<ActionResult<Auth>> Authenticate([FromHeader]string tenantId, [FromBody] UserLogin userLogin)
+        public Task<ActionResult<Auth>> Authenticate([FromHeader] string tenantId, [FromBody] UserLogin userLogin)
         {
-            if(tenantId != userLogin.TenantId)
+            if (tenantId != userLogin.TenantId)
             {
                 throw new ArgumentException("Tenant id inside header must be same than user tenant id");
             }

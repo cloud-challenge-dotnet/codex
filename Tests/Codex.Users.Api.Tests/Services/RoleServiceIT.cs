@@ -2,7 +2,6 @@
 using Codex.Core.Roles.Interfaces;
 using Codex.Models.Roles;
 using Codex.Tests.Framework;
-using Codex.Users.Api.Services.Implementations;
 using Moq;
 using System.Collections.Generic;
 using Xunit;

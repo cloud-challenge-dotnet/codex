@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Codex.Core.Models;
 using Codex.Tenants.Framework.Interfaces;
+using Microsoft.AspNetCore.Http;
 using System.Linq;
 using System.Threading.Tasks;
-using Codex.Core.Models;
 
 namespace Codex.Tenants.Framework.Implementations
 {

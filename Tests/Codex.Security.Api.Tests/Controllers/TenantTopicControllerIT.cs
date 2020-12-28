@@ -1,14 +1,14 @@
+using Codex.Core.Cache;
+using Codex.Core.Models;
 using Codex.Models.Tenants;
+using Codex.Security.Api.Controllers;
 using Codex.Tests.Framework;
+using Dapr.Client;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Moq;
 using System.Threading.Tasks;
 using Xunit;
-using Dapr.Client;
-using Codex.Security.Api.Controllers;
-using Codex.Core.Models;
-using Microsoft.Extensions.Logging;
-using Codex.Core.Cache;
 
 namespace Codex.Security.Api.Tests
 {
@@ -49,7 +49,7 @@ namespace Codex.Security.Api.Tests
             var daprClient = new Mock<DaprClient>();
             var tenantCacheService = new Mock<TenantCacheService>();
 
-            Tenant tenant = new(id: "global", name: "tenant_global");
+            Tenant tenant = new(Id: "global", Name: "tenant_global");
             TopicData<Tenant> tenantTopicData = new(TopicType.Modify, tenant, tenant.Id!);
 
             var topicController = new TenantTopicController(
@@ -73,7 +73,7 @@ namespace Codex.Security.Api.Tests
             var daprClient = new Mock<DaprClient>();
             var tenantCacheService = new Mock<TenantCacheService>();
 
-            Tenant tenant = new(id: "global", name: "tenant_global");
+            Tenant tenant = new(Id: "global", Name: "tenant_global");
             TopicData<Tenant> tenantTopicData = new(TopicType.Remove, tenant, tenant.Id!);
 
             var topicController = new TenantTopicController(

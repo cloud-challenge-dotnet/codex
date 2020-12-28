@@ -1,17 +1,16 @@
+using Codex.Core.Models;
+using Codex.Models.Roles;
+using Codex.Models.Tenants;
 using Codex.Tenants.Api.Controllers;
 using Codex.Tenants.Api.Services;
-using Codex.Models.Tenants;
 using Codex.Tests.Framework;
+using Dapr.Client;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
-using Dapr.Client;
-using Dapr;
-using System.Threading;
-using Codex.Core.Models;
-using Codex.Models.Roles;
 
 namespace Codex.Tenants.Api.Tests
 {
@@ -41,7 +40,7 @@ namespace Codex.Tenants.Api.Tests
 
             tenantService.Setup(x => x.FindOneAsync(It.IsAny<string>())).Returns(
                 Task.FromResult((Tenant?)new Tenant("Id1", "name",
-                    properties: new()
+                    Properties: new()
                     {
                         { "test", new() { "test data" } }
                     }
@@ -81,7 +80,7 @@ namespace Codex.Tenants.Api.Tests
 
             tenantService.Setup(x => x.FindOneAsync(It.IsAny<string>())).Returns(
                 Task.FromResult((Tenant?)new Tenant("Id1", "name",
-                    properties: new()
+                    Properties: new()
                     {
                         { "test", new() { "test data" } }
                     }
@@ -147,13 +146,13 @@ namespace Codex.Tenants.Api.Tests
             tenantService.Setup(x => x.FindAllAsync()).Returns(
                 Task.FromResult(new List<Tenant>(){
                     new Tenant("Id1", "name",
-                        properties: new()
+                        Properties: new()
                         {
                             { "test", new() { "test data" } }
                         }
                     ),
                     new Tenant("Id2", "name",
-                        properties: new()
+                        Properties: new()
                         {
                             { "test", new() { "test data" } }
                         }
@@ -199,13 +198,13 @@ namespace Codex.Tenants.Api.Tests
             tenantService.Setup(x => x.FindAllAsync()).Returns(
                 Task.FromResult(new List<Tenant>(){
                     new Tenant("Id1", "name",
-                        properties: new()
+                        Properties: new()
                         {
                             { "test", new() { "test data" } }
                         }
                     ),
                     new Tenant("Id2", "name",
-                        properties: new()
+                        Properties: new()
                         {
                             { "test", new() { "test data" } }
                         }
@@ -250,9 +249,9 @@ namespace Codex.Tenants.Api.Tests
             var tenantService = new Mock<ITenantService>();
             var tenantPropertiesService = new Mock<ITenantPropertiesService>();
 
-            var tenantCreator = new TenantCreator();
+            var tenantCreator = new Tenant();
 
-            tenantService.Setup(x => x.CreateAsync(It.IsAny<TenantCreator>())).Returns(
+            tenantService.Setup(x => x.CreateAsync(It.IsAny<Tenant>())).Returns(
                 Task.FromResult(new Tenant("Id1", "name"))
             );
 
@@ -281,9 +280,9 @@ namespace Codex.Tenants.Api.Tests
             var tenantService = new Mock<ITenantService>();
             var tenantPropertiesService = new Mock<ITenantPropertiesService>();
 
-            var tenantCreator = new TenantCreator("Id1", "name", new());
+            var tenantCreator = new Tenant("Id1", "name", new());
 
-            tenantService.Setup(x => x.CreateAsync(It.IsAny<TenantCreator>())).Returns(
+            tenantService.Setup(x => x.CreateAsync(It.IsAny<Tenant>())).Returns(
                 Task.FromResult(new Tenant("Id1", "name", new()))
             );
 
@@ -421,7 +420,7 @@ namespace Codex.Tenants.Api.Tests
 
             var tenant = new Tenant("Id1", "name", null);
 
-            tenantPropertiesService.Setup(x => x.UpdatePropertyAsync(It.IsAny<string>(), It.IsAny<string>() , It.IsAny<List<string>>())).Returns(
+            tenantPropertiesService.Setup(x => x.UpdatePropertyAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<List<string>>())).Returns(
                 Task.FromResult((Tenant?)new Tenant("Id1", "name", null))
             );
 

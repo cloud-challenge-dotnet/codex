@@ -1,10 +1,21 @@
 using Autofac;
+using AutoMapper;
 using Codex.Core;
+using Codex.Core.ApiKeys.Extensions;
+using Codex.Core.ApiKeys.Models;
+using Codex.Core.Cache;
 using Codex.Core.Interfaces;
 using Codex.Core.Models;
+using Codex.Core.Roles.Implementations;
+using Codex.Core.Roles.Interfaces;
+using Codex.Core.Tools;
+using Codex.Models.Tenants;
+using Codex.Security.Api.Repositories.Implementations;
+using Codex.Security.Api.Repositories.Interfaces;
+using Codex.Security.Api.Services.Implementations;
+using Codex.Security.Api.Services.Interfaces;
 using Codex.Tenants.Framework;
 using Codex.Tenants.Framework.Implementations;
-using Codex.Models.Tenants;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -15,20 +26,10 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Diagnostics.CodeAnalysis;
-using Codex.Security.Api.Repositories.Interfaces;
-using Codex.Security.Api.Repositories.Implementations;
-using Codex.Core.Cache;
-using Codex.Security.Api.Services.Interfaces;
-using Codex.Security.Api.Services.Implementations;
-using Codex.Core.ApiKeys.Extensions;
-using Codex.Core.ApiKeys.Models;
-using Codex.Core.Roles.Interfaces;
-using Codex.Core.Roles.Implementations;
-using Codex.Core.Tools;
 
 namespace Codex.Security.Api
 {
@@ -76,6 +77,13 @@ namespace Codex.Security.Api
             services.AddMultiTenancy()
                 .WithResolutionStrategy<HostTenantResolutionStrategy>()
                 .WithStore<TenantStore>();
+
+            services.AddAutoMapper(cfg =>
+            {
+                cfg.AllowNullCollections = null;
+                cfg.AllowNullDestinationValues = true;
+                cfg.AddProfile<MappingProfile>();
+            }, typeof(Startup));
 
             services.AddControllers().AddJsonOptions(options =>
             {

@@ -1,22 +1,23 @@
 ﻿using Codex.Core.Models;
+using Codex.Models.Security;
+using Codex.Security.Api.Repositories.Interfaces;
+using Codex.Security.Api.Repositories.Models;
 using Codex.Tenants.Framework;
 using Codex.Tenants.Framework.Interfaces;
 using MongoDB.Driver;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Codex.Models.Security;
-using Codex.Security.Api.Repositories.Interfaces;
 
 namespace Codex.Security.Api.Repositories.Implementations
 {
-    public class ApiKeyRepository : MongoTemplate<ApiKey, string>, IApiKeyRepository
+    public class ApiKeyRepository : MongoTemplate<ApiKeyRow, string>, IApiKeyRepository
     {
         public ApiKeyRepository(MongoDbSettings mongoDbSettings,
             ITenantAccessService tenantAccessService) : base(mongoDbSettings, tenantAccessService)
         {
         }
 
-        public async Task<List<ApiKey>> FindAllAsync(ApiKeyCriteria apiKeyCriteria)
+        public async Task<List<ApiKeyRow>> FindAllAsync(ApiKeyCriteria apiKeyCriteria)
         {
             var repository = await GetRepositoryAsync();
 
@@ -25,21 +26,21 @@ namespace Codex.Security.Api.Repositories.Implementations
             return query.ToList();
         }
 
-        public async Task<ApiKey?> UpdateAsync(ApiKey apiKey)
+        public async Task<ApiKeyRow?> UpdateAsync(ApiKeyRow apiKey)
         {
             var repository = await GetRepositoryAsync();
 
-            var update = Builders<ApiKey>.Update;
-            var updates = new List<UpdateDefinition<ApiKey>>
+            var update = Builders<ApiKeyRow>.Update;
+            var updates = new List<UpdateDefinition<ApiKeyRow>>
             {
                 update.Set(GetMongoPropertyName(nameof(apiKey.Name)), apiKey.Name),
                 update.Set(GetMongoPropertyName(nameof(apiKey.Roles)), apiKey.Roles)
             };
 
             return await repository.FindOneAndUpdateAsync(
-                Builders<ApiKey>.Filter.Where(it => it.Id == apiKey.Id),
+                Builders<ApiKeyRow>.Filter.Where(it => it.Id == apiKey.Id),
                 update.Combine(updates),
-                options: new FindOneAndUpdateOptions<ApiKey>
+                options: new FindOneAndUpdateOptions<ApiKeyRow>
                 {
                     ReturnDocument = ReturnDocument.After
                 }

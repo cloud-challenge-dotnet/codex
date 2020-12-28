@@ -1,26 +1,27 @@
-﻿using Codex.Core.Models;
+﻿using Codex.Core.Extensions;
+using Codex.Core.Models;
+using Codex.Models.Users;
 using Codex.Tenants.Framework;
 using Codex.Tenants.Framework.Interfaces;
-using Codex.Models.Users;
+using Codex.Users.Api.Repositories.Interfaces;
+using Codex.Users.Api.Repositories.Models;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Codex.Core.Extensions;
-using System;
-using Codex.Users.Api.Repositories.Interfaces;
-using MongoDB.Bson;
 
 namespace Codex.Users.Api.Repositories.Implementations
 {
-    public class UserRepository : MongoTemplate<User, ObjectId>, IUserRepository
+    public class UserRepository : MongoTemplate<UserRow, ObjectId>, IUserRepository
     {
         public UserRepository(MongoDbSettings mongoDbSettings,
             ITenantAccessService tenantAccessService) : base(mongoDbSettings, tenantAccessService)
         {
         }
 
-        public async Task<List<User>> FindAllAsync(UserCriteria userCriteria)
+        public async Task<List<UserRow>> FindAllAsync(UserCriteria userCriteria)
         {
             var repository = await GetRepositoryAsync();
 
@@ -39,7 +40,7 @@ namespace Codex.Users.Api.Repositories.Implementations
             return query.ToList();
         }
 
-        public override async Task<User> InsertAsync(User document)
+        public override async Task<UserRow> InsertAsync(UserRow document)
         {
             document = document with
             {
@@ -50,12 +51,12 @@ namespace Codex.Users.Api.Repositories.Implementations
             return await base.InsertAsync(document);
         }
 
-        public async Task<User?> UpdateAsync(User user)
+        public async Task<UserRow?> UpdateAsync(UserRow user)
         {
             var repository = await GetRepositoryAsync();
 
-            var update = Builders<User>.Update;
-            var updates = new List<UpdateDefinition<User>>
+            var update = Builders<UserRow>.Update;
+            var updates = new List<UpdateDefinition<UserRow>>
             {
                 update.Set(GetMongoPropertyName(nameof(user.Login)), user.Login),
                 update.Set(GetMongoPropertyName(nameof(user.Email)), user.Email),
@@ -72,31 +73,31 @@ namespace Codex.Users.Api.Repositories.Implementations
             user.ActivationValidity?.Also(x => updates.Add(update.Set(GetMongoPropertyName(nameof(user.ActivationValidity)), user.ActivationValidity)));
 
             return await repository.FindOneAndUpdateAsync(
-                Builders<User>.Filter.Where(it => it.Id == user.Id),
+                Builders<UserRow>.Filter.Where(it => it.Id == user.Id),
                 update.Combine(updates),
-                options: new FindOneAndUpdateOptions<User>
+                options: new FindOneAndUpdateOptions<UserRow>
                 {
                     ReturnDocument = ReturnDocument.After
                 }
             );
         }
 
-        public async Task<User?> UpdateActivationCodeAsync(ObjectId userId, string activationCode)
+        public async Task<UserRow?> UpdateActivationCodeAsync(ObjectId userId, string activationCode)
         {
             var repository = await GetRepositoryAsync();
 
-            var update = Builders<User>.Update;
-            var updates = new List<UpdateDefinition<User>>
+            var update = Builders<UserRow>.Update;
+            var updates = new List<UpdateDefinition<UserRow>>
             {
-                update.Set(GetMongoPropertyName(nameof(User.ModificationDate)), DateTime.Now),
-                update.Set(GetMongoPropertyName(nameof(User.ActivationCode)), activationCode),
-                update.Set(GetMongoPropertyName(nameof(User.ActivationValidity)), DateTime.Now.AddMinutes(15))
+                update.Set(GetMongoPropertyName(nameof(UserRow.ModificationDate)), DateTime.Now),
+                update.Set(GetMongoPropertyName(nameof(UserRow.ActivationCode)), activationCode),
+                update.Set(GetMongoPropertyName(nameof(UserRow.ActivationValidity)), DateTime.Now.AddMinutes(15))
             };
 
             return await repository.FindOneAndUpdateAsync(
-                Builders<User>.Filter.Where(it => it.Id == userId),
+                Builders<UserRow>.Filter.Where(it => it.Id == userId),
                 update.Combine(updates),
-                options: new FindOneAndUpdateOptions<User>
+                options: new FindOneAndUpdateOptions<UserRow>
                 {
                     ReturnDocument = ReturnDocument.After
                 }

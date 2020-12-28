@@ -2,7 +2,6 @@ using Codex.Models.Security;
 using Codex.Security.Api.Repositories.Interfaces;
 using Codex.Tests.Framework;
 using Microsoft.Extensions.DependencyInjection;
-using System;
 using System.Threading.Tasks;
 using Xunit;
 
