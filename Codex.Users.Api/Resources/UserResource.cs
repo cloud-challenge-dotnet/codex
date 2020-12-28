@@ -1,5 +1,8 @@
-﻿namespace Codex.Users.Api.Resources
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace Codex.Users.Api.Resources
 {
+    [ExcludeFromCodeCoverage]
     public class UserResource
     {
         public const string PASSWORD_MUST_BE_SET = nameof(PASSWORD_MUST_BE_SET);
