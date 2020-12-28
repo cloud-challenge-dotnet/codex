@@ -1,5 +1,4 @@
-﻿using Codex.Core.Extensions;
-using Codex.Core.Security;
+﻿using Codex.Core.Security;
 using Codex.Models.Roles;
 using Codex.Models.Users;
 using Codex.Tenants.Framework;
@@ -114,7 +113,7 @@ namespace Codex.Users.Api.Controllers
             return Ok(OffendUserFields(user));
         }
 
-        private User OffendUserFields(User user)
+        private static User OffendUserFields(User user)
         {
             return user with
             {
