@@ -55,7 +55,7 @@ namespace Codex.Tests.Framework
             var tenant = await _tenantAccessService.GetTenantAsync();
 
             if (string.IsNullOrWhiteSpace(tenant?.Id))
-                throw new ArgumentException("TenantId must be not null or whitespace");
+                throw new ArgumentException("Tenant not found");
 
             var client = new MongoClient(this._mongoDbSettings.ConnectionString);
             client.DropDatabase(GetDatabaseName(tenant.Id));
@@ -66,7 +66,7 @@ namespace Codex.Tests.Framework
         {
             var tenant = await _tenantAccessService.GetTenantAsync();
             if (string.IsNullOrWhiteSpace(tenant?.Id))
-                throw new ArgumentException("TenantId must be not null or whitespace");
+                throw new ArgumentException("Tenant not found");
 
             await DropDatabaseAsync();
 

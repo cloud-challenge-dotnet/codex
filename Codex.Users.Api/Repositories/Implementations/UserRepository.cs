@@ -3,8 +3,10 @@ using Codex.Core.Models;
 using Codex.Models.Users;
 using Codex.Tenants.Framework;
 using Codex.Tenants.Framework.Interfaces;
+using Codex.Tenants.Framework.Resources;
 using Codex.Users.Api.Repositories.Interfaces;
 using Codex.Users.Api.Repositories.Models;
+using Microsoft.Extensions.Localization;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
@@ -17,7 +19,8 @@ namespace Codex.Users.Api.Repositories.Implementations
     public class UserRepository : MongoTemplate<UserRow, ObjectId>, IUserRepository
     {
         public UserRepository(MongoDbSettings mongoDbSettings,
-            ITenantAccessService tenantAccessService) : base(mongoDbSettings, tenantAccessService)
+            ITenantAccessService tenantAccessService,
+            IStringLocalizer<TenantFrameworkResource> sl) : base(mongoDbSettings, tenantAccessService, sl)
         {
         }
 

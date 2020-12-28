@@ -2,10 +2,14 @@
 using Codex.Tenants.Api.Repositories.Implementations;
 using Codex.Tenants.Api.Repositories.Interfaces;
 using Codex.Tenants.Framework.Interfaces;
+using Codex.Tenants.Framework.Resources;
 using Codex.Tests.Framework;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
+using Moq;
 
 namespace Codex.Tenants.Api.Tests
 {
@@ -21,6 +25,11 @@ namespace Codex.Tenants.Api.Tests
 
             services.AddSingleton(sp =>
                 sp.GetRequiredService<IOptions<MongoDbSettings>>().Value);
+
+            var options = Options.Create(new LocalizationOptions { ResourcesPath = "Resources" });
+            var factory = new ResourceManagerStringLocalizerFactory(options, NullLoggerFactory.Instance);
+            var stringLocalizer = new StringLocalizer<TenantFrameworkResource>(factory);
+            services.AddSingleton<IStringLocalizer<TenantFrameworkResource>>(stringLocalizer);
 
             services.AddSingleton<ITenantAccessService, TestTenantAccessService>();
 

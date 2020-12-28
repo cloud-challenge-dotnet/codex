@@ -4,6 +4,8 @@ using Codex.Security.Api.Repositories.Interfaces;
 using Codex.Security.Api.Repositories.Models;
 using Codex.Tenants.Framework;
 using Codex.Tenants.Framework.Interfaces;
+using Codex.Tenants.Framework.Resources;
+using Microsoft.Extensions.Localization;
 using MongoDB.Driver;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -13,7 +15,8 @@ namespace Codex.Security.Api.Repositories.Implementations
     public class ApiKeyRepository : MongoTemplate<ApiKeyRow, string>, IApiKeyRepository
     {
         public ApiKeyRepository(MongoDbSettings mongoDbSettings,
-            ITenantAccessService tenantAccessService) : base(mongoDbSettings, tenantAccessService)
+            ITenantAccessService tenantAccessService,
+            IStringLocalizer<TenantFrameworkResource> sl) : base(mongoDbSettings, tenantAccessService, sl)
         {
         }
 

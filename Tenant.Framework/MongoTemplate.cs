@@ -1,6 +1,8 @@
 ﻿using Codex.Core.Extensions;
 using Codex.Core.Models;
 using Codex.Tenants.Framework.Interfaces;
+using Codex.Tenants.Framework.Resources;
+using Microsoft.Extensions.Localization;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
 using System;
@@ -17,12 +19,15 @@ namespace Codex.Tenants.Framework
         private readonly MongoDbSettings _mongoDbSettings;
         private readonly ITenantAccessService _tenantAccessService;
         private readonly string _collectionName;
+        private readonly IStringLocalizer<TenantFrameworkResource> _sl;
 
         public MongoTemplate(MongoDbSettings mongoDbSettings,
-            ITenantAccessService tenantAccessService)
+            ITenantAccessService tenantAccessService,
+            IStringLocalizer<TenantFrameworkResource> sl)
         {
             _tenantAccessService = tenantAccessService;
             _mongoDbSettings = mongoDbSettings;
+            _sl = sl;
 
             _collectionName = (typeof(TDocument)).Name.ToCamelCase();
             if (_collectionName.EndsWith("Row"))
@@ -59,7 +64,7 @@ namespace Codex.Tenants.Framework
             var tenant = await _tenantAccessService.GetTenantAsync();
 
             if (string.IsNullOrWhiteSpace(tenant?.Id))
-                throw new ArgumentException("TenantId must be not null or whitespace");
+                throw new ArgumentException(_sl[TenantFrameworkResource.TENANT_NOT_FOUND]!);
 
             return GetDatabase(tenant.Id).GetCollection<TDocument>(_collectionName);
         }
@@ -101,7 +106,7 @@ namespace Codex.Tenants.Framework
             var tenant = await _tenantAccessService.GetTenantAsync();
 
             if (string.IsNullOrWhiteSpace(tenant?.Id))
-                throw new ArgumentException("TenantId must be not null or whitespace");
+                throw new ArgumentException(_sl[TenantFrameworkResource.TENANT_NOT_FOUND]!);
 
             await MongoClient.DropDatabaseAsync(GetDatabaseName(tenant.Id));
         }
@@ -111,7 +116,7 @@ namespace Codex.Tenants.Framework
             var tenant = await _tenantAccessService.GetTenantAsync();
 
             if (string.IsNullOrWhiteSpace(tenant?.Id))
-                throw new ArgumentException("TenantId must be not null or whitespace");
+                throw new ArgumentException(_sl[TenantFrameworkResource.TENANT_NOT_FOUND]!);
 
             await GetDatabase(tenant.Id).DropCollectionAsync(_collectionName);
         }
