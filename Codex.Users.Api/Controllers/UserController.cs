@@ -113,14 +113,18 @@ namespace Codex.Users.Api.Controllers
             return Ok(OffendUserFields(user));
         }
 
-        private static User OffendUserFields(User user)
+        private User OffendUserFields(User user)
         {
-            return user with
+            if (!HttpContext.User.IsInRole(RoleConstant.TENANT_MANAGER))
             {
-                ActivationCode = null,
-                ActivationValidity = null,
-                PasswordHash = null
-            };
+                return user with
+                {
+                    ActivationCode = null,
+                    ActivationValidity = null,
+                    PasswordHash = null
+                };
+            }
+            return user;
         }
     }
 }
