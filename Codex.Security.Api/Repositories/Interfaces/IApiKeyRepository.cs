@@ -1,15 +1,16 @@
 ﻿using Codex.Core.Interfaces;
 using Codex.Models.Security;
+using Codex.Security.Api.Repositories.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Codex.Security.Api.Repositories.Interfaces
 {
-    public interface IApiKeyRepository : IRepository<ApiKey, string>
+    public interface IApiKeyRepository : IRepository<ApiKeyRow, string>
     {
-        Task<List<ApiKey>> FindAllAsync(ApiKeyCriteria apiKeyCriteria);
+        Task<List<ApiKeyRow>> FindAllAsync(ApiKeyCriteria apiKeyCriteria);
 
-        Task<ApiKey?> UpdateAsync(ApiKey apiKey);
+        Task<ApiKeyRow?> UpdateAsync(ApiKeyRow apiKey);
 
         Task DeleteAsync(string apiKeyId);
     }

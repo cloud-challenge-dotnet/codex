@@ -1,8 +1,8 @@
 ﻿using Codex.Core.Models;
-using Codex.Tenants.Framework.Interfaces;
-using Codex.Tests.Framework;
 using Codex.Security.Api.Repositories.Implementations;
 using Codex.Security.Api.Repositories.Interfaces;
+using Codex.Tenants.Framework.Interfaces;
+using Codex.Tests.Framework;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;

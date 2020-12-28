@@ -34,11 +34,11 @@ namespace Codex.Core
             if (ex != null)
             {
                 CustomProblemDetails? problemDetails = null;
-                if(exceptionHandlers != null)
+                if (exceptionHandlers != null)
                 {
-                    foreach(var exceptionHandler in exceptionHandlers)
+                    foreach (var exceptionHandler in exceptionHandlers)
                     {
-                        if((problemDetails = exceptionHandler.Intercept(ex)) != null)
+                        if ((problemDetails = exceptionHandler.Intercept(ex)) != null)
                         {
                             break;
                         }
@@ -47,7 +47,7 @@ namespace Codex.Core
                 // ProblemDetails has it's own content type
                 httpContext.Response.ContentType = "application/problem+json";
 
-                if(problemDetails == null)
+                if (problemDetails == null)
                 {
                     // Get the details to display, depending on whether we want to expose the raw exception
                     var title = includeDetails ? "An error occured: " + ex.Message : "An error occured";
@@ -58,13 +58,13 @@ namespace Codex.Core
                     };
                 }
 
-                if(problemDetails.Detail == null)
+                if (problemDetails.Detail == null)
                 {
                     problemDetails.Detail = includeDetails ? ex.ToString() : null;
                 }
 
                 httpContext.Response.StatusCode = problemDetails.Status ?? 500;
-                
+
 
                 // This is often very handy information for tracing the specific request
                 var traceId = Activity.Current?.Id ?? httpContext?.TraceIdentifier;
@@ -74,7 +74,8 @@ namespace Codex.Core
                 }
 
                 //Serialize the problem details object to the Response as JSON (using System.Text.Json)
-                if(httpContext != null) {
+                if (httpContext != null)
+                {
                     var stream = httpContext.Response.Body;
 
                     JsonSerializerOptions options = new()

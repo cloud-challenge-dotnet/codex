@@ -61,7 +61,7 @@ namespace Codex.Core.ApiKeys
             }
 
             var splitValues = providedApiKey.Split('.');
-            if(splitValues == null || splitValues.Length != 2)
+            if (splitValues == null || splitValues.Length != 2)
             {
                 return AuthenticateResult.Fail("Invalid API Key provided.");
             }
@@ -126,7 +126,8 @@ namespace Codex.Core.ApiKeys
 
                 var completedRoles = new List<string>();
 
-                apiKey.Roles.ForEach(roleCode => {
+                apiKey.Roles.ForEach(roleCode =>
+                {
                     var role = roles.FirstOrDefault(r => r.Code == roleCode);
                     if (role != null)
                     {

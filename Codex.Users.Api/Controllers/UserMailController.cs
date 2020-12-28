@@ -20,7 +20,7 @@ namespace Codex.Users.Api.Controllers
 
         [HttpPost("activation")]
         [TenantAuthorize(Roles = RoleConstant.ADMIN)]
-        public async Task<ActionResult> SendActivateUserMail([FromHeader]string tenantId, [FromBody] User user)
+        public async Task<ActionResult> SendActivateUserMail([FromHeader] string tenantId, [FromBody] User user)
         {
             await _userMailService.SendActivateUserMailAsync(tenantId, user);
 

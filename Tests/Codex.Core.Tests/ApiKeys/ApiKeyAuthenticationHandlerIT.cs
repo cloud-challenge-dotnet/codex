@@ -184,7 +184,7 @@ namespace Codex.Core.Tests.ApiKeys
 
             loggerFactory.Setup(x => x.CreateLogger(It.IsAny<string>())).Returns(logger.Object);
 
-            roleService.Setup(x => x.GetRoles()).Returns(new List<Role>() { 
+            roleService.Setup(x => x.GetRoles()).Returns(new List<Role>() {
                 new Role(RoleConstant.USER, UpperRoleCode: RoleConstant.TENANT_MANAGER),
                 new Role(RoleConstant.TENANT_MANAGER, UpperRoleCode: RoleConstant.ADMIN),
                 new Role(RoleConstant.ADMIN)

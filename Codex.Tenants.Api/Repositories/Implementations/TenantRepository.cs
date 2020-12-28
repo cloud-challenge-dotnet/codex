@@ -1,14 +1,14 @@
-﻿using MongoDB.Driver;
+﻿using Codex.Core.Extensions;
+using Codex.Core.Models;
+using Codex.Tenants.Api.Repositories.Interfaces;
+using Codex.Tenants.Api.Repositories.Models;
+using Codex.Tenants.Framework;
+using Codex.Tenants.Framework.Interfaces;
+using MongoDB.Driver;
+using MongoDB.Driver.Linq;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Codex.Tenants.Framework;
-using MongoDB.Driver.Linq;
-using Codex.Core.Models;
-using Codex.Tenants.Framework.Interfaces;
-using Codex.Tenants.Api.Repositories.Interfaces;
-using Codex.Core.Extensions;
-using Codex.Tenants.Api.Repositories.Models;
 
 namespace Codex.Tenants.Api.Repositories.Implementations
 {
@@ -75,7 +75,7 @@ namespace Codex.Tenants.Api.Repositories.Implementations
             var update = Builders<TenantRow>.Update;
             var updates = new List<UpdateDefinition<TenantRow>>();
 
-            foreach(var tenantProperty in tenantProperties)
+            foreach (var tenantProperty in tenantProperties)
             {
                 updates.Add(update.Set(GetMongoPropertyName($"{nameof(TenantRow.Properties)}.{tenantProperty.Key}"), tenantProperty.Value));
             }

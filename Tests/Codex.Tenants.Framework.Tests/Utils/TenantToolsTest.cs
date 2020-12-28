@@ -1,6 +1,6 @@
 ﻿using Codex.Core.Cache;
-using Codex.Models.Exceptions;
 using Codex.Core.Models;
+using Codex.Models.Exceptions;
 using Codex.Models.Tenants;
 using Codex.Tenants.Framework.Exceptions;
 using Codex.Tenants.Framework.Utils;

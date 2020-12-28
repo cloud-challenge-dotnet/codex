@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 
 namespace Codex.Core.Interfaces
-{   
+{
     public interface IRepository<TDocument, TId>
     {
         Task<bool> ExistsByIdAsync(TId id);

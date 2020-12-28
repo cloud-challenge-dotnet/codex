@@ -1,17 +1,17 @@
-using Codex.Users.Api.Controllers;
+using Codex.Core.Security;
+using Codex.Models.Roles;
+using Codex.Models.Users;
 using Codex.Tests.Framework;
+using Codex.Users.Api.Controllers;
+using Codex.Users.Api.Services.Interfaces;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
 using Moq;
+using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Xunit;
-using Codex.Users.Api.Services.Interfaces;
-using Codex.Models.Users;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Http;
-using System.Security.Claims;
-using Codex.Models.Roles;
-using Codex.Core.Security;
-using MongoDB.Bson;
 
 namespace Codex.Users.Api.Tests
 {
@@ -27,11 +27,11 @@ namespace Codex.Users.Api.Tests
         [Fact]
         public async Task FindOne()
         {
-            var userId = ObjectId.GenerateNewId();
+            var userId = ObjectId.GenerateNewId().ToString();
 
             var userService = new Mock<IUserService>();
 
-            userService.Setup(x => x.FindOneAsync(It.IsAny<ObjectId>())).Returns(
+            userService.Setup(x => x.FindOneAsync(It.IsAny<string>())).Returns(
                 Task.FromResult((User?)new User() { Id = userId, Login = "login" })
             );
 
@@ -50,7 +50,7 @@ namespace Codex.Users.Api.Tests
 
             var result = await userController.FindOne(userId.ToString());
 
-            userService.Verify(x => x.FindOneAsync(It.IsAny<ObjectId>()), Times.Once);
+            userService.Verify(x => x.FindOneAsync(It.IsAny<string>()), Times.Once);
 
             var objectResult = Assert.IsType<OkObjectResult>(result.Result);
             var user = Assert.IsType<User>(objectResult.Value);
@@ -67,11 +67,11 @@ namespace Codex.Users.Api.Tests
         [Fact]
         public async Task FindOne_Current_User_Id()
         {
-            var userId = ObjectId.GenerateNewId();
+            var userId = ObjectId.GenerateNewId().ToString();
 
             var userService = new Mock<IUserService>();
 
-            userService.Setup(x => x.FindOneAsync(It.IsAny<ObjectId>())).Returns(
+            userService.Setup(x => x.FindOneAsync(It.IsAny<string>())).Returns(
                 Task.FromResult((User?)new User() { Id = userId, Login = "login" })
             );
 
@@ -88,7 +88,7 @@ namespace Codex.Users.Api.Tests
 
             var result = await userController.FindOne(userId.ToString());
 
-            userService.Verify(x => x.FindOneAsync(It.IsAny<ObjectId>()), Times.Once);
+            userService.Verify(x => x.FindOneAsync(It.IsAny<string>()), Times.Once);
 
             var objectResult = Assert.IsType<OkObjectResult>(result.Result);
             var user = Assert.IsType<User>(objectResult.Value);
@@ -101,11 +101,11 @@ namespace Codex.Users.Api.Tests
         [Fact]
         public async Task FindOne_UnAuthorize()
         {
-            var userId = ObjectId.GenerateNewId();
+            var userId = ObjectId.GenerateNewId().ToString();
 
             var userService = new Mock<IUserService>();
 
-            userService.Setup(x => x.FindOneAsync(It.IsAny<ObjectId>())).Returns(
+            userService.Setup(x => x.FindOneAsync(It.IsAny<string>())).Returns(
                 Task.FromResult((User?)new User() { Id = userId, Login = "login" })
             );
 
@@ -122,8 +122,8 @@ namespace Codex.Users.Api.Tests
 
             var result = await userController.FindOne("Id1");
 
-            userService.Verify(x => x.FindOneAsync(It.IsAny<ObjectId>()), Times.Never);
-            
+            userService.Verify(x => x.FindOneAsync(It.IsAny<string>()), Times.Never);
+
             Assert.IsType<UnauthorizedResult>(result.Result);
         }
 
@@ -135,7 +135,7 @@ namespace Codex.Users.Api.Tests
 
             var userService = new Mock<IUserService>();
 
-            userService.Setup(x => x.FindOneAsync(It.IsAny<ObjectId>())).Returns(
+            userService.Setup(x => x.FindOneAsync(It.IsAny<string>())).Returns(
                 Task.FromResult((User?)null)
             );
 
@@ -152,7 +152,7 @@ namespace Codex.Users.Api.Tests
 
             var result = await userController.FindOne(userId.ToString());
 
-            userService.Verify(x => x.FindOneAsync(It.IsAny<ObjectId>()), Times.Once);
+            userService.Verify(x => x.FindOneAsync(It.IsAny<string>()), Times.Once);
 
             var notFoundObjectResult = Assert.IsType<NotFoundObjectResult>(result.Result);
             Assert.Equal(userId.ToString(), notFoundObjectResult.Value);
@@ -161,8 +161,8 @@ namespace Codex.Users.Api.Tests
         [Fact]
         public async Task FindAll()
         {
-            var userId1 = ObjectId.GenerateNewId();
-            var userId2 = ObjectId.GenerateNewId();
+            var userId1 = ObjectId.GenerateNewId().ToString();
+            var userId2 = ObjectId.GenerateNewId().ToString();
 
             UserCriteria userCriteria = new();
             var userService = new Mock<IUserService>();
@@ -205,7 +205,7 @@ namespace Codex.Users.Api.Tests
         [Fact]
         public async Task CreateUser()
         {
-            var userId = ObjectId.GenerateNewId();
+            var userId = ObjectId.GenerateNewId().ToString();
             UserCreator userCreator = new() { Login = "login" };
             var userService = new Mock<IUserService>();
 
@@ -241,7 +241,7 @@ namespace Codex.Users.Api.Tests
         [Fact]
         public async Task UpdateUser()
         {
-            var currentUserId = ObjectId.GenerateNewId();
+            var currentUserId = ObjectId.GenerateNewId().ToString();
             User user = new() { Id = currentUserId, Login = "login" };
             var userService = new Mock<IUserService>();
 
@@ -266,7 +266,7 @@ namespace Codex.Users.Api.Tests
 
             var result = await userController.UpdateUser(currentUserId.ToString(), user);
 
-            userService.Verify(x => x.FindOneAsync(It.IsAny<ObjectId>()), Times.Never);
+            userService.Verify(x => x.FindOneAsync(It.IsAny<string>()), Times.Never);
             userService.Verify(x => x.UpdateAsync(It.IsAny<User>()), Times.Once);
 
             var acceptedAtActionResult = Assert.IsType<AcceptedAtActionResult>(result.Result);
@@ -286,7 +286,7 @@ namespace Codex.Users.Api.Tests
         [Fact]
         public async Task UpdateUser_Not_Found_User()
         {
-            var currentUserId = ObjectId.GenerateNewId();
+            var currentUserId = ObjectId.GenerateNewId().ToString();
             User user = new() { Id = currentUserId, Login = "login" };
             var userService = new Mock<IUserService>();
 
@@ -313,7 +313,7 @@ namespace Codex.Users.Api.Tests
 
             var result = await userController.UpdateUser(currentUserId.ToString(), user);
 
-            userService.Verify(x => x.FindOneAsync(It.IsAny<ObjectId>()), Times.Never);
+            userService.Verify(x => x.FindOneAsync(It.IsAny<string>()), Times.Never);
             userService.Verify(x => x.UpdateAsync(It.IsAny<User>()), Times.Once);
 
             var notFoundObjectResult = Assert.IsType<NotFoundObjectResult>(result.Result);
@@ -323,11 +323,11 @@ namespace Codex.Users.Api.Tests
         [Fact]
         public async Task UpdateCurrentUser()
         {
-            var userId = ObjectId.GenerateNewId();
+            var userId = ObjectId.GenerateNewId().ToString();
             User user = new() { Id = userId, Login = "login" };
             var userService = new Mock<IUserService>();
 
-            userService.Setup(x => x.FindOneAsync(It.IsAny<ObjectId>())).Returns(
+            userService.Setup(x => x.FindOneAsync(It.IsAny<string>())).Returns(
                 Task.FromResult((User?)new User() { Id = userId, Login = "login" })
             );
 
@@ -353,7 +353,7 @@ namespace Codex.Users.Api.Tests
 
             var result = await userController.UpdateUser(userId.ToString(), user);
 
-            userService.Verify(x => x.FindOneAsync(It.IsAny<ObjectId>()), Times.Once);
+            userService.Verify(x => x.FindOneAsync(It.IsAny<string>()), Times.Once);
             userService.Verify(x => x.UpdateAsync(It.IsAny<User>()), Times.Once);
 
             var acceptedAtActionResult = Assert.IsType<AcceptedAtActionResult>(result.Result);
@@ -367,11 +367,11 @@ namespace Codex.Users.Api.Tests
         [Fact]
         public async Task UpdateCurrentUser_With_Not_Found_User()
         {
-            var userId = ObjectId.GenerateNewId();
+            var userId = ObjectId.GenerateNewId().ToString();
             User user = new() { Id = userId, Login = "login" };
             var userService = new Mock<IUserService>();
 
-            userService.Setup(x => x.FindOneAsync(It.IsAny<ObjectId>())).Returns(
+            userService.Setup(x => x.FindOneAsync(It.IsAny<string>())).Returns(
                 Task.FromResult((User?)null)
             );
 
@@ -393,7 +393,7 @@ namespace Codex.Users.Api.Tests
 
             var result = await userController.UpdateUser(userId.ToString(), user);
 
-            userService.Verify(x => x.FindOneAsync(It.IsAny<ObjectId>()), Times.Once);
+            userService.Verify(x => x.FindOneAsync(It.IsAny<string>()), Times.Once);
             userService.Verify(x => x.UpdateAsync(It.IsAny<User>()), Times.Never);
 
             var notFoundObjectResult = Assert.IsType<NotFoundObjectResult>(result.Result);
@@ -403,12 +403,12 @@ namespace Codex.Users.Api.Tests
         [Fact]
         public async Task UpdateUser_UnAuthorized()
         {
-            var currentUserId = ObjectId.GenerateNewId();
-            var userId = ObjectId.GenerateNewId();
+            var currentUserId = ObjectId.GenerateNewId().ToString();
+            var userId = ObjectId.GenerateNewId().ToString();
             User user = new() { Id = userId, Login = "login" };
             var userService = new Mock<IUserService>();
 
-            userService.Setup(x => x.FindOneAsync(It.IsAny<ObjectId>())).Returns(
+            userService.Setup(x => x.FindOneAsync(It.IsAny<string>())).Returns(
                 Task.FromResult((User?)null)
             );
 
@@ -430,7 +430,7 @@ namespace Codex.Users.Api.Tests
 
             var result = await userController.UpdateUser(userId.ToString(), user);
 
-            userService.Verify(x => x.FindOneAsync(It.IsAny<ObjectId>()), Times.Never);
+            userService.Verify(x => x.FindOneAsync(It.IsAny<string>()), Times.Never);
             userService.Verify(x => x.UpdateAsync(It.IsAny<User>()), Times.Never);
 
             Assert.IsType<UnauthorizedResult>(result.Result);
@@ -440,10 +440,10 @@ namespace Codex.Users.Api.Tests
         public async Task ActivateUser()
         {
             string activationCode = "1121313534";
-            var userId = ObjectId.GenerateNewId();
+            var userId = ObjectId.GenerateNewId().ToString();
             var userService = new Mock<IUserService>();
 
-            userService.Setup(x => x.FindOneAsync(It.IsAny<ObjectId>())).Returns(
+            userService.Setup(x => x.FindOneAsync(It.IsAny<string>())).Returns(
                 Task.FromResult((User?)new User() { Id = userId, Login = "login" })
             );
 
@@ -474,7 +474,7 @@ namespace Codex.Users.Api.Tests
             Assert.Equal(userId, user.Id);
             Assert.Equal("login", user.Login);
 
-            userService.Verify(x => x.FindOneAsync(It.IsAny<ObjectId>()), Times.Once);
+            userService.Verify(x => x.FindOneAsync(It.IsAny<string>()), Times.Once);
             userService.Verify(x => x.ActivateUserAsync(It.IsAny<User>(), It.IsAny<string>()), Times.Once);
         }
 
@@ -485,7 +485,7 @@ namespace Codex.Users.Api.Tests
             var userId = ObjectId.GenerateNewId();
             var userService = new Mock<IUserService>();
 
-            userService.Setup(x => x.FindOneAsync(It.IsAny<ObjectId>())).Returns(
+            userService.Setup(x => x.FindOneAsync(It.IsAny<string>())).Returns(
                 Task.FromResult((User?)null)
             );
 
@@ -509,7 +509,7 @@ namespace Codex.Users.Api.Tests
             var notFoundObjectResult = Assert.IsType<NotFoundObjectResult>(result.Result);
             Assert.Equal(userId.ToString(), notFoundObjectResult.Value);
 
-            userService.Verify(x => x.FindOneAsync(It.IsAny<ObjectId>()), Times.Once);
+            userService.Verify(x => x.FindOneAsync(It.IsAny<string>()), Times.Once);
             userService.Verify(x => x.ActivateUserAsync(It.IsAny<User>(), It.IsAny<string>()), Times.Never);
         }
     }

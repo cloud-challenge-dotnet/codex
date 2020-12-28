@@ -31,8 +31,8 @@ namespace Codex.Users.Api.Tests.Services
         [Fact]
         public async Task AuthenticateAsync()
         {
-            var userLogin = new UserLogin(Login: "Login", Password:"test", TenantId: "global");
-            var userId = ObjectId.GenerateNewId();
+            var userLogin = new UserLogin(Login: "Login", Password: "test", TenantId: "global");
+            var userId = ObjectId.GenerateNewId().ToString();
 
             var logger = new Mock<ILogger<AuthenticationService>>();
             var daprClient = new Mock<DaprClient>();
@@ -159,7 +159,7 @@ namespace Codex.Users.Api.Tests.Services
                 .Returns(Task.FromResult<Tenant?>(new Tenant("global", "", null)));
 
             userService.Setup(x => x.FindAllAsync(It.IsAny<UserCriteria>()))
-                .Returns(Task.FromResult(new List<User>(){})
+                .Returns(Task.FromResult(new List<User>() { })
             );
 
             AuthenticationService authenticationService = new(logger.Object, daprClient.Object, passwordHasher.Object, userService.Object,
@@ -176,7 +176,7 @@ namespace Codex.Users.Api.Tests.Services
         public async Task AuthenticateAsync_User_Invalid_Password()
         {
             var userLogin = new UserLogin(Login: "Login", Password: "test", TenantId: "global");
-            var userId = ObjectId.GenerateNewId();
+            var userId = ObjectId.GenerateNewId().ToString();
 
             var logger = new Mock<ILogger<AuthenticationService>>();
             var daprClient = new Mock<DaprClient>();
@@ -232,7 +232,7 @@ namespace Codex.Users.Api.Tests.Services
         public async Task AuthenticateAsync_User_Disabled()
         {
             var userLogin = new UserLogin(Login: "Login", Password: "test", TenantId: "global");
-            var userId = ObjectId.GenerateNewId();
+            var userId = ObjectId.GenerateNewId().ToString();
 
             var logger = new Mock<ILogger<AuthenticationService>>();
             var daprClient = new Mock<DaprClient>();
@@ -267,7 +267,7 @@ namespace Codex.Users.Api.Tests.Services
         public async Task AuthenticateAsync_With_Global_Tenant_User()
         {
             var userLogin = new UserLogin(Login: "Login", Password: "test", TenantId: "demo");
-            var userId = ObjectId.GenerateNewId();
+            var userId = ObjectId.GenerateNewId().ToString();
 
             var logger = new Mock<ILogger<AuthenticationService>>();
             var daprClient = new Mock<DaprClient>();
@@ -283,7 +283,7 @@ namespace Codex.Users.Api.Tests.Services
                 .Returns(Task.FromResult<Tenant?>(new Tenant("demo", "", null)));
 
             userService.Setup(x => x.FindAllAsync(It.IsAny<UserCriteria>()))
-                .Returns(Task.FromResult(new List<User>(){})
+                .Returns(Task.FromResult(new List<User>() { })
             );
 
             roleService.Setup(x => x.GetRoles())

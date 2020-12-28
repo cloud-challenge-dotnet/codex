@@ -1,17 +1,17 @@
+using Codex.Core.Models;
+using Codex.Models.Users;
 using Codex.Tests.Framework;
+using Codex.Users.Api.Controllers;
+using Dapr.Client;
+using Dapr.Client.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
 using Moq;
+using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
-using Dapr.Client;
-using Codex.Users.Api.Controllers;
-using Codex.Core.Models;
-using Microsoft.Extensions.Logging;
-using Codex.Models.Users;
-using Dapr.Client.Http;
-using System.Threading;
-using System.Collections.Generic;
-using MongoDB.Bson;
 
 namespace Codex.Users.Api.Tests
 {
@@ -33,7 +33,7 @@ namespace Codex.Users.Api.Tests
                 new Dictionary<string, string>() { { ConfigConstant.MicroserviceApiKey, "" } }
             ));
 
-            User user = new() { Id = ObjectId.GenerateNewId() };
+            User user = new() { Id = ObjectId.GenerateNewId().ToString() };
             TopicData<User> userTopicData = new(TopicType.Modify, user, "global");
 
             var topicController = new UserTopicController(

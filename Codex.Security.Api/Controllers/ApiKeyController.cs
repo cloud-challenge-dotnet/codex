@@ -81,7 +81,7 @@ namespace Codex.Security.Api.Controllers
             await _apiKeyService.DeleteAsync(apiKeyId);
 
             var tenant = HttpContext.GetTenant();
-            await PublishApiKeyChangeEventAsync(TopicType.Remove, new ApiKey(){Id = apiKeyId}, tenant!.Id!);
+            await PublishApiKeyChangeEventAsync(TopicType.Remove, new ApiKey() { Id = apiKeyId }, tenant!.Id!);
 
             return NoContent();
         }

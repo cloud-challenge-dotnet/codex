@@ -1,15 +1,15 @@
+using AutoMapper;
 using Codex.Models.Exceptions;
-using Codex.Tenants.Api.Services;
 using Codex.Models.Tenants;
+using Codex.Tenants.Api.Repositories.Interfaces;
+using Codex.Tenants.Api.Repositories.Models;
+using Codex.Tenants.Api.Services;
 using Codex.Tests.Framework;
 using Moq;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
-using Codex.Tenants.Api.Repositories.Interfaces;
-using Codex.Tenants.Api.Repositories.Models;
-using AutoMapper;
 
 namespace Codex.Tenants.Api.Tests
 {
@@ -30,7 +30,7 @@ namespace Codex.Tenants.Api.Tests
         }
 
         [Fact]
-        public async Task FindAll() 
+        public async Task FindAll()
         {
             var tenantRepository = new Mock<ITenantRepository>();
 

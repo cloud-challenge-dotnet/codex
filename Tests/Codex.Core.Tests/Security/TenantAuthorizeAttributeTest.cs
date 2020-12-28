@@ -29,7 +29,8 @@ namespace Codex.Core.Tests.Security
                     userId: "Id1",
                     userName: "login",
                     roles: new() { RoleConstant.TENANT_MANAGER },
-                    headers: new() {
+                    headers: new()
+                    {
                         { HttpHeaderConstant.TenantId, new StringValues("global") }
                     }
                 ),
@@ -82,7 +83,7 @@ namespace Codex.Core.Tests.Security
             ActionContext actionContext = new(
                 httpContext: new DefaultHttpContext
                 {
-                        User = new ClaimsPrincipal()
+                    User = new ClaimsPrincipal()
                 },
                 new(),
                 new(),

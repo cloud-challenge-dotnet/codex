@@ -1,5 +1,4 @@
 ﻿using Codex.Models.Users;
-using MongoDB.Bson;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -9,7 +8,7 @@ namespace Codex.Users.Api.Services.Interfaces
     {
         Task<List<User>> FindAllAsync(UserCriteria userCriteria);
 
-        Task<User?> FindOneAsync(ObjectId id);
+        Task<User?> FindOneAsync(string id);
 
         Task<User> CreateAsync(string tenantId, UserCreator userCreator);
 

@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Codex.Tenants.Framework.Implementations;
+using Codex.Tenants.Framework.Interfaces;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Codex.Tenants.Framework.Interfaces;
-using Codex.Tenants.Framework.Implementations;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Codex.Tenants.Framework

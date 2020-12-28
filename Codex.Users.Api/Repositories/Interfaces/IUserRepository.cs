@@ -1,17 +1,18 @@
 ﻿using Codex.Core.Interfaces;
 using Codex.Models.Users;
+using Codex.Users.Api.Repositories.Models;
 using MongoDB.Bson;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Codex.Users.Api.Repositories.Interfaces
 {
-    public interface IUserRepository : IRepository<User, ObjectId>
+    public interface IUserRepository : IRepository<UserRow, ObjectId>
     {
-        Task<List<User>> FindAllAsync(UserCriteria userCriteria);
+        Task<List<UserRow>> FindAllAsync(UserCriteria userCriteria);
 
-        Task<User?> UpdateAsync(User user);
+        Task<UserRow?> UpdateAsync(UserRow user);
 
-        Task<User?> UpdateActivationCodeAsync(ObjectId userId, string activationCode);
+        Task<UserRow?> UpdateActivationCodeAsync(ObjectId userId, string activationCode);
     }
 }

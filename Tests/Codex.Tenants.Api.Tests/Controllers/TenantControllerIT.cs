@@ -1,17 +1,16 @@
+using Codex.Core.Models;
+using Codex.Models.Roles;
+using Codex.Models.Tenants;
 using Codex.Tenants.Api.Controllers;
 using Codex.Tenants.Api.Services;
-using Codex.Models.Tenants;
 using Codex.Tests.Framework;
+using Dapr.Client;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
-using Dapr.Client;
-using Dapr;
-using System.Threading;
-using Codex.Core.Models;
-using Codex.Models.Roles;
 
 namespace Codex.Tenants.Api.Tests
 {
@@ -421,7 +420,7 @@ namespace Codex.Tenants.Api.Tests
 
             var tenant = new Tenant("Id1", "name", null);
 
-            tenantPropertiesService.Setup(x => x.UpdatePropertyAsync(It.IsAny<string>(), It.IsAny<string>() , It.IsAny<List<string>>())).Returns(
+            tenantPropertiesService.Setup(x => x.UpdatePropertyAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<List<string>>())).Returns(
                 Task.FromResult((Tenant?)new Tenant("Id1", "name", null))
             );
 

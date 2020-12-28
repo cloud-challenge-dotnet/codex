@@ -1,15 +1,15 @@
-using Codex.Tests.Framework;
-using Microsoft.AspNetCore.Mvc;
-using Moq;
-using System.Threading.Tasks;
-using Xunit;
-using System.Collections.Generic;
+using Codex.Core.Security;
 using Codex.Models.Roles;
-using Codex.Security.Api.Services.Interfaces;
 using Codex.Models.Security;
 using Codex.Security.Api.Controllers;
-using Codex.Core.Security;
+using Codex.Security.Api.Services.Interfaces;
+using Codex.Tests.Framework;
 using Dapr.Client;
+using Microsoft.AspNetCore.Mvc;
+using Moq;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Xunit;
 
 namespace Codex.Security.Api.Tests
 {

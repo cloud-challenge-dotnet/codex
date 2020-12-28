@@ -1,13 +1,13 @@
-using Codex.Tenants.Api.Services;
+using AutoMapper;
 using Codex.Models.Tenants;
+using Codex.Tenants.Api.Repositories.Interfaces;
+using Codex.Tenants.Api.Repositories.Models;
+using Codex.Tenants.Api.Services;
 using Codex.Tests.Framework;
 using Moq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
-using Codex.Tenants.Api.Repositories.Interfaces;
-using AutoMapper;
-using Codex.Tenants.Api.Repositories.Models;
 
 namespace Codex.Tenants.Api.Tests
 {
@@ -84,7 +84,7 @@ namespace Codex.Tenants.Api.Tests
             var tenantRepository = new Mock<ITenantRepository>();
 
             tenantRepository.Setup(x => x.FindOneAsync(It.IsAny<string>())).Returns(
-                Task.FromResult((TenantRow?)new TenantRow("Id", "name", 
+                Task.FromResult((TenantRow?)new TenantRow("Id", "name",
                     new Dictionary<string, List<string>>()
                     {
                         { "data", new() { "" } }

@@ -54,7 +54,8 @@ namespace Codex.Tenants.Framework
             return _database;
         }
 
-        public async Task<IMongoCollection<TDocument>> GetRepositoryAsync(){
+        public async Task<IMongoCollection<TDocument>> GetRepositoryAsync()
+        {
             var tenant = await _tenantAccessService.GetTenantAsync();
 
             if (string.IsNullOrWhiteSpace(tenant?.Id))

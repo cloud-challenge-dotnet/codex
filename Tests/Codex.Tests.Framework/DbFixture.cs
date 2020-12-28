@@ -1,7 +1,6 @@
 ﻿using Codex.Core.Extensions;
 using Codex.Core.Models;
 using Codex.Tenants.Framework.Interfaces;
-using Codex.Models.Tenants;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
@@ -99,7 +98,7 @@ namespace Codex.Tests.Framework
                                     await collection.InsertOneAsync(bsonDocument);
                                 }
                             }
-                        }                        
+                        }
                     }
                 }
                 else

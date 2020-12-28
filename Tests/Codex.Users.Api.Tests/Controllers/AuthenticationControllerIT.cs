@@ -24,7 +24,7 @@ namespace Codex.Users.Api.Tests.Controllers
             var authenticationService = new Mock<IAuthenticationService>();
 
             authenticationService.Setup(s => s.AuthenticateAsync(It.IsAny<UserLogin>()))
-                .Returns(Task.FromResult(new Auth(Id: "ID1", Login:"Login", Token:"5634534564")));
+                .Returns(Task.FromResult(new Auth(Id: "ID1", Login: "Login", Token: "5634534564")));
 
             AuthenticationController authenticationController = new(authenticationService.Object);
 

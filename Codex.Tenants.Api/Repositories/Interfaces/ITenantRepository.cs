@@ -1,11 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using Codex.Core.Interfaces;
+﻿using Codex.Core.Interfaces;
 using Codex.Tenants.Api.Repositories.Models;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Codex.Tenants.Api.Repositories.Interfaces
 {
-    public interface ITenantRepository: IRepository<TenantRow, string>
+    public interface ITenantRepository : IRepository<TenantRow, string>
     {
         Task<List<TenantRow>> FindAllAsync();
 
