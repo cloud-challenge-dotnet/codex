@@ -22,6 +22,7 @@ using Codex.Users.Api.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -50,7 +51,7 @@ namespace Codex.Users.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddLocalization(options => options.ResourcesPath = "Resources");
+            services.AddLocalization(/*options => options.ResourcesPath = "Resources"*/);
 
             services.Configure<RequestLocalizationOptions>(options =>
             {
@@ -64,6 +65,7 @@ namespace Codex.Users.Api
                 options.SupportedCultures = supportedCultures;
                 options.SupportedUICultures = supportedCultures;
                 options.ApplyCurrentCultureToResponseHeaders = true;
+                options.FallBackToParentUICultures = true;
             });
 
             services.Configure<MongoDbSettings>(Configuration.GetSection(nameof(MongoDbSettings)));
@@ -118,7 +120,7 @@ namespace Codex.Users.Api
                 options.JsonSerializerOptions.IgnoreNullValues = true;
                 // Adds automatic json parsing to ObjectId.
                 options.JsonSerializerOptions.Converters.Add(new ObjectIdConverter());
-            }).AddDapr();
+            }).AddDapr().AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix);
 
             services.AddSwaggerGen(c =>
             {
@@ -197,8 +199,8 @@ namespace Codex.Users.Api
                 app.UseHttpsRedirection();
             }
 
-            var localizationOptions = app.ApplicationServices.GetService<IOptions<RequestLocalizationOptions>>();
-            app.UseRequestLocalization(localizationOptions!.Value);
+            //var localizationOptions = app.ApplicationServices.GetService<IOptions<RequestLocalizationOptions>>();
+            app.UseRequestLocalization();
 
             app.UseExceptionHandler(app => app.UseCustomErrors(env, exceptionHandlers));
 

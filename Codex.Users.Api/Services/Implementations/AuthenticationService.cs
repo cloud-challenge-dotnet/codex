@@ -7,10 +7,12 @@ using Codex.Models.Tenants;
 using Codex.Models.Users;
 using Codex.Tenants.Framework.Utils;
 using Codex.Users.Api.Exceptions;
+using Codex.Users.Api.Resources;
 using Codex.Users.Api.Services.Interfaces;
 using Dapr.Client;
 using Dapr.Client.Http;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -39,6 +41,8 @@ namespace Codex.Users.Api.Services.Implementations
 
         private readonly TenantCacheService _tenantCacheService;
 
+        private readonly IStringLocalizer<UserResource> _sl;
+
         public AuthenticationService(
             ILogger<AuthenticationService> logger,
             DaprClient daprClient,
@@ -46,7 +50,8 @@ namespace Codex.Users.Api.Services.Implementations
             IUserService userService,
             IConfiguration configuration,
             IRoleService roleService,
-            TenantCacheService tenantCacheService)
+            TenantCacheService tenantCacheService,
+            IStringLocalizer<UserResource> sl)
         {
             _logger = logger;
             _daprClient = daprClient;
@@ -55,12 +60,13 @@ namespace Codex.Users.Api.Services.Implementations
             _configuration = configuration;
             _roleService = roleService;
             _tenantCacheService = tenantCacheService;
+            _sl = sl;
         }
 
         public async Task<Auth> AuthenticateAsync(UserLogin userLogin)
         {
             if (string.IsNullOrWhiteSpace(userLogin.Login) || string.IsNullOrWhiteSpace(userLogin.Password))
-                throw new InvalidCredentialsException("Invalid login", code: "INVALID_LOGIN");
+                throw new InvalidCredentialsException(_sl[UserResource.INVALID_LOGIN]!, code: "INVALID_LOGIN");
 
             Tenant tenant = await TenantTools.SearchTenantByIdAsync(_logger, _tenantCacheService, _daprClient, userLogin.TenantId);
 
@@ -97,13 +103,13 @@ namespace Codex.Users.Api.Services.Implementations
             }
 
             if (user == null)
-                throw new InvalidCredentialsException("Invalid login", code: "INVALID_LOGIN");
+                throw new InvalidCredentialsException(_sl[UserResource.INVALID_LOGIN]!, code: "INVALID_LOGIN");
 
             if (!user.Active)
-                throw new DisabledUserException($"User is disabled", code: "DISABLED_USER");
+                throw new DisabledUserException(_sl[UserResource.USER_IS_DISABLED]!, code: "DISABLED_USER");
 
             if (!await CheckPasswordAsync(user.PasswordHash, userLogin.Password))
-                throw new InvalidCredentialsException("Invalid login", code: "INVALID_LOGIN");
+                throw new InvalidCredentialsException(_sl[UserResource.INVALID_LOGIN]!, code: "INVALID_LOGIN");
 
             Auth auth = new(Id: user.Id!.ToString(), Login: user.Login, Token: CreateToken(user, tenant));
 

@@ -9,8 +9,10 @@ using Codex.Models.Users;
 using Codex.Users.Api.Exceptions;
 using Codex.Users.Api.Repositories.Interfaces;
 using Codex.Users.Api.Repositories.Models;
+using Codex.Users.Api.Resources;
 using Codex.Users.Api.Services.Interfaces;
 using Dapr.Client;
+using Microsoft.Extensions.Localization;
 using MongoDB.Bson;
 using System;
 using System.Collections.Generic;
@@ -25,18 +27,21 @@ namespace Codex.Users.Api.Services.Implementations
             IUserRepository userRepository,
             DaprClient daprClient,
             IPasswordHasher passwordHasher,
-            IMapper mapper)
+            IMapper mapper,
+            IStringLocalizer<UserResource> sl)
         {
             _userRepository = userRepository;
             _daprClient = daprClient;
             _passwordHasher = passwordHasher;
             _mapper = mapper;
+            _sl = sl;
         }
 
         private readonly IUserRepository _userRepository;
         private readonly DaprClient _daprClient;
         private readonly IPasswordHasher _passwordHasher;
         private readonly IMapper _mapper;
+        private readonly IStringLocalizer<UserResource> _sl;
 
         public async Task<List<User>> FindAllAsync(UserCriteria userCriteria)
         {
@@ -54,18 +59,18 @@ namespace Codex.Users.Api.Services.Implementations
         public async Task<User> CreateAsync(string tenantId, UserCreator userCreator)
         {
             if (string.IsNullOrWhiteSpace(userCreator.Password))
-                throw new IllegalArgumentException(code: "USER_PASSWORD_INVALID", message: "Password must be not null or whitespace");
+                throw new IllegalArgumentException(code: "USER_PASSWORD_INVALID", message: _sl[UserResource.PASSWORD_MUST_BE_SET]!);
 
             if (string.IsNullOrWhiteSpace(userCreator.Login))
-                throw new IllegalArgumentException(code: "USER_LOGIN_INVALID", message: "Login must be not null or whitespace");
+                throw new IllegalArgumentException(code: "USER_LOGIN_INVALID", message: _sl[UserResource.LOGIN_MUST_BE_SET]!);
 
             if (string.IsNullOrWhiteSpace(userCreator.Email) || !EmailValidator.EmailValid(userCreator.Email))
-                throw new IllegalArgumentException(code: "USER_EMAIL_INVALID", message: "Email format is invalid");
+                throw new IllegalArgumentException(code: "USER_EMAIL_INVALID", message: _sl[UserResource.EMAIL_FORMAT_INVALID]!);
 
             if ((await _userRepository.FindAllAsync(new(Login: userCreator.Login))).Count != 0 ||
                 (await _userRepository.FindAllAsync(new(Email: userCreator.Email))).Count != 0)
             {
-                throw new IllegalArgumentException(code: "USER_EXISTS", message: $"User '{userCreator.Login}' already exists");
+                throw new IllegalArgumentException(code: "USER_EXISTS", message:string.Format(_sl[UserResource.USER_P0_ALREADY_EXISTS]!, userCreator.Login));
             }
 
             var secretValues = await _daprClient.GetSecretAsync(ConfigConstant.CodexKey, ConfigConstant.PasswordSalt);
@@ -101,12 +106,12 @@ namespace Codex.Users.Api.Services.Implementations
         {
             if (user.ActivationCode == null || user.ActivationCode != activationCode)
             {
-                throw new InvalidUserValidationCodeException("Validation code is invalid", code: "INVALID_VALIDATION_CODE");
+                throw new InvalidUserValidationCodeException(_sl[UserResource.VALIDATION_CODE_IS_INVALID]!, code: "INVALID_VALIDATION_CODE");
             }
 
             if (user.ActivationValidity == null || DateTime.Now > user.ActivationValidity!)
             {
-                throw new ExpiredUserValidationCodeException("Validation code is expired", code: "EXPIRED_VALIDATION_CODE");
+                throw new ExpiredUserValidationCodeException(_sl[UserResource.VALIDATION_CODE_IS_EXPIRED]!, code: "EXPIRED_VALIDATION_CODE");
             }
 
             var userRow = await _userRepository.UpdateActivationCodeAsync(new ObjectId(user.Id!), activationCode);
