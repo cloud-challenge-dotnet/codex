@@ -5,6 +5,7 @@ using Codex.Core.Roles.Interfaces;
 using Codex.Models.Roles;
 using Codex.Models.Tenants;
 using Codex.Models.Users;
+using Codex.Tenants.Framework.Resources;
 using Codex.Tenants.Framework.Utils;
 using Codex.Users.Api.Exceptions;
 using Codex.Users.Api.Resources;
@@ -43,6 +44,8 @@ namespace Codex.Users.Api.Services.Implementations
 
         private readonly IStringLocalizer<UserResource> _sl;
 
+        private readonly IStringLocalizer<TenantFrameworkResource> _tenantFrameworkSl;
+
         public AuthenticationService(
             ILogger<AuthenticationService> logger,
             DaprClient daprClient,
@@ -51,7 +54,8 @@ namespace Codex.Users.Api.Services.Implementations
             IConfiguration configuration,
             IRoleService roleService,
             TenantCacheService tenantCacheService,
-            IStringLocalizer<UserResource> sl)
+            IStringLocalizer<UserResource> sl,
+            IStringLocalizer<TenantFrameworkResource> tenantFrameworkSl)
         {
             _logger = logger;
             _daprClient = daprClient;
@@ -61,6 +65,7 @@ namespace Codex.Users.Api.Services.Implementations
             _roleService = roleService;
             _tenantCacheService = tenantCacheService;
             _sl = sl;
+            _tenantFrameworkSl = tenantFrameworkSl;
         }
 
         public async Task<Auth> AuthenticateAsync(UserLogin userLogin)
@@ -68,7 +73,7 @@ namespace Codex.Users.Api.Services.Implementations
             if (string.IsNullOrWhiteSpace(userLogin.Login) || string.IsNullOrWhiteSpace(userLogin.Password))
                 throw new InvalidCredentialsException(_sl[UserResource.INVALID_LOGIN]!, code: "INVALID_LOGIN");
 
-            Tenant tenant = await TenantTools.SearchTenantByIdAsync(_logger, _tenantCacheService, _daprClient, userLogin.TenantId);
+            Tenant tenant = await TenantTools.SearchTenantByIdAsync(_logger, _tenantFrameworkSl, _tenantCacheService, _daprClient, userLogin.TenantId);
 
             var userCriteria = new UserCriteria(Login: userLogin.Login);
             var user = (await _userService.FindAllAsync(userCriteria)).FirstOrDefault(u => u.Login == userLogin.Login);

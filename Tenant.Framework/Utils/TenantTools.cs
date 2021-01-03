@@ -3,8 +3,10 @@ using Codex.Core.Models;
 using Codex.Models.Exceptions;
 using Codex.Models.Tenants;
 using Codex.Tenants.Framework.Exceptions;
+using Codex.Tenants.Framework.Resources;
 using Dapr.Client;
 using Dapr.Client.Http;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
@@ -13,7 +15,12 @@ namespace Codex.Tenants.Framework.Utils
 {
     public static class TenantTools
     {
-        public static async Task<Tenant> SearchTenantByIdAsync(ILogger logger, TenantCacheService tenantCacheService, DaprClient daprClient, string tenantId)
+        public static async Task<Tenant> SearchTenantByIdAsync(
+            ILogger logger,
+            IStringLocalizer<TenantFrameworkResource> sl,
+            TenantCacheService tenantCacheService,
+            DaprClient daprClient,
+            string tenantId)
         {
             try
             {
@@ -49,11 +56,11 @@ namespace Codex.Tenants.Framework.Utils
                     rpcException.Status.StatusCode == Grpc.Core.StatusCode.NotFound)
                 {
                     logger.LogInformation(rpcException, $"Tenant not found : '{tenantId}'");
-                    throw new InvalidTenantIdException($"Tenant not found : '{tenantId}'", "TENANT_NOT_FOUND");
+                    throw new InvalidTenantIdException($"{sl[TenantFrameworkResource.TENANT_NOT_FOUND]!} : '{tenantId}'", "TENANT_NOT_FOUND");
                 }
 
                 logger.LogError(exception, $"Unable to find Tenant {tenantId}");
-                throw new TechnicalException($"Tenant not found : '{tenantId}'", "TENANT_NOT_FOUND");
+                throw new TechnicalException($"{sl[TenantFrameworkResource.TENANT_NOT_FOUND]!} : '{tenantId}'", "TENANT_NOT_FOUND");
             }
         }
     }

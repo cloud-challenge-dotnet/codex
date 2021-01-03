@@ -4,10 +4,12 @@ using Codex.Core.Models;
 using Codex.Core.Models.Mail;
 using Codex.Core.RazorHelpers.Interfaces;
 using Codex.Models.Users;
+using Codex.Tenants.Framework.Resources;
 using Codex.Tenants.Framework.Utils;
 using Codex.Users.Api.Models;
 using Codex.Users.Api.Services.Interfaces;
 using Dapr.Client;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
@@ -18,6 +20,7 @@ namespace Codex.Users.Api.Services.Implementations
     public class UserMailService : IUserMailService
     {
         private readonly ILogger<UserMailService> _logger;
+        private readonly IStringLocalizer<TenantFrameworkResource> _sl;
         private readonly DaprClient _daprClient;
         private readonly IUserService _userService;
         private readonly IMailService _mailService;
@@ -26,6 +29,7 @@ namespace Codex.Users.Api.Services.Implementations
 
         public UserMailService(
             ILogger<UserMailService> logger,
+            IStringLocalizer<TenantFrameworkResource> sl,
             DaprClient daprClient,
             IRazorPartialToStringRenderer razorPartialToStringRenderer,
             IUserService userService,
@@ -33,6 +37,7 @@ namespace Codex.Users.Api.Services.Implementations
             TenantCacheService tenantCacheService)
         {
             _logger = logger;
+            _sl = sl;
             _daprClient = daprClient;
             _razorPartialToStringRenderer = razorPartialToStringRenderer;
             _userService = userService;
@@ -50,7 +55,7 @@ namespace Codex.Users.Api.Services.Implementations
                 return;
             }
 
-            var tenant = await TenantTools.SearchTenantByIdAsync(_logger, _tenantCacheService, _daprClient, tenantId);
+            var tenant = await TenantTools.SearchTenantByIdAsync(_logger, _sl, _tenantCacheService, _daprClient, tenantId);
 
             var secretValues = await _daprClient.GetSecretAsync(ConfigConstant.CodexKey, ConfigConstant.BackOfficeUrl);
             var backOfficeUrl = secretValues[ConfigConstant.BackOfficeUrl];

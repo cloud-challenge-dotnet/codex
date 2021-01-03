@@ -3,12 +3,16 @@ using Codex.Core.Models;
 using Codex.Models.Exceptions;
 using Codex.Models.Tenants;
 using Codex.Tenants.Framework.Exceptions;
+using Codex.Tenants.Framework.Resources;
 using Codex.Tenants.Framework.Utils;
 using Codex.Tests.Framework;
 using Dapr.Client;
 using Dapr.Client.Http;
 using Grpc.Core;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 using Moq;
 using System.Collections.Generic;
 using System.Threading;
@@ -21,9 +25,15 @@ namespace Codex.Tenants.Framework.Tests.Utils
     {
         private readonly ILogger<TenantToolsTest> _logger;
 
+        private readonly IStringLocalizer<TenantFrameworkResource> _sl;
+
         public TenantToolsTest(ILogger<TenantToolsTest> logger)
         {
             _logger = logger;
+
+            var options = Options.Create(new LocalizationOptions { ResourcesPath = "Resources" });
+            var factory = new ResourceManagerStringLocalizerFactory(options, NullLoggerFactory.Instance);
+            _sl = new StringLocalizer<TenantFrameworkResource>(factory);
         }
 
         [Fact]
@@ -45,7 +55,7 @@ namespace Codex.Tenants.Framework.Tests.Utils
                 It.IsAny<string>(), It.IsAny<string>(), It.IsAny<HTTPExtension>(), It.IsAny<CancellationToken>()))
                 .Returns(new ValueTask<Tenant>(new Tenant("global", "", null)));
 
-            var tenant = await TenantTools.SearchTenantByIdAsync(_logger, tenantCacheService.Object, daprClient.Object, tenantId);
+            var tenant = await TenantTools.SearchTenantByIdAsync(_logger, _sl, tenantCacheService.Object, daprClient.Object, tenantId);
 
             Assert.NotNull(tenant);
             Assert.Equal("global", tenant.Id);
@@ -70,7 +80,7 @@ namespace Codex.Tenants.Framework.Tests.Utils
                 daprClient.Object, It.IsAny<string>()))
                 .Returns(Task.FromResult<Tenant?>(new Tenant("global", "", null)));
 
-            var tenant = await TenantTools.SearchTenantByIdAsync(_logger, tenantCacheService.Object, daprClient.Object, tenantId);
+            var tenant = await TenantTools.SearchTenantByIdAsync(_logger, _sl, tenantCacheService.Object, daprClient.Object, tenantId);
 
             Assert.NotNull(tenant);
             Assert.Equal("global", tenant.Id);
@@ -96,7 +106,7 @@ namespace Codex.Tenants.Framework.Tests.Utils
                 .Throws(new System.Exception("invalid tenant"));
 
             var technicalException = await Assert.ThrowsAsync<TechnicalException>(
-                async () => await TenantTools.SearchTenantByIdAsync(_logger, tenantCacheService.Object, daprClient.Object, tenantId)
+                async () => await TenantTools.SearchTenantByIdAsync(_logger, _sl, tenantCacheService.Object, daprClient.Object, tenantId)
             );
 
             Assert.Equal("TENANT_NOT_FOUND", technicalException.Code);
@@ -118,7 +128,7 @@ namespace Codex.Tenants.Framework.Tests.Utils
                 .Throws(new RpcException(new Status(StatusCode.Aborted, "")));
 
             var technicalException = await Assert.ThrowsAsync<TechnicalException>(
-                async () => await TenantTools.SearchTenantByIdAsync(_logger, tenantCacheService.Object, daprClient.Object, tenantId)
+                async () => await TenantTools.SearchTenantByIdAsync(_logger, _sl, tenantCacheService.Object, daprClient.Object, tenantId)
             );
 
             Assert.Equal("TENANT_NOT_FOUND", technicalException.Code);
@@ -146,7 +156,7 @@ namespace Codex.Tenants.Framework.Tests.Utils
                 .Throws(new RpcException(new Status(StatusCode.NotFound, "")));
 
             var invalidTenantIdException = await Assert.ThrowsAsync<InvalidTenantIdException>(
-                async () => await TenantTools.SearchTenantByIdAsync(_logger, tenantCacheService.Object, daprClient.Object, tenantId)
+                async () => await TenantTools.SearchTenantByIdAsync(_logger, _sl, tenantCacheService.Object, daprClient.Object, tenantId)
             );
 
             Assert.Equal("TENANT_NOT_FOUND", invalidTenantIdException.Code);
