@@ -1,9 +1,11 @@
 ﻿using Codex.Core.Interfaces;
 using Codex.Core.Models;
 using Codex.Core.Models.Mail;
+using Codex.Core.Resources;
 using Codex.Models.Exceptions;
 using Dapr.Client;
 using Mailjet.Client;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using System.Diagnostics.CodeAnalysis;
@@ -15,13 +17,16 @@ namespace Codex.Core.Implementations
     public class MailJetMailService : IMailService
     {
         private readonly ILogger<MailJetMailService> _logger;
+        private readonly IStringLocalizer<CoreResource> _sl;
         private readonly DaprClient _daprClient;
 
         public MailJetMailService(
             ILogger<MailJetMailService> logger,
+            IStringLocalizer<CoreResource> sl,
             DaprClient daprClient)
         {
             _logger = logger;
+            _sl = sl;
             _daprClient = daprClient;
         }
 
@@ -64,7 +69,7 @@ namespace Codex.Core.Implementations
             }
             else
             {
-                throw new SendMailException("Unable to send email with Mailjet provider", "SEND_MAIL_ERROR");
+                throw new SendMailException(_sl[CoreResource.UNABLE_TO_SEND_EMAIL_WITH_MAILJET_PROVIDER]!, "SEND_MAIL_ERROR");
             }
         }
     }
