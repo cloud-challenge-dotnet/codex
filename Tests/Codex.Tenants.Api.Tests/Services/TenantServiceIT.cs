@@ -1,4 +1,5 @@
 using AutoMapper;
+using Codex.Core.Tools.AutoMapper;
 using Codex.Models.Exceptions;
 using Codex.Models.Tenants;
 using Codex.Tenants.Api.Repositories.Interfaces;
@@ -28,8 +29,9 @@ namespace Codex.Tenants.Api.Tests
             //auto mapper configuration
             var mockMapper = new MapperConfiguration(cfg =>
             {
-                cfg.AllowNullCollections = null;
+                cfg.AllowNullCollections = true;
                 cfg.AllowNullDestinationValues = true;
+                cfg.AddProfile(new CoreMappingProfile());
                 cfg.AddProfile(new MappingProfile());
             });
             _mapper = mockMapper.CreateMapper();

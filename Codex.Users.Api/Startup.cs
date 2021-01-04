@@ -107,7 +107,7 @@ namespace Codex.Users.Api
 
             services.AddAutoMapper(cfg =>
             {
-                cfg.AllowNullCollections = null;
+                cfg.AllowNullCollections = true;
                 cfg.AllowNullDestinationValues = true;
                 cfg.AddProfile<CoreMappingProfile>();
                 cfg.AddProfile<MappingProfile>();
