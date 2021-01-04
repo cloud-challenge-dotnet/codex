@@ -14,6 +14,7 @@
         "roles": [
           "ADMIN"
         ],
+        "languageCultureName": "en-US",
         "passwordHash": "G3JsGuJkkF/nLP27fnsyzGpL+jIU0YgVIVd5qoKiepE=",
         "activationCode": null,
         "activationValidity": null,
@@ -37,6 +38,7 @@
         "roles": [
           "TENANT_MANAGER"
         ],
+        "languageCultureName": "fr-FR",
         "passwordHash": "G3JsGuJkkF/nLP27fnsyzGpL+jIU0YgVIVd5qoKiepE=",
         "activationCode": null,
         "activationValidity": null,

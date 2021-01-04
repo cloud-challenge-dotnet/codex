@@ -71,6 +71,7 @@ namespace Codex.Users.Api.Repositories.Implementations
             user.LastName?.Also(x => updates.Add(update.Set(GetMongoPropertyName(nameof(user.LastName)), user.LastName)));
             user.PhoneNumber?.Also(x => updates.Add(update.Set(GetMongoPropertyName(nameof(user.PhoneNumber)), user.PhoneNumber)));
             user.Roles?.Also(x => updates.Add(update.Set(GetMongoPropertyName(nameof(user.Roles)), user.Roles)));
+            user.LanguageCultureName?.Also(x => updates.Add(update.Set(GetMongoPropertyName(nameof(user.LanguageCultureName)), user.LanguageCultureName)));
             user.PasswordHash?.Also(x => updates.Add(update.Set(GetMongoPropertyName(nameof(user.PasswordHash)), user.PasswordHash)));
             user.ActivationCode?.Also(x => updates.Add(update.Set(GetMongoPropertyName(nameof(user.ActivationCode)), user.ActivationCode)));
             user.ActivationValidity?.Also(x => updates.Add(update.Set(GetMongoPropertyName(nameof(user.ActivationValidity)), user.ActivationValidity)));

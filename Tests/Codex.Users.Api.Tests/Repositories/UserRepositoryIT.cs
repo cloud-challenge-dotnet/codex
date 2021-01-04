@@ -151,6 +151,7 @@ namespace Codex.Users.Api.Tests
                     "ADMIN",
                     "USER"
                 },
+                LanguageCultureName = "en-GB",
                 ActivationCode = "123456",
                 ActivationValidity = DateTime.Now.AddDays(1),
                 PasswordHash = "test",
@@ -168,6 +169,7 @@ namespace Codex.Users.Api.Tests
             Assert.Equal(2, user!.Roles.Count);
             Assert.Equal("ADMIN", user!.Roles[0]);
             Assert.Equal("USER", user!.Roles[1]);
+            Assert.Equal("en-GB", user!.LanguageCultureName);
             Assert.Equal("123456", user!.ActivationCode);
             Assert.Equal("test", user!.PasswordHash);
             Assert.True(user!.Active);
