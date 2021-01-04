@@ -12,6 +12,7 @@ using Codex.Core.RazorHelpers.Interfaces;
 using Codex.Core.Roles.Implementations;
 using Codex.Core.Roles.Interfaces;
 using Codex.Core.Tools;
+using Codex.Core.Tools.AutoMapper;
 using Codex.Models.Tenants;
 using Codex.Tenants.Framework;
 using Codex.Tenants.Framework.Implementations;
@@ -108,8 +109,9 @@ namespace Codex.Users.Api
             {
                 cfg.AllowNullCollections = null;
                 cfg.AllowNullDestinationValues = true;
+                cfg.AddProfile<CoreMappingProfile>();
                 cfg.AddProfile<MappingProfile>();
-            }, typeof(Startup));
+            }, typeof(Startup), typeof(CoreMappingProfile));
 
             services.AddControllers().AddJsonOptions(options =>
             {

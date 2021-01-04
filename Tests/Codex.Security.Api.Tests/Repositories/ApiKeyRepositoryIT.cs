@@ -2,6 +2,7 @@ using Codex.Models.Security;
 using Codex.Security.Api.Repositories.Interfaces;
 using Codex.Tests.Framework;
 using Microsoft.Extensions.DependencyInjection;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -39,11 +40,13 @@ namespace Codex.Security.Api.Tests.Repositories
         {
             await _fixture.UseDataSetAsync(locations: @"Resources/apiKeys.json");
 
-            var apiKey = await _apiKeyRepository.InsertAsync(new("global.3", "apiKey3", new() { "USER" }));
+            var apiKey = await _apiKeyRepository.InsertAsync(
+                new("global.3", new() { { "en", "apiKey3" } }, new() { "USER" }));
 
             Assert.NotNull(apiKey);
             Assert.Equal("global.3", apiKey.Id);
-            Assert.Equal("apiKey3", apiKey.Name);
+            var name = Assert.Contains("en", (IDictionary<string, string>)apiKey!.Name!);
+            Assert.Equal("apiKey3", name);
             Assert.Single(apiKey.Roles);
             Assert.Contains("USER", apiKey.Roles);
         }
@@ -53,18 +56,41 @@ namespace Codex.Security.Api.Tests.Repositories
         {
             await _fixture.UseDataSetAsync(locations: @"Resources/apiKeys.json");
 
-            var apiKeys = await _apiKeyRepository.UpdateAsync(
-                new("global.1", "Admin Api Key", new() { "TENANT_MANAGER" })
+            var apiKey = await _apiKeyRepository.UpdateAsync(
+                new("global.1", new() { { "en", "Admin Api Key" } }, new() { "TENANT_MANAGER" })
             );
 
-            Assert.NotNull(apiKeys);
-            Assert.Equal("Admin Api Key", apiKeys!.Name);
-            Assert.NotNull(apiKeys!.Roles);
-            Assert.Single(apiKeys!.Roles);
-            Assert.Equal("TENANT_MANAGER", apiKeys!.Roles[0]);
+            Assert.NotNull(apiKey);
+            var name = Assert.Contains("en", (IDictionary<string, string>)apiKey!.Name!);
+            Assert.Equal("Admin Api Key", name);
+            Assert.NotNull(apiKey!.Roles);
+            Assert.Single(apiKey!.Roles);
+            Assert.Equal("TENANT_MANAGER", apiKey!.Roles[0]);
 
             //Not updated
-            Assert.Equal("global.1", apiKeys!.Id);
+            Assert.Equal("global.1", apiKey!.Id);
+        }
+
+        [Fact]
+        public async Task Update_Name()
+        {
+            await _fixture.UseDataSetAsync(locations: @"Resources/apiKeys.json");
+
+            var apiKey = await _apiKeyRepository.UpdateAsync(
+                new("global.1", new() { { "fr", "fr name" } }, new() { "TENANT_MANAGER" })
+            );
+
+            Assert.NotNull(apiKey);
+            var name = Assert.Contains("en", (IDictionary<string, string>)apiKey!.Name!);
+            Assert.Equal("apiKey1", name);
+            name = Assert.Contains("fr", (IDictionary<string, string>)apiKey!.Name!);
+            Assert.Equal("fr name", name);
+            Assert.NotNull(apiKey!.Roles);
+            Assert.Single(apiKey!.Roles);
+            Assert.Equal("TENANT_MANAGER", apiKey!.Roles[0]);
+
+            //Not updated
+            Assert.Equal("global.1", apiKey!.Id);
         }
 
         [Fact]

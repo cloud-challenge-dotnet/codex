@@ -36,9 +36,13 @@ namespace Codex.Security.Api.Repositories.Implementations
             var update = Builders<ApiKeyRow>.Update;
             var updates = new List<UpdateDefinition<ApiKeyRow>>
             {
-                update.Set(GetMongoPropertyName(nameof(apiKey.Name)), apiKey.Name),
                 update.Set(GetMongoPropertyName(nameof(apiKey.Roles)), apiKey.Roles)
             };
+
+            foreach (var KeyValuePair in apiKey.Name)
+            {
+                updates.Add(update.Set(GetMongoPropertyName($"{nameof(ApiKeyRow.Name)}.{KeyValuePair.Key}"), KeyValuePair.Value));
+            }
 
             return await repository.FindOneAndUpdateAsync(
                 Builders<ApiKeyRow>.Filter.Where(it => it.Id == apiKey.Id),

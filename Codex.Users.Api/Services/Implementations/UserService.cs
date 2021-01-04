@@ -70,7 +70,7 @@ namespace Codex.Users.Api.Services.Implementations
             if ((await _userRepository.FindAllAsync(new(Login: userCreator.Login))).Count != 0 ||
                 (await _userRepository.FindAllAsync(new(Email: userCreator.Email))).Count != 0)
             {
-                throw new IllegalArgumentException(code: "USER_EXISTS", message:string.Format(_sl[UserResource.USER_P0_ALREADY_EXISTS]!, userCreator.Login));
+                throw new IllegalArgumentException(code: "USER_EXISTS", message: string.Format(_sl[UserResource.USER_P0_ALREADY_EXISTS]!, userCreator.Login));
             }
 
             var secretValues = await _daprClient.GetSecretAsync(ConfigConstant.CodexKey, ConfigConstant.PasswordSalt);

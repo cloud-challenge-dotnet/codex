@@ -83,7 +83,7 @@ namespace Codex.Security.Api.Tests.Services
             var apiKeyCreator = new ApiKey() { Id = "Id1", Name = "ApiKey 1" };
 
             apiKeyRepository.Setup(x => x.InsertAsync(It.IsAny<ApiKeyRow>())).Returns(
-                Task.FromResult(new ApiKeyRow() { Id = "Id1", Name = "ApiKey 1" })
+                Task.FromResult(new ApiKeyRow() { Id = "Id1", Name = new() { { "en", "ApiKey 1" } } })
             );
 
             var apiKeyService = new ApiKeyService(apiKeyRepository.Object, _mapper);
@@ -106,7 +106,7 @@ namespace Codex.Security.Api.Tests.Services
             var apiKeyCreator = new ApiKey() { Id = null, Name = "ApiKey 1" };
 
             apiKeyRepository.Setup(x => x.InsertAsync(It.IsAny<ApiKeyRow>())).Returns(
-                Task.FromResult(new ApiKeyRow { Id = "123456", Name = "ApiKey 1" })
+                Task.FromResult(new ApiKeyRow { Id = "123456", Name = new() { { "en", "ApiKey 1" } } })
             );
 
             var apiKeyService = new ApiKeyService(apiKeyRepository.Object, _mapper);
@@ -129,7 +129,7 @@ namespace Codex.Security.Api.Tests.Services
             var apiKeyCreator = new ApiKey() { Id = "", Name = "ApiKey 1" };
 
             apiKeyRepository.Setup(x => x.InsertAsync(It.IsAny<ApiKeyRow>())).Returns(
-                Task.FromResult(new ApiKeyRow { Id = "123456", Name = "ApiKey 1" })
+                Task.FromResult(new ApiKeyRow { Id = "123456", Name = new() { { "en", "ApiKey 1" } } })
             );
 
             var apiKeyService = new ApiKeyService(apiKeyRepository.Object, _mapper);
@@ -154,7 +154,7 @@ namespace Codex.Security.Api.Tests.Services
             var apiKey = new ApiKey() { Id = apiKeyId, Name = apiKeyName };
 
             apiKeyRepository.Setup(x => x.UpdateAsync(It.IsAny<ApiKeyRow>())).Returns(
-                Task.FromResult((ApiKeyRow?)new ApiKeyRow { Id = apiKeyId, Name = apiKeyName })
+                Task.FromResult((ApiKeyRow?)new ApiKeyRow { Id = apiKeyId, Name = new() { { "en", apiKeyName } } })
             );
 
             var apiKeyService = new ApiKeyService(apiKeyRepository.Object, _mapper);
