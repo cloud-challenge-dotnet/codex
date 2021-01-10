@@ -95,6 +95,26 @@ namespace Codex.Users.Api.Controllers
             return AcceptedAtAction(nameof(FindOne), new { id = user.Id }, OffendUserFields(userResult));
         }
 
+        [HttpPut("{userId}/changePassword")]
+        [TenantAuthorize(Roles = "TENANT_MANAGER,USER")]
+        public async Task<ActionResult<User>> UpdatePassword(string userId, [FromBody] string password)
+        {
+            string? contextUserId = HttpContext.GetUserId();
+            if (!HttpContext.User.IsInRole(RoleConstant.TENANT_MANAGER) && contextUserId != userId)
+            {
+                return Unauthorized();
+            }
+
+            var user = await _userService.UpdatePasswordAsync(userId, password);
+            
+            if (user == null)
+            {
+                return NotFound(userId);
+            }
+
+            return AcceptedAtAction(nameof(FindOne), new { id = user.Id }, OffendUserFields(user));
+        }
+
         [HttpGet("{userId}/activation")]
         public async Task<ActionResult<User>> ActivateUser(string userId, [FromQuery] string activationCode)
         {

@@ -129,9 +129,6 @@
   <data name="PASSWORD_MUST_BE_SET" xml:space="preserve">
     <value>Password must be not null or whitespace</value>
   </data>
-  <data name="String1" xml:space="preserve">
-    <value />
-  </data>
   <data name="TENANT_ID_INSIDE_HEADER_MUST_BE_SAME_THAN_USER_TENANT_ID" xml:space="preserve">
     <value>Tenant id inside header must be same than user tenant id</value>
   </data>

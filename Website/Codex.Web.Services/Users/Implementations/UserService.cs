@@ -16,9 +16,24 @@ namespace Codex.Web.Services.Users.Implementations
             _httpManager = httpManager;
         }
 
+        public Task<User> FindOneAsync(string userId)
+        {
+            return _httpManager.GetAsync<User>($"userApi/User/{userId}");
+        }
+
         public Task<User> CreateAsync(UserCreator userCreator)
         {
             return _httpManager.PostAsync<User>("userApi/User", userCreator);
+        }
+
+        public Task<User> UpdateAsync(User user)
+        {
+            return _httpManager.PutAsync<User>($"userApi/User/{user.Id}", user);
+        }
+
+        public Task<User> UpdatePasswordAsync(string userId, string password)
+        {
+            return _httpManager.PutAsync<User>($"userApi/User/{userId}/changePassword", password);
         }
     }
 }

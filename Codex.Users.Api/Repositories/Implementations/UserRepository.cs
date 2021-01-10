@@ -86,6 +86,25 @@ namespace Codex.Users.Api.Repositories.Implementations
             );
         }
 
+        public async Task<UserRow?> UpdatePasswordAsync(ObjectId userId, string passwordHash)
+        {
+            var repository = await GetRepositoryAsync();
+
+            var update = Builders<UserRow>.Update;
+            var updates = new List<UpdateDefinition<UserRow>>
+            {
+                update.Set(GetMongoPropertyName(nameof(UserRow.PasswordHash)), passwordHash),
+            };
+            return await repository.FindOneAndUpdateAsync(
+                Builders<UserRow>.Filter.Where(it => it.Id == userId),
+                update.Combine(updates),
+                options: new FindOneAndUpdateOptions<UserRow>
+                {
+                    ReturnDocument = ReturnDocument.After
+                }
+            );
+        }
+
         public async Task<UserRow?> UpdateActivationCodeAsync(ObjectId userId, string activationCode)
         {
             var repository = await GetRepositoryAsync();

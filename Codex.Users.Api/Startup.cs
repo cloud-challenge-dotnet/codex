@@ -132,7 +132,7 @@ namespace Codex.Users.Api
             {
                 options.AddPolicy(
                     "Open",
-                    builder => builder.AllowAnyOrigin().AllowAnyHeader());
+                    builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
             });
 
             var jwtSecret = Encoding.ASCII.GetBytes(Configuration.GetValue<string>(ConfigConstant.JwtSecretKey));

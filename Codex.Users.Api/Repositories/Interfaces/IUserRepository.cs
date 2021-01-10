@@ -13,6 +13,8 @@ namespace Codex.Users.Api.Repositories.Interfaces
 
         Task<UserRow?> UpdateAsync(UserRow user);
 
+        Task<UserRow?> UpdatePasswordAsync(ObjectId userId, string passwordHash);
+
         Task<UserRow?> UpdateActivationCodeAsync(ObjectId userId, string activationCode);
     }
 }

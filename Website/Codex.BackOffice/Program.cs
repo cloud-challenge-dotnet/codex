@@ -1,3 +1,4 @@
+using Codex.BackOffice.Extensions;
 using Codex.BackOffice.Services.Users.Implementations;
 using Codex.Web.Services.Tools.Implementations;
 using Codex.Web.Services.Tools.Interfaces;
@@ -19,6 +20,7 @@ namespace Codex.BackOffice
             builder.RootComponents.Add<App>("#app");
 
             builder.Services
+                .AddLocalization()
                 .AddScoped<ILocalStorageService, LocalStorageService>()
                 .AddScoped<IApplicationData, ApplicationData>()
                 .AddScoped<IHttpManager, HttpManager>()
@@ -34,6 +36,8 @@ namespace Codex.BackOffice
             });
 
             var host = builder.Build();
+
+            await host.SetDefaultCultureAsync();
 
             var applicationData = host.Services.GetRequiredService<IApplicationData>();
             await applicationData.InitializeAsync();

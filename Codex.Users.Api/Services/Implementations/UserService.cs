@@ -97,6 +97,21 @@ namespace Codex.Users.Api.Services.Implementations
             return userRow?.Let(it => _mapper.Map<User>(it));
         }
 
+        public async Task<User?> UpdatePasswordAsync(string userId, string password)
+        {
+            if (string.IsNullOrWhiteSpace(password))
+                throw new IllegalArgumentException(code: "USER_PASSWORD_INVALID", message: _sl[UserResource.PASSWORD_MUST_BE_SET]!);
+
+            var secretValues = await _daprClient.GetSecretAsync(ConfigConstant.CodexKey, ConfigConstant.PasswordSalt);
+            var salt = secretValues[ConfigConstant.PasswordSalt];
+
+            string passwordHash = _passwordHasher.GenerateHash(password!, salt);
+
+            var userRow = await _userRepository.UpdatePasswordAsync(new ObjectId(userId), passwordHash);
+
+            return userRow?.Let(it => _mapper.Map<User>(it));
+        }
+
         private async Task SendActivationUserEmailAsync(User user, string tenantId)
         {
             await _daprClient.PublishEventAsync(ConfigConstant.CodexPubSubName, TopicConstant.SendActivationUserMail, new TopicData<User>(TopicType.Modify, user, tenantId));

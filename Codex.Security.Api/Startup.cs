@@ -120,6 +120,13 @@ namespace Codex.Security.Api
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Codex.Security.Api", Version = "v1" });
             });
 
+            services.AddCors(options =>
+            {
+                options.AddPolicy(
+                    "Open",
+                    builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+            });
+
             var jwtSecret = Encoding.ASCII.GetBytes(Configuration.GetValue<string>(ConfigConstant.JwtSecretKey));
 
             services.AddAuthentication(x =>
@@ -188,6 +195,8 @@ namespace Codex.Security.Api
             app.UseExceptionHandler(app => app.UseCustomErrors(env, exceptionHandlers));
 
             app.UseRouting();
+
+            app.UseCors("Open");
 
             app.UseCloudEvents();
 
