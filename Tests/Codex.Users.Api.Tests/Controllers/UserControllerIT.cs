@@ -272,9 +272,9 @@ namespace Codex.Users.Api.Tests
             var acceptedAtActionResult = Assert.IsType<AcceptedAtActionResult>(result.Result);
             Assert.Equal(nameof(userController.FindOne), acceptedAtActionResult.ActionName);
             var userResult = Assert.IsType<User>(acceptedAtActionResult.Value);
-            Assert.NotNull(user);
-            Assert.Equal(currentUserId, user.Id);
-            Assert.Equal("login", user.Login);
+            Assert.NotNull(userResult);
+            Assert.Equal(currentUserId, userResult.Id);
+            Assert.Equal("login", userResult.Login);
 
             Assert.NotNull(authorizeAttributes);
             Assert.Single(authorizeAttributes);
@@ -359,9 +359,9 @@ namespace Codex.Users.Api.Tests
             var acceptedAtActionResult = Assert.IsType<AcceptedAtActionResult>(result.Result);
             Assert.Equal(nameof(userController.FindOne), acceptedAtActionResult.ActionName);
             var userResult = Assert.IsType<User>(acceptedAtActionResult.Value);
-            Assert.NotNull(user);
-            Assert.Equal(userId, user.Id);
-            Assert.Equal("login", user.Login);
+            Assert.NotNull(userResult);
+            Assert.Equal(userId, userResult.Id);
+            Assert.Equal("login", userResult.Login);
         }
 
         [Fact]
@@ -432,6 +432,116 @@ namespace Codex.Users.Api.Tests
 
             userService.Verify(x => x.FindOneAsync(It.IsAny<string>()), Times.Never);
             userService.Verify(x => x.UpdateAsync(It.IsAny<User>()), Times.Never);
+
+            Assert.IsType<UnauthorizedResult>(result.Result);
+        }
+
+        [Fact]
+        public async Task UpdatePassword()
+        {
+            var password = "myPassword";
+            var userId = ObjectId.GenerateNewId().ToString();
+            var userService = new Mock<IUserService>();
+
+            userService.Setup(x => x.UpdatePasswordAsync(It.IsAny<string>(), It.IsAny<string>())).Returns(
+                Task.FromResult((User?)new User() { Id = userId, Login = "login", PasswordHash = "5315645644" })
+            );
+
+            var userController = new UserController(
+                userService.Object
+            );
+
+            var httpContext = new DefaultHttpContext
+            {
+                User = new ClaimsPrincipal(
+                    new ClaimsIdentity(new List<Claim>()
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, userId.ToString())
+                    }, "TestAuthType")
+                )
+            };
+
+            userController.ControllerContext.HttpContext = httpContext;
+
+            var result = await userController.UpdatePassword(userId.ToString(), password);
+
+            userService.Verify(x => x.UpdatePasswordAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
+
+            var acceptedAtActionResult = Assert.IsType<AcceptedAtActionResult>(result.Result);
+            Assert.Equal(nameof(userController.FindOne), acceptedAtActionResult.ActionName);
+            var userResult = Assert.IsType<User>(acceptedAtActionResult.Value);
+            Assert.NotNull(userResult);
+            Assert.Equal(userId, userResult.Id);
+            Assert.Equal("login", userResult.Login);
+            Assert.Null(userResult.PasswordHash);
+        }
+
+        [Fact]
+        public async Task UpdatePassword_With_Not_Found_User()
+        {
+            var password = "myPassword";
+            var userId = ObjectId.GenerateNewId().ToString();
+            var userService = new Mock<IUserService>();
+
+            userService.Setup(x => x.UpdatePasswordAsync(It.IsAny<string>(), It.IsAny<string>())).Returns(
+                Task.FromResult((User?)null)
+            );
+
+            var userController = new UserController(
+                userService.Object
+            );
+
+            var httpContext = new DefaultHttpContext
+            {
+                User = new ClaimsPrincipal(
+                    new ClaimsIdentity(new List<Claim>()
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, userId.ToString())
+                    }, "TestAuthType")
+                )
+            };
+
+            userController.ControllerContext.HttpContext = httpContext;
+
+            var result = await userController.UpdatePassword(userId.ToString(), password);
+
+            userService.Verify(x => x.UpdatePasswordAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
+
+            var notFoundObjectResult = Assert.IsType<NotFoundObjectResult>(result.Result);
+            Assert.Equal(userId.ToString(), notFoundObjectResult.Value);
+        }
+
+        [Fact]
+        public async Task UpdatePassword_UnAuthorized()
+        {
+            var password = "myPassword";
+            var currentUserId = ObjectId.GenerateNewId().ToString();
+            var userId = ObjectId.GenerateNewId().ToString();
+            var userService = new Mock<IUserService>();
+
+            userService.Setup(x => x.UpdatePasswordAsync(It.IsAny<string>(), It.IsAny<string>())).Returns(
+                Task.FromResult((User?)new User() { Id = userId, Login = "login", PasswordHash = "5315645644" })
+            );
+
+            var userController = new UserController(
+                userService.Object
+            );
+
+            var httpContext = new DefaultHttpContext
+            {
+                User = new ClaimsPrincipal(
+                    new ClaimsIdentity(new List<Claim>()
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, currentUserId.ToString())
+                    }, "TestAuthType")
+                )
+            };
+
+            userController.ControllerContext.HttpContext = httpContext;
+
+            var result = await userController.UpdatePassword(userId.ToString(), password);
+
+            userService.Verify(x => x.UpdatePasswordAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
 
             Assert.IsType<UnauthorizedResult>(result.Result);
         }
