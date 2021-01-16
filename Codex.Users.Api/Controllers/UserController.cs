@@ -106,7 +106,7 @@ namespace Codex.Users.Api.Controllers
             }
 
             var user = await _userService.UpdatePasswordAsync(userId, password);
-            
+
             if (user == null)
             {
                 return NotFound(userId);

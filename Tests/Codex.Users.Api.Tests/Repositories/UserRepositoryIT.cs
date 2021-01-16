@@ -181,6 +181,22 @@ namespace Codex.Users.Api.Tests
 
 
         [Fact]
+        public async Task UpdatePassword()
+        {
+            await _fixture.UseDataSetAsync(locations: @"Resources/users.json");
+
+            var user = await _userRepository.UpdatePasswordAsync(new ObjectId("5fb92118da7ed3521e4a7d59"), "test");
+
+            Assert.NotNull(user);
+            Assert.NotEqual(new DateTime(2020, 12, 12), user!.ModificationDate);
+            Assert.Equal("test", user!.PasswordHash);
+
+            //Not updated
+            Assert.Equal("5fb92118da7ed3521e4a7d59", user!.Id.ToString());
+        }
+
+
+        [Fact]
         public async Task UpdateActivationCode()
         {
             await _fixture.UseDataSetAsync(locations: @"Resources/users.json");

@@ -38,7 +38,7 @@ namespace Codex.Models.Users
             => (Id, PasswordHash, ActivationValidity, Active) = (null, null, null, true);
 
         public User(string? id, string login, string email, string? firstName, string? lastName, string? phoneNumber, List<string> roles,
-            string? passwordHash, string? activationCode = null, DateTime? activationValidity = null, bool active = true, string languageCultureName="en")
+            string? passwordHash, string? activationCode = null, DateTime? activationValidity = null, bool active = true, string languageCultureName = "en")
             : base(login, email, firstName, lastName, phoneNumber, roles, languageCultureName)
             => (Id, PasswordHash, ActivationCode, ActivationValidity, Active) = (id, passwordHash, activationCode, activationValidity, active);
 

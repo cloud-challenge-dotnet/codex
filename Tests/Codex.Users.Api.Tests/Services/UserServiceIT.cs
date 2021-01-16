@@ -288,6 +288,29 @@ namespace Codex.Users.Api.Tests
             Assert.Equal("login", userResult!.Login);
         }
 
+        public async Task UpdatePassword()
+        {
+            var userRepository = new Mock<IUserRepository>();
+            var passwordHasher = new Mock<IPasswordHasher>();
+            var daprClient = new Mock<DaprClient>();
+
+            var userId = ObjectId.GenerateNewId();
+
+            userRepository.Setup(x => x.UpdatePasswordAsync(It.IsAny<ObjectId>(), It.IsAny<string>())).Returns(
+                Task.FromResult((UserRow?)new UserRow { Id = userId })
+            );
+
+            var userService = new UserService(userRepository.Object, daprClient.Object,
+                passwordHasher.Object, _mapper, _stringLocalizer);
+
+            var userResult = await userService.UpdatePasswordAsync(userId.ToString(), "test");
+
+            userRepository.Verify(x => x.UpdatePasswordAsync(It.IsAny<ObjectId>(), It.IsAny<string>()), Times.Once);
+
+            Assert.NotNull(userResult);
+            Assert.Equal(userId.ToString(), userResult!.Id);
+        }
+
         [Fact]
         public async Task ActivateUser()
         {

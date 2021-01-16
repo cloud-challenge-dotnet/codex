@@ -5,7 +5,6 @@ using Codex.Web.Services.Resources;
 using Codex.Web.Services.Tools.Interfaces;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Localization;
-using System;
 using System.Globalization;
 using System.Net;
 using System.Net.Http;
