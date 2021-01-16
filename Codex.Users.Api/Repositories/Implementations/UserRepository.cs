@@ -94,6 +94,7 @@ namespace Codex.Users.Api.Repositories.Implementations
             var updates = new List<UpdateDefinition<UserRow>>
             {
                 update.Set(GetMongoPropertyName(nameof(UserRow.PasswordHash)), passwordHash),
+                update.Set(GetMongoPropertyName(nameof(UserRow.ModificationDate)), DateTime.Now)
             };
             return await repository.FindOneAndUpdateAsync(
                 Builders<UserRow>.Filter.Where(it => it.Id == userId),
