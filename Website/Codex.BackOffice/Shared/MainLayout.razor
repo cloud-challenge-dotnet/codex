@@ -1,5 +1,4 @@
 ﻿@inherits LayoutComponentBase
-@layout BaseLayout
 @inject IApplicationData ApplicationData
 
 <div class="page">
@@ -12,9 +11,9 @@
     }
 
     <div class="main">
-        <!--div class="top-row px-4">
-            <a href="http://blazor.net" target="_blank" class="ml-md-auto">About</a>
-        </div-->
+        <div class="top-row px-4">
+            <CultureSelector />
+        </div>
 
         <div class="content px-4">
             @Body

@@ -1,7 +1,11 @@
 ﻿using Codex.Models.Exceptions;
 using Codex.Web.Services.Models;
+using Codex.Web.Services.Models.Exceptions;
+using Codex.Web.Services.Resources;
 using Codex.Web.Services.Tools.Interfaces;
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Localization;
+using System.Globalization;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -19,16 +23,19 @@ namespace Codex.Web.Services.Tools.Implementations
         private readonly NavigationManager _navigationManager;
         private readonly JsonSerializerOptions _jsonSerializerOptions;
         private readonly IApplicationData _applicationData;
+        private readonly IStringLocalizer<WebServicesResource> _localizer;
 
         public HttpManager(
             HttpClient httpClient,
             IApplicationData applicationData,
-            NavigationManager navigationManager
+            NavigationManager navigationManager,
+            IStringLocalizer<WebServicesResource> localizer
         )
         {
             _httpClient = httpClient;
             _applicationData = applicationData;
             _navigationManager = navigationManager;
+            _localizer = localizer;
 
             _jsonSerializerOptions = new JsonSerializerOptions()
             {
@@ -122,6 +129,8 @@ namespace Codex.Web.Services.Tools.Implementations
             {
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.Token);
             }
+            request.Headers.AcceptLanguage.Clear();
+            request.Headers.AcceptLanguage.Add(new(CultureInfo.CurrentUICulture.Name));
             if (tenantId != null)
             {
                 request.Headers.Add("tenantId", tenantId);
@@ -143,6 +152,9 @@ namespace Codex.Web.Services.Tools.Implementations
                 var statusCode = (int)response.StatusCode;
                 switch (statusCode)
                 {
+                    case 404:
+                        var entityId = await response.Content.ReadAsStringAsync();
+                        throw new NotFoundException(entityId, message: string.Format(_localizer[WebServicesResource.ENTITY_P0_NOT_FOUND]!, entityId));
                     case >= 400 and < 500:
                         {
                             var problemDetails = await response.Content.ReadFromJsonAsync<ProblemDetails>();

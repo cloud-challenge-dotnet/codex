@@ -1,0 +1,212 @@
+﻿@page "/account/profile"
+@attribute [Authorize]
+@using System.Globalization
+@using Codex.Models.Users
+@inject IStringLocalizer<AppResource> localizer
+@inject IUserService UserService
+@inject IAuthenticationService AuthenticationService
+@inject IApplicationData ApplicationData
+@inject IAlertService AlertService
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+
+@if (loading)
+{
+    <strong>@localizer[AppResource.LOADING_IN_PROGRESS_3P]</strong>
+}
+else if (userNotFound)
+{
+    <strong>@localizer[AppResource.USER_NOT_FOUND]</strong>
+}
+else if (user == null)
+{
+    <strong>@localizer[AppResource.AN_ERROR_OCCURED]</strong>
+}
+else
+{
+    <div class="container">
+        <div class="row row-cols-2">
+            <div class="col-sm">
+                <div class="card">
+                    <h4 class="card-header">@localizer[AppResource.ACCOUNT_INFORMATIONS] - @(ApplicationData.Auth?.Login??"")</h4>
+                    <div class="card-body">
+                        <EditForm Model="@userInfoModel" OnValidSubmit="OnUserInfoValidSubmit">
+                            <DataAnnotationsValidator />
+                            <div class="form-group">
+                                <label>@localizer[AppResource.FIRST_NAME]</label>
+                                <InputText @bind-Value="userInfoModel.FirstName" class="form-control" />
+                                <ValidationMessage For="@(() => userInfoModel.FirstName)" />
+                            </div>
+                            <div class="form-group">
+                                <label>@localizer[AppResource.LAST_NAME]</label>
+                                <InputText @bind-Value="userInfoModel.LastName" class="form-control" />
+                                <ValidationMessage For="@(() => userInfoModel.LastName)" />
+                            </div>
+                            <div class="form-group">
+                                <label>@localizer[AppResource.LANGUAGE]</label>
+                                <select class="form-control selectpicker" @bind="userInfoModel.LanguageCultureName">
+                                    @foreach (var supportedCulture in AppCultures.SupportedCultures)
+                                    {
+                                        <option value="@supportedCulture.Name">@supportedCulture.DisplayName</option>
+                                    }
+                                </select>
+                                <ValidationMessage For="@(() => userInfoModel.LanguageCultureName)" />
+                            </div>
+                            <button disabled="@sendingUserInfo" class="btn btn-primary">
+                                @if (sendingUserInfo)
+                                {
+                                    <span class="spinner-border spinner-border-sm mr-1"></span>
+                                }
+                                @localizer[AppResource.SAVE]
+                            </button>
+                        </EditForm>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm">
+                <div class="card">
+                    <h4 class="card-header">@localizer[AppResource.PASSWORD_MODIFICATION]</h4>
+                    <div class="card-body">
+                        <EditForm Model="@userPasswordModel" OnValidSubmit="OnUserPasswordValidSubmit">
+                            <DataAnnotationsValidator />
+                            <div class="form-group">
+                                <label>@localizer[AppResource.PASSWORD]</label>
+                                <InputText @bind-Value="userPasswordModel.Password" type="password" class="form-control" />
+                                <ValidationMessage For="@(() => userPasswordModel.Password)" />
+                            </div>
+                            <div class="form-group">
+                                <label>@localizer[AppResource.CONFIRM_PASSWORD]</label>
+                                <InputText @bind-Value="userPasswordModel.ConfirmPassword" type="password" class="form-control" />
+                                <ValidationMessage For="@(() => userPasswordModel.ConfirmPassword)" />
+                            </div>
+                            <button disabled="@sendingUserPassword" class="btn btn-primary">
+                                @if (sendingUserPassword)
+                                {
+                                    <span class="spinner-border spinner-border-sm mr-1"></span>
+                                }
+                                @localizer[AppResource.SAVE]
+                            </button>
+                        </EditForm>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private User? user;
+    private UserInfoModel userInfoModel = new();
+    private UserPasswordModel userPasswordModel = new();
+    private bool loading, sendingUserInfo, sendingUserPassword, userNotFound;
+
+    protected override async Task OnInitializedAsync()
+    {
+        loading = true;
+
+        try
+        {
+            string? userId = ApplicationData.Auth?.Id;
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                NavigationManager.NavigateTo("account/logout");
+                return;
+            }
+
+            user = await UserService.FindOneAsync(userId);
+            userInfoModel = new()
+            {
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                LanguageCultureName = user.LanguageCultureName
+            };
+        }
+        catch (Exception exception)
+        {
+            if (exception is NotFoundException)
+            {
+                userNotFound = true;
+            }
+            AlertService.Error(exception is FunctionnalException ? exception.Message : @localizer[AppResource.AN_ERROR_OCCURED]!);
+        }
+        finally
+        {
+            loading = false;
+            StateHasChanged();
+        }
+
+        await base.OnInitializedAsync();
+    }
+
+    private async void OnUserInfoValidSubmit()
+    {
+        // reset alerts on submit
+        AlertService.Clear();
+
+        sendingUserInfo = true;
+        try
+        {
+            if (user != null && ApplicationData.Auth != null)
+            {
+                user = await UserService.UpdateAsync(
+                    user with
+                    {
+                        FirstName = userInfoModel.FirstName,
+                        LastName = userInfoModel.LastName,
+                        LanguageCultureName = userInfoModel.LanguageCultureName ?? "en-US"
+                    }
+                );
+                await ApplicationData.SetAuthAsync(
+                    ApplicationData.Auth with
+                    {
+                        FirstName = user.FirstName,
+                        LastName = user.LastName
+                    }
+                );
+                AlertService.Success(localizer[AppResource.MODIFICATION_SUCCESS]!);
+
+                if (user.LanguageCultureName != CultureInfo.CurrentUICulture.Name)
+                {
+                    var js = (IJSInProcessRuntime)JSRuntime;
+                    js.InvokeVoid("selectedCulture.set", user.LanguageCultureName);
+                    NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true);
+                }
+            }
+        }
+        catch (Exception exception)
+        {
+            AlertService.Error(exception is FunctionnalException ? exception.Message : @localizer[AppResource.AN_ERROR_OCCURED]!);
+        }
+        finally
+        {
+            sendingUserInfo = false;
+            StateHasChanged();
+        }
+    }
+
+    private async void OnUserPasswordValidSubmit()
+    {
+        // reset alerts on submit
+        AlertService.Clear();
+
+        sendingUserPassword = true;
+        try
+        {
+            if (user != null)
+            {
+                user = await UserService.UpdatePasswordAsync(user.Id!, userPasswordModel.Password!);
+                AlertService.Success(localizer[AppResource.MODIFICATION_SUCCESS]!, keepAfterRouteChange: true);
+                NavigationManager.NavigateTo("account/logout");
+            }
+        }
+        catch (Exception exception)
+        {
+            AlertService.Error(exception is FunctionnalException ? exception.Message : @localizer[AppResource.AN_ERROR_OCCURED]!);
+        }
+        finally
+        {
+            sendingUserPassword = false;
+            StateHasChanged();
+        }
+    }
+}

@@ -1,8 +1,12 @@
 ﻿using Codex.Models.Users;
 using Codex.Tests.Framework;
 using Codex.Users.Api.Controllers;
+using Codex.Users.Api.Resources;
 using Codex.Users.Api.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 using Moq;
 using System;
 using System.Threading.Tasks;
@@ -12,8 +16,13 @@ namespace Codex.Users.Api.Tests.Controllers
 {
     public class AuthenticationControllerIT : IClassFixture<Fixture>
     {
+        private readonly IStringLocalizer<UserResource> _stringLocalizer;
+
         public AuthenticationControllerIT()
         {
+            var options = Options.Create(new LocalizationOptions { ResourcesPath = "Resources" });
+            var factory = new ResourceManagerStringLocalizerFactory(options, NullLoggerFactory.Instance);
+            _stringLocalizer = new StringLocalizer<UserResource>(factory);
         }
 
         [Fact]
@@ -26,7 +35,7 @@ namespace Codex.Users.Api.Tests.Controllers
             authenticationService.Setup(s => s.AuthenticateAsync(It.IsAny<UserLogin>()))
                 .Returns(Task.FromResult(new Auth(Id: "ID1", Login: "Login", Token: "5634534564")));
 
-            AuthenticationController authenticationController = new(authenticationService.Object);
+            AuthenticationController authenticationController = new(authenticationService.Object, _stringLocalizer);
 
             var result = await authenticationController.Authenticate(tenantId, userLogin);
 
@@ -51,7 +60,7 @@ namespace Codex.Users.Api.Tests.Controllers
             authenticationService.Setup(s => s.AuthenticateAsync(It.IsAny<UserLogin>()))
                 .Returns(Task.FromResult(new Auth(Id: "ID1", Login: "Login", Token: "5634534564")));
 
-            AuthenticationController authenticationController = new(authenticationService.Object);
+            AuthenticationController authenticationController = new(authenticationService.Object, _stringLocalizer);
 
             await Assert.ThrowsAsync<ArgumentException>(() => authenticationController.Authenticate("demo", userLogin));
 

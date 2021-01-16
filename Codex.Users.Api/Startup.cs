@@ -12,6 +12,7 @@ using Codex.Core.RazorHelpers.Interfaces;
 using Codex.Core.Roles.Implementations;
 using Codex.Core.Roles.Interfaces;
 using Codex.Core.Tools;
+using Codex.Core.Tools.AutoMapper;
 using Codex.Models.Tenants;
 using Codex.Tenants.Framework;
 using Codex.Tenants.Framework.Implementations;
@@ -30,6 +31,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -49,6 +51,23 @@ namespace Codex.Users.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddLocalization();
+
+            services.Configure<RequestLocalizationOptions>(options =>
+            {
+                var supportedCultures = new List<CultureInfo>()
+                {
+                    new CultureInfo("en-US"),
+                    new CultureInfo("fr-FR")
+                };
+
+                options.DefaultRequestCulture = new(culture: "en-US", uiCulture: "en-US");
+                options.SupportedCultures = supportedCultures;
+                options.SupportedUICultures = supportedCultures;
+                options.ApplyCurrentCultureToResponseHeaders = true;
+                options.FallBackToParentUICultures = true;
+            });
+
             services.Configure<MongoDbSettings>(Configuration.GetSection(nameof(MongoDbSettings)));
 
             services.AddSingleton(sp =>
@@ -88,10 +107,11 @@ namespace Codex.Users.Api
 
             services.AddAutoMapper(cfg =>
             {
-                cfg.AllowNullCollections = null;
+                cfg.AllowNullCollections = true;
                 cfg.AllowNullDestinationValues = true;
+                cfg.AddProfile<CoreMappingProfile>();
                 cfg.AddProfile<MappingProfile>();
-            }, typeof(Startup));
+            }, typeof(Startup), typeof(CoreMappingProfile));
 
             services.AddControllers().AddJsonOptions(options =>
             {
@@ -112,7 +132,7 @@ namespace Codex.Users.Api
             {
                 options.AddPolicy(
                     "Open",
-                    builder => builder.AllowAnyOrigin().AllowAnyHeader());
+                    builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
             });
 
             var jwtSecret = Encoding.ASCII.GetBytes(Configuration.GetValue<string>(ConfigConstant.JwtSecretKey));
@@ -179,6 +199,9 @@ namespace Codex.Users.Api
             {
                 app.UseHttpsRedirection();
             }
+
+            var localizationOptions = app.ApplicationServices.GetService<IOptions<RequestLocalizationOptions>>();
+            app.UseRequestLocalization(localizationOptions!.Value);
 
             app.UseExceptionHandler(app => app.UseCustomErrors(env, exceptionHandlers));
 

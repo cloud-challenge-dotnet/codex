@@ -4,6 +4,8 @@ using Codex.Models.Exceptions;
 using Codex.Models.Tenants;
 using Codex.Tenants.Api.Repositories.Interfaces;
 using Codex.Tenants.Api.Repositories.Models;
+using Codex.Tenants.Api.Resources;
+using Microsoft.Extensions.Localization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,11 +17,15 @@ namespace Codex.Tenants.Api.Services
     {
         private readonly IMapper _mapper;
 
+        private readonly IStringLocalizer<TenantResource> _sl;
+
         public TenantService(ITenantRepository tenantRepository,
-            IMapper mapper)
+            IMapper mapper,
+            IStringLocalizer<TenantResource> sl)
         {
             _tenantRepository = tenantRepository;
             _mapper = mapper;
+            _sl = sl;
         }
 
         private readonly ITenantRepository _tenantRepository;
@@ -38,11 +44,11 @@ namespace Codex.Tenants.Api.Services
         }
         public async Task<Tenant> CreateAsync(Tenant tenant)
         {
-            var tenantId = tenant.Id ?? throw new ArgumentException("Tenant id is mandatory");
+            var tenantId = tenant.Id ?? throw new ArgumentException(_sl[TenantResource.TENANT_ID_IS_MANDATORY]);
 
             if (await _tenantRepository.ExistsByIdAsync(tenantId))
             {
-                throw new IllegalArgumentException(code: "TENANT_EXISTS", message: $"Tenant {tenantId} already exists");
+                throw new IllegalArgumentException(code: "TENANT_EXISTS", message: string.Format(_sl[TenantResource.TENANT_P0_ALREADY_EXISTS]!, tenantId));
             }
             var tenantRow = await _tenantRepository.InsertAsync(_mapper.Map<TenantRow>(tenant));
             return _mapper.Map<Tenant>(tenantRow);

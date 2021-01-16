@@ -6,10 +6,12 @@ namespace Codex.Models.Users
     public abstract record BaseUser
     {
         public BaseUser()
-               => (Login, Email, FirstName, LastName, PhoneNumber, Roles, CreationDate, ModificationDate) = ("", "", null, null, null, new(), DateTime.Now, DateTime.Now);
+               => (Login, Email, FirstName, LastName, PhoneNumber, Roles, CreationDate, ModificationDate, LanguageCultureName) =
+                  ("", "", null, null, null, new(), DateTime.Now, DateTime.Now, "en-US");
 
-        public BaseUser(string login, string email, string? firstName, string? lastName, string? phoneNumber, List<string> roles)
-               => (Login, Email, FirstName, LastName, PhoneNumber, Roles, CreationDate, ModificationDate) = (login, email, firstName, lastName, phoneNumber, roles, DateTime.Now, DateTime.Now);
+        public BaseUser(string login, string email, string? firstName, string? lastName, string? phoneNumber, List<string> roles, string languageCultureName = "en-US")
+               => (Login, Email, FirstName, LastName, PhoneNumber, Roles, LanguageCultureName, CreationDate, ModificationDate) =
+                  (login, email, firstName, lastName, phoneNumber, roles, languageCultureName, DateTime.Now, DateTime.Now);
 
         public string Login { get; init; }
 
@@ -23,6 +25,8 @@ namespace Codex.Models.Users
 
         public List<string> Roles { get; init; }
 
+        public string LanguageCultureName { get; init; }
+
         public DateTime CreationDate { get; init; }
 
         public DateTime ModificationDate { get; init; }
@@ -34,8 +38,8 @@ namespace Codex.Models.Users
             => (Id, PasswordHash, ActivationValidity, Active) = (null, null, null, true);
 
         public User(string? id, string login, string email, string? firstName, string? lastName, string? phoneNumber, List<string> roles,
-            string? passwordHash, string? activationCode = null, DateTime? activationValidity = null, bool active = true)
-            : base(login, email, firstName, lastName, phoneNumber, roles)
+            string? passwordHash, string? activationCode = null, DateTime? activationValidity = null, bool active = true, string languageCultureName = "en")
+            : base(login, email, firstName, lastName, phoneNumber, roles, languageCultureName)
             => (Id, PasswordHash, ActivationCode, ActivationValidity, Active) = (id, passwordHash, activationCode, activationValidity, active);
 
         public string? Id { get; init; }
@@ -64,6 +68,7 @@ namespace Codex.Models.Users
             lastName: LastName,
             phoneNumber: PhoneNumber,
             roles: Roles,
+            languageCultureName: LanguageCultureName,
             active: true,
             passwordHash: passwordHash
         );

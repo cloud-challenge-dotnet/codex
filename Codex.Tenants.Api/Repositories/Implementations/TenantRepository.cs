@@ -4,6 +4,8 @@ using Codex.Tenants.Api.Repositories.Interfaces;
 using Codex.Tenants.Api.Repositories.Models;
 using Codex.Tenants.Framework;
 using Codex.Tenants.Framework.Interfaces;
+using Codex.Tenants.Framework.Resources;
+using Microsoft.Extensions.Localization;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 using System.Collections.Generic;
@@ -15,7 +17,8 @@ namespace Codex.Tenants.Api.Repositories.Implementations
     public class TenantRepository : MongoTemplate<TenantRow, string>, ITenantRepository
     {
         public TenantRepository(MongoDbSettings mongoDbSettings,
-            ITenantAccessService tenantAccessService) : base(mongoDbSettings, tenantAccessService)
+            ITenantAccessService tenantAccessService,
+            IStringLocalizer<TenantFrameworkResource> sl) : base(mongoDbSettings, tenantAccessService, sl)
         {
         }
 

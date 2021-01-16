@@ -5,14 +5,19 @@ using Codex.Core.Roles.Interfaces;
 using Codex.Models.Roles;
 using Codex.Models.Tenants;
 using Codex.Models.Users;
+using Codex.Tenants.Framework.Resources;
 using Codex.Tests.Framework;
 using Codex.Users.Api.Exceptions;
+using Codex.Users.Api.Resources;
 using Codex.Users.Api.Services.Implementations;
 using Codex.Users.Api.Services.Interfaces;
 using Dapr.Client;
 using Dapr.Client.Http;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using Moq;
 using System.Collections.Generic;
@@ -24,8 +29,16 @@ namespace Codex.Users.Api.Tests.Services
 {
     public class AuthenticationServiceIT : IClassFixture<Fixture>
     {
+        private readonly IStringLocalizer<UserResource> _stringLocalizer;
+
+        private readonly IStringLocalizer<TenantFrameworkResource> _tenantFrameworkSl;
+
         public AuthenticationServiceIT()
         {
+            var options = Options.Create(new LocalizationOptions { ResourcesPath = "Resources" });
+            var factory = new ResourceManagerStringLocalizerFactory(options, NullLoggerFactory.Instance);
+            _stringLocalizer = new StringLocalizer<UserResource>(factory);
+            _tenantFrameworkSl = new StringLocalizer<TenantFrameworkResource>(factory);
         }
 
         [Fact]
@@ -74,7 +87,7 @@ namespace Codex.Users.Api.Tests.Services
             configuration.Setup(c => c.GetSection(It.IsAny<string>())).Returns(configurationSection.Object);
 
             AuthenticationService authenticationService = new(logger.Object, daprClient.Object, passwordHasher.Object, userService.Object,
-                configuration.Object, roleService.Object, tenantCacheService.Object);
+                configuration.Object, roleService.Object, tenantCacheService.Object, _stringLocalizer, _tenantFrameworkSl);
 
             var auth = await authenticationService.AuthenticateAsync(userLogin);
 
@@ -107,7 +120,7 @@ namespace Codex.Users.Api.Tests.Services
             var tenantCacheService = new Mock<TenantCacheService>();
 
             AuthenticationService authenticationService = new(logger.Object, daprClient.Object, passwordHasher.Object, userService.Object,
-                configuration.Object, roleService.Object, tenantCacheService.Object);
+                configuration.Object, roleService.Object, tenantCacheService.Object, _stringLocalizer, _tenantFrameworkSl);
 
             var exception = await Assert.ThrowsAsync<InvalidCredentialsException>(
                 async () => await authenticationService.AuthenticateAsync(userLogin)
@@ -131,7 +144,7 @@ namespace Codex.Users.Api.Tests.Services
             var tenantCacheService = new Mock<TenantCacheService>();
 
             AuthenticationService authenticationService = new(logger.Object, daprClient.Object, passwordHasher.Object, userService.Object,
-                configuration.Object, roleService.Object, tenantCacheService.Object);
+                configuration.Object, roleService.Object, tenantCacheService.Object, _stringLocalizer, _tenantFrameworkSl);
 
             var exception = await Assert.ThrowsAsync<InvalidCredentialsException>(
                 async () => await authenticationService.AuthenticateAsync(userLogin)
@@ -163,7 +176,7 @@ namespace Codex.Users.Api.Tests.Services
             );
 
             AuthenticationService authenticationService = new(logger.Object, daprClient.Object, passwordHasher.Object, userService.Object,
-                configuration.Object, roleService.Object, tenantCacheService.Object);
+                configuration.Object, roleService.Object, tenantCacheService.Object, _stringLocalizer, _tenantFrameworkSl);
 
             var exception = await Assert.ThrowsAsync<InvalidCredentialsException>(
                 async () => await authenticationService.AuthenticateAsync(userLogin)
@@ -219,7 +232,7 @@ namespace Codex.Users.Api.Tests.Services
 
 
             AuthenticationService authenticationService = new(logger.Object, daprClient.Object, passwordHasher.Object, userService.Object,
-                configuration.Object, roleService.Object, tenantCacheService.Object);
+                configuration.Object, roleService.Object, tenantCacheService.Object, _stringLocalizer, _tenantFrameworkSl);
 
             var exception = await Assert.ThrowsAsync<InvalidCredentialsException>(
                 async () => await authenticationService.AuthenticateAsync(userLogin)
@@ -254,7 +267,7 @@ namespace Codex.Users.Api.Tests.Services
             );
 
             AuthenticationService authenticationService = new(logger.Object, daprClient.Object, passwordHasher.Object, userService.Object,
-                configuration.Object, roleService.Object, tenantCacheService.Object);
+                configuration.Object, roleService.Object, tenantCacheService.Object, _stringLocalizer, _tenantFrameworkSl);
 
             var exception = await Assert.ThrowsAsync<DisabledUserException>(
                 async () => await authenticationService.AuthenticateAsync(userLogin)
@@ -316,7 +329,7 @@ namespace Codex.Users.Api.Tests.Services
             configuration.Setup(c => c.GetSection(It.IsAny<string>())).Returns(configurationSection.Object);
 
             AuthenticationService authenticationService = new(logger.Object, daprClient.Object, passwordHasher.Object, userService.Object,
-                configuration.Object, roleService.Object, tenantCacheService.Object);
+                configuration.Object, roleService.Object, tenantCacheService.Object, _stringLocalizer, _tenantFrameworkSl);
 
             var auth = await authenticationService.AuthenticateAsync(userLogin);
 

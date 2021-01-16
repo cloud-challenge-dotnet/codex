@@ -1,10 +1,15 @@
 using AutoMapper;
+using Codex.Core.Tools.AutoMapper;
 using Codex.Models.Exceptions;
 using Codex.Models.Tenants;
 using Codex.Tenants.Api.Repositories.Interfaces;
 using Codex.Tenants.Api.Repositories.Models;
+using Codex.Tenants.Api.Resources;
 using Codex.Tenants.Api.Services;
 using Codex.Tests.Framework;
+using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -17,16 +22,23 @@ namespace Codex.Tenants.Api.Tests
     {
         private readonly IMapper _mapper;
 
+        private readonly IStringLocalizer<TenantResource> _sl;
+
         public TenantServiceIT()
         {
             //auto mapper configuration
             var mockMapper = new MapperConfiguration(cfg =>
             {
-                cfg.AllowNullCollections = null;
+                cfg.AllowNullCollections = true;
                 cfg.AllowNullDestinationValues = true;
+                cfg.AddProfile(new CoreMappingProfile());
                 cfg.AddProfile(new MappingProfile());
             });
             _mapper = mockMapper.CreateMapper();
+
+            var options = Options.Create(new LocalizationOptions { ResourcesPath = "Resources" });
+            var factory = new ResourceManagerStringLocalizerFactory(options, NullLoggerFactory.Instance);
+            _sl = new StringLocalizer<TenantResource>(factory);
         }
 
         [Fact]
@@ -42,7 +54,7 @@ namespace Codex.Tenants.Api.Tests
                 })
             );
 
-            var tenantService = new TenantService(tenantRepository.Object, _mapper);
+            var tenantService = new TenantService(tenantRepository.Object, _mapper, _sl);
 
             var tenantList = await tenantService.FindAllAsync();
 
@@ -65,7 +77,7 @@ namespace Codex.Tenants.Api.Tests
             );
 
 
-            var tenantService = new TenantService(tenantRepository.Object, _mapper);
+            var tenantService = new TenantService(tenantRepository.Object, _mapper, _sl);
 
             var tenant = await tenantService.FindOneAsync(tenandId);
 
@@ -88,7 +100,7 @@ namespace Codex.Tenants.Api.Tests
                 Task.FromResult(new TenantRow("Id1", "Tenant 1", null))
             );
 
-            var tenantService = new TenantService(tenantRepository.Object, _mapper);
+            var tenantService = new TenantService(tenantRepository.Object, _mapper, _sl);
 
             var tenant = await tenantService.CreateAsync(tenantCreator);
 
@@ -107,7 +119,7 @@ namespace Codex.Tenants.Api.Tests
                 Task.FromResult(true)
             );
 
-            var tenantService = new TenantService(tenantRepository.Object, _mapper);
+            var tenantService = new TenantService(tenantRepository.Object, _mapper, _sl);
 
             var exception = await Assert.ThrowsAsync<IllegalArgumentException>(() => tenantService.CreateAsync(tenantCreator));
 
@@ -126,7 +138,7 @@ namespace Codex.Tenants.Api.Tests
                 Task.FromResult(true)
             );
 
-            var tenantService = new TenantService(tenantRepository.Object, _mapper);
+            var tenantService = new TenantService(tenantRepository.Object, _mapper, _sl);
 
             var exception = await Assert.ThrowsAsync<ArgumentException>(() => tenantService.CreateAsync(tenantCreator));
 
@@ -144,7 +156,7 @@ namespace Codex.Tenants.Api.Tests
                 Task.FromResult((TenantRow?)new TenantRow("Id1", "Tenant 1", null))
             );
 
-            var tenantService = new TenantService(tenantRepository.Object, _mapper);
+            var tenantService = new TenantService(tenantRepository.Object, _mapper, _sl);
 
             var tenantUpdated = await tenantService.UpdateAsync(tenant);
 

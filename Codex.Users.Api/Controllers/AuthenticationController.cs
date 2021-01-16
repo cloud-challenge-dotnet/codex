@@ -1,6 +1,8 @@
 ﻿using Codex.Models.Users;
+using Codex.Users.Api.Resources;
 using Codex.Users.Api.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using System;
 using System.Threading.Tasks;
 
@@ -12,9 +14,14 @@ namespace Codex.Users.Api.Controllers
     {
         private readonly IAuthenticationService _authenticationService;
 
-        public AuthenticationController(IAuthenticationService authenticationService)
+        private readonly IStringLocalizer<UserResource> _sl;
+
+        public AuthenticationController(
+            IAuthenticationService authenticationService,
+            IStringLocalizer<UserResource> sl)
         {
             _authenticationService = authenticationService;
+            _sl = sl;
         }
 
         [HttpPost]
@@ -22,7 +29,7 @@ namespace Codex.Users.Api.Controllers
         {
             if (tenantId != userLogin.TenantId)
             {
-                throw new ArgumentException("Tenant id inside header must be same than user tenant id");
+                throw new ArgumentException(_sl[UserResource.TENANT_ID_INSIDE_HEADER_MUST_BE_SAME_THAN_USER_TENANT_ID]!);
             }
 
             return AuthenticateInternalAsync(userLogin);

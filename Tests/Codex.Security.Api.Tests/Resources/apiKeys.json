@@ -4,14 +4,18 @@
     "data": [
       {
         "_id": "global.1",
-        "name": "apiKey1",
+        "name": {
+          "en": "apiKey1"
+        },
         "roles": [
           "ADMIN"
         ]
       },
       {
         "_id": "global.2",
-        "name": "apiKey2",
+        "name": {
+          "en": "apiKey2"
+        },
         "roles": [
           "USER"
         ]

@@ -4,12 +4,16 @@ using Codex.Core.Models;
 using Codex.Core.RazorHelpers.Interfaces;
 using Codex.Models.Tenants;
 using Codex.Models.Users;
+using Codex.Tenants.Framework.Resources;
 using Codex.Tests.Framework;
 using Codex.Users.Api.Models;
 using Codex.Users.Api.Services.Implementations;
 using Codex.Users.Api.Services.Interfaces;
 using Dapr.Client;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using Moq;
 using System.Collections.Generic;
@@ -21,8 +25,13 @@ namespace Codex.Users.Api.Tests
 {
     public class UserMailServiceIT : IClassFixture<Fixture>
     {
+        private readonly StringLocalizer<TenantFrameworkResource> _tenantFrameworkSl;
+
         public UserMailServiceIT()
         {
+            var options = Options.Create(new LocalizationOptions { ResourcesPath = "Resources" });
+            var factory = new ResourceManagerStringLocalizerFactory(options, NullLoggerFactory.Instance);
+            _tenantFrameworkSl = new StringLocalizer<TenantFrameworkResource>(factory);
         }
 
         [Fact]
@@ -61,6 +70,7 @@ namespace Codex.Users.Api.Tests
 
             var userMailService = new UserMailService(
                 logger.Object,
+                _tenantFrameworkSl,
                 daprClient.Object,
                 razorPartialToStringRenderer.Object,
                 userService.Object,
@@ -96,6 +106,7 @@ namespace Codex.Users.Api.Tests
 
             var userMailService = new UserMailService(
                 logger.Object,
+                _tenantFrameworkSl,
                 daprClient.Object,
                 razorPartialToStringRenderer.Object,
                 userService.Object,

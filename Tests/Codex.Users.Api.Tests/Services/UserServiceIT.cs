@@ -1,14 +1,19 @@
 using AutoMapper;
 using Codex.Core.Interfaces;
 using Codex.Core.Models;
+using Codex.Core.Tools.AutoMapper;
 using Codex.Models.Exceptions;
 using Codex.Models.Users;
 using Codex.Tests.Framework;
 using Codex.Users.Api.Exceptions;
 using Codex.Users.Api.Repositories.Interfaces;
 using Codex.Users.Api.Repositories.Models;
+using Codex.Users.Api.Resources;
 using Codex.Users.Api.Services.Implementations;
 using Dapr.Client;
+using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using Moq;
 using System;
@@ -23,16 +28,23 @@ namespace Codex.Users.Api.Tests
     {
         private readonly IMapper _mapper;
 
+        private readonly IStringLocalizer<UserResource> _stringLocalizer;
+
         public UserServiceIT()
         {
             //auto mapper configuration
             var mockMapper = new MapperConfiguration(cfg =>
             {
-                cfg.AllowNullCollections = null;
+                cfg.AllowNullCollections = true;
                 cfg.AllowNullDestinationValues = true;
+                cfg.AddProfile(new CoreMappingProfile());
                 cfg.AddProfile(new MappingProfile());
             });
             _mapper = mockMapper.CreateMapper();
+
+            var options = Options.Create(new LocalizationOptions { ResourcesPath = "Resources" });
+            var factory = new ResourceManagerStringLocalizerFactory(options, NullLoggerFactory.Instance);
+            _stringLocalizer = new StringLocalizer<UserResource>(factory);
         }
 
         [Fact]
@@ -53,7 +65,8 @@ namespace Codex.Users.Api.Tests
                 })
             );
 
-            var userService = new UserService(userRepository.Object, daprClient.Object, passwordHasher.Object, _mapper);
+            var userService = new UserService(userRepository.Object, daprClient.Object,
+                passwordHasher.Object, _mapper, _stringLocalizer);
 
             var userList = await userService.FindAllAsync(userCriteria);
 
@@ -76,7 +89,8 @@ namespace Codex.Users.Api.Tests
                 Task.FromResult((UserRow?)new UserRow { Id = userId })
             );
 
-            var userService = new UserService(userRepository.Object, daprClient.Object, passwordHasher.Object, _mapper);
+            var userService = new UserService(userRepository.Object, daprClient.Object,
+                passwordHasher.Object, _mapper, _stringLocalizer);
 
             var user = await userService.FindOneAsync(userId.ToString());
 
@@ -108,7 +122,8 @@ namespace Codex.Users.Api.Tests
                 Task.FromResult(new UserRow() { Id = userId, Login = "Login", Email = "test@gmail.com" })
             );
 
-            var userService = new UserService(userRepository.Object, daprClient.Object, passwordHasher.Object, _mapper);
+            var userService = new UserService(userRepository.Object, daprClient.Object,
+                passwordHasher.Object, _mapper, _stringLocalizer);
 
             var user = await userService.CreateAsync("global", userCreator);
 
@@ -126,7 +141,8 @@ namespace Codex.Users.Api.Tests
 
             var userCreator = new UserCreator() { Login = "Login", Email = "test@gmail.com", Password = null };
 
-            var userService = new UserService(userRepository.Object, daprClient.Object, passwordHasher.Object, _mapper);
+            var userService = new UserService(userRepository.Object, daprClient.Object,
+                passwordHasher.Object, _mapper, _stringLocalizer);
 
             var exception = await Assert.ThrowsAsync<IllegalArgumentException>(() => userService.CreateAsync("global", userCreator));
 
@@ -142,7 +158,8 @@ namespace Codex.Users.Api.Tests
 
             var userCreator = new UserCreator() { Login = "Login", Email = "test@gmail.com", Password = "" };
 
-            var userService = new UserService(userRepository.Object, daprClient.Object, passwordHasher.Object, _mapper);
+            var userService = new UserService(userRepository.Object, daprClient.Object,
+                passwordHasher.Object, _mapper, _stringLocalizer);
 
             var exception = await Assert.ThrowsAsync<IllegalArgumentException>(() => userService.CreateAsync("global", userCreator));
 
@@ -158,7 +175,8 @@ namespace Codex.Users.Api.Tests
 
             var userCreator = new UserCreator() { Login = "", Email = "test@gmail.com", Password = "test" };
 
-            var userService = new UserService(userRepository.Object, daprClient.Object, passwordHasher.Object, _mapper);
+            var userService = new UserService(userRepository.Object, daprClient.Object,
+                passwordHasher.Object, _mapper, _stringLocalizer);
 
             var exception = await Assert.ThrowsAsync<IllegalArgumentException>(() => userService.CreateAsync("global", userCreator));
 
@@ -174,7 +192,8 @@ namespace Codex.Users.Api.Tests
 
             var userCreator = new UserCreator() { Login = "Login", Email = "", Password = "test" };
 
-            var userService = new UserService(userRepository.Object, daprClient.Object, passwordHasher.Object, _mapper);
+            var userService = new UserService(userRepository.Object, daprClient.Object,
+                passwordHasher.Object, _mapper, _stringLocalizer);
 
             var exception = await Assert.ThrowsAsync<IllegalArgumentException>(() => userService.CreateAsync("global", userCreator));
 
@@ -190,7 +209,8 @@ namespace Codex.Users.Api.Tests
 
             var userCreator = new UserCreator() { Login = "Login", Email = "test.com", Password = "test" };
 
-            var userService = new UserService(userRepository.Object, daprClient.Object, passwordHasher.Object, _mapper);
+            var userService = new UserService(userRepository.Object, daprClient.Object,
+                passwordHasher.Object, _mapper, _stringLocalizer);
 
             var exception = await Assert.ThrowsAsync<IllegalArgumentException>(() => userService.CreateAsync("global", userCreator));
 
@@ -200,6 +220,7 @@ namespace Codex.Users.Api.Tests
         [Fact]
         public async Task Create_With_Exist_User_Login()
         {
+            //var stringLocalizer = new Mock<IStringLocalizer<UserResource>>();
             var userRepository = new Mock<IUserRepository>();
             var passwordHasher = new Mock<IPasswordHasher>();
             var daprClient = new Mock<DaprClient>();
@@ -212,7 +233,8 @@ namespace Codex.Users.Api.Tests
 
             var userCreator = new UserCreator() { Login = "Login", Email = "test@gmail.com", Password = "test" };
 
-            var userService = new UserService(userRepository.Object, daprClient.Object, passwordHasher.Object, _mapper);
+            var userService = new UserService(userRepository.Object, daprClient.Object,
+                passwordHasher.Object, _mapper, _stringLocalizer);
 
             var exception = await Assert.ThrowsAsync<IllegalArgumentException>(() => userService.CreateAsync("global", userCreator));
 
@@ -234,7 +256,8 @@ namespace Codex.Users.Api.Tests
 
             var userCreator = new UserCreator() { Login = "Login", Email = "test@gmail.com", Password = "test" };
 
-            var userService = new UserService(userRepository.Object, daprClient.Object, passwordHasher.Object, _mapper);
+            var userService = new UserService(userRepository.Object, daprClient.Object,
+                passwordHasher.Object, _mapper, _stringLocalizer);
 
             var exception = await Assert.ThrowsAsync<IllegalArgumentException>(() => userService.CreateAsync("global", userCreator));
 
@@ -255,13 +278,37 @@ namespace Codex.Users.Api.Tests
                 Task.FromResult((UserRow?)new UserRow { Id = userId, Login = "login" })
             );
 
-            var userService = new UserService(userRepository.Object, daprClient.Object, passwordHasher.Object, _mapper);
+            var userService = new UserService(userRepository.Object, daprClient.Object,
+                passwordHasher.Object, _mapper, _stringLocalizer);
 
             var userResult = await userService.UpdateAsync(user);
 
             Assert.NotNull(userResult);
             Assert.Equal(userId.ToString(), userResult!.Id);
             Assert.Equal("login", userResult!.Login);
+        }
+
+        public async Task UpdatePassword()
+        {
+            var userRepository = new Mock<IUserRepository>();
+            var passwordHasher = new Mock<IPasswordHasher>();
+            var daprClient = new Mock<DaprClient>();
+
+            var userId = ObjectId.GenerateNewId();
+
+            userRepository.Setup(x => x.UpdatePasswordAsync(It.IsAny<ObjectId>(), It.IsAny<string>())).Returns(
+                Task.FromResult((UserRow?)new UserRow { Id = userId })
+            );
+
+            var userService = new UserService(userRepository.Object, daprClient.Object,
+                passwordHasher.Object, _mapper, _stringLocalizer);
+
+            var userResult = await userService.UpdatePasswordAsync(userId.ToString(), "test");
+
+            userRepository.Verify(x => x.UpdatePasswordAsync(It.IsAny<ObjectId>(), It.IsAny<string>()), Times.Once);
+
+            Assert.NotNull(userResult);
+            Assert.Equal(userId.ToString(), userResult!.Id);
         }
 
         [Fact]
@@ -279,7 +326,8 @@ namespace Codex.Users.Api.Tests
                 Task.FromResult((UserRow?)new UserRow { Id = userId, Login = "login" })
             );
 
-            var userService = new UserService(userRepository.Object, daprClient.Object, passwordHasher.Object, _mapper);
+            var userService = new UserService(userRepository.Object, daprClient.Object,
+                passwordHasher.Object, _mapper, _stringLocalizer);
 
             var userResult = await userService.ActivateUserAsync(user, activationCode);
 
@@ -305,7 +353,8 @@ namespace Codex.Users.Api.Tests
                 Task.FromResult((UserRow?)new UserRow { Id = userId, Login = "login" })
             );
 
-            var userService = new UserService(userRepository.Object, daprClient.Object, passwordHasher.Object, _mapper);
+            var userService = new UserService(userRepository.Object, daprClient.Object,
+                passwordHasher.Object, _mapper, _stringLocalizer);
 
             var exception = await Assert.ThrowsAsync<InvalidUserValidationCodeException>(async () => await userService.ActivateUserAsync(user, activationCode));
 
@@ -330,7 +379,8 @@ namespace Codex.Users.Api.Tests
                 Task.FromResult((UserRow?)new UserRow { Id = userId, Login = "login" })
             );
 
-            var userService = new UserService(userRepository.Object, daprClient.Object, passwordHasher.Object, _mapper);
+            var userService = new UserService(userRepository.Object, daprClient.Object,
+                passwordHasher.Object, _mapper, _stringLocalizer);
 
             var exception = await Assert.ThrowsAsync<InvalidUserValidationCodeException>(async () => await userService.ActivateUserAsync(user, activationCode));
 
@@ -351,7 +401,8 @@ namespace Codex.Users.Api.Tests
             var userId = ObjectId.GenerateNewId();
             var user = new User { Id = userId.ToString(), Login = "login", ActivationCode = activationCode, ActivationValidity = DateTime.Now.AddDays(-1) };
 
-            var userService = new UserService(userRepository.Object, daprClient.Object, passwordHasher.Object, _mapper);
+            var userService = new UserService(userRepository.Object, daprClient.Object,
+                passwordHasher.Object, _mapper, _stringLocalizer);
 
             var exception = await Assert.ThrowsAsync<ExpiredUserValidationCodeException>(async () => await userService.ActivateUserAsync(user, activationCode));
 

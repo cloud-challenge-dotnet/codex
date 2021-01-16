@@ -14,6 +14,8 @@ namespace Codex.Users.Api.Services.Interfaces
 
         Task<User?> UpdateAsync(User user);
 
+        Task<User?> UpdatePasswordAsync(string userId, string password);
+
         Task<User?> ActivateUserAsync(User user, string activationCode);
     }
 }

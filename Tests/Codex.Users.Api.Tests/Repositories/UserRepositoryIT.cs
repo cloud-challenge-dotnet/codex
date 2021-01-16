@@ -151,6 +151,7 @@ namespace Codex.Users.Api.Tests
                     "ADMIN",
                     "USER"
                 },
+                LanguageCultureName = "en-GB",
                 ActivationCode = "123456",
                 ActivationValidity = DateTime.Now.AddDays(1),
                 PasswordHash = "test",
@@ -168,6 +169,7 @@ namespace Codex.Users.Api.Tests
             Assert.Equal(2, user!.Roles.Count);
             Assert.Equal("ADMIN", user!.Roles[0]);
             Assert.Equal("USER", user!.Roles[1]);
+            Assert.Equal("en-GB", user!.LanguageCultureName);
             Assert.Equal("123456", user!.ActivationCode);
             Assert.Equal("test", user!.PasswordHash);
             Assert.True(user!.Active);
@@ -175,6 +177,22 @@ namespace Codex.Users.Api.Tests
             //Not updated
             Assert.Equal("5fb92118da7ed3521e4a7d59", user!.Id.ToString());
             Assert.Equal(new DateTime(2020, 12, 12), user!.CreationDate);
+        }
+
+
+        [Fact]
+        public async Task UpdatePassword()
+        {
+            await _fixture.UseDataSetAsync(locations: @"Resources/users.json");
+
+            var user = await _userRepository.UpdatePasswordAsync(new ObjectId("5fb92118da7ed3521e4a7d59"), "test");
+
+            Assert.NotNull(user);
+            Assert.NotEqual(new DateTime(2020, 12, 12), user!.ModificationDate);
+            Assert.Equal("test", user!.PasswordHash);
+
+            //Not updated
+            Assert.Equal("5fb92118da7ed3521e4a7d59", user!.Id.ToString());
         }
 
 
