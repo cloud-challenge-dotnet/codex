@@ -1,0 +1,86 @@
+﻿@page "/administration/apikeys"
+@inject IStringLocalizer<AppResource> localizer
+@inject IApiKeyService ApiKeyService
+@inject IAlertService AlertService
+@inject NavigationManager NavigationManager
+@inject IApplicationData ApplicationData
+
+<strong>Api key list</strong>
+
+@if (apiKeys == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Roles</th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var apiKey in apiKeys)
+            {
+                <tr>
+                    <td>@apiKey.Id</td>
+                    <td>@apiKey.Name</td>
+                    <td>
+                        @foreach (var role in apiKey.Roles)
+                        {
+                            @role
+                            <br />
+                        }
+                    </td>
+                    <td>
+                        <input type="button" class="btn btn-primary" value="Edit"
+                               @onclick="@(async () => await ShowEditAsync(apiKey.Id))" />
+                    </td>
+                    <td>
+                        <input type="button" class="btn btn-danger" value="Delete" />
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<div>
+    <input type="button" class="btn btn-primary" value="Add"
+           @onclick="@(async () => await ShowEditAsync())" />
+</div>
+
+@code {
+    [CascadingParameter]
+    public IModalService? Modal { get; set; }
+
+    private List<ApiKey>? apiKeys;
+
+    protected override async Task OnInitializedAsync()
+    {
+        apiKeys = await ApiKeyService.FindAllAsync();
+        // TODO delete
+        // TODO update and new
+    }
+
+    async Task ShowEditAsync(string? apiKeyId = null)
+    {
+        var parameters = new ModalParameters();
+        parameters.Add(nameof(EditApiKey.ApiKeyId), apiKeyId);
+        var result = await Modal!.Show<EditApiKey>("Edit Api key", parameters).Result;
+
+        if (result.Cancelled)
+        {
+            Console.WriteLine("Modal was cancelled");
+        }
+        else
+        {
+            Console.WriteLine(result.Data);
+        }
+    }
+}
+

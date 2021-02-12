@@ -1,15 +1,17 @@
 @inject NavigationManager NavigationManager
 
 <LoadingScreen>
-    <Router AppAssembly="@typeof(Program).Assembly" PreferExactMatches="@true">
-        <Found Context="routeData">
-            <AppRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
-        </Found>
-        <NotFound>
-            @{
-                // redirect to home page if not found
-                NavigationManager.NavigateTo("");
-            }
-        </NotFound>
-    </Router>
+    <CascadingBlazoredModal>
+        <Router AppAssembly="@typeof(Program).Assembly" PreferExactMatches="@true">
+            <Found Context="routeData">
+                <AppRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+            </Found>
+            <NotFound>
+                @{
+                    // redirect to home page if not found
+                    NavigationManager.NavigateTo("");
+                }
+            </NotFound>
+        </Router>
+    </CascadingBlazoredModal>
 </LoadingScreen>

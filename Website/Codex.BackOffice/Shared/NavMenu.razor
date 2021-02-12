@@ -1,4 +1,5 @@
 ﻿@inject IStringLocalizer<AppResource> localizer
+@inject NavigationManager NavigationManager
 
 <div class="top-row pl-4 navbar navbar-dark">
     <a class="navbar-brand" href="">BackOffice</a>
@@ -14,11 +15,29 @@
                 <span class="oi oi-home" aria-hidden="true"></span> @localizer[AppResource.HOME]
             </NavLink>
         </li>
+
         <li class="nav-item px-3">
-            <NavLink class="nav-link" href="/account/profile" Match="NavLinkMatch.All">
-                <span class="oi oi-person" aria-hidden="true"></span> @localizer[AppResource.MY_ACCOUNT]
-            </NavLink>
+            <NavLinkPreventDefault class="nav-link" href="/administration" Match="NavLinkMatch.Prefix"
+                     @onclick="AdminMenuClick">
+                <span class="oi oi-cog" aria-hidden="true"></span> @localizer[AppResource.ADMINISTRATION]
+            </NavLinkPreventDefault>
+            @if (expandSubAdminMenu)
+            {
+                <ul class="nav flex-column">
+                    <li class="nav-item px-3">
+                        <NavLink @ref="navLinkProfile" class="nav-link" href="/administration/profile" Match="NavLinkMatch.All">
+                            <span class="oi oi-person" aria-hidden="true"></span> @localizer[AppResource.MY_ACCOUNT]
+                        </NavLink>
+                    </li>
+                    <li class="nav-item px-3">
+                        <NavLink class="nav-link" href="/administration/apikeys" Match="NavLinkMatch.All">
+                            <span class="oi oi-lock-locked" aria-hidden="true"></span> @localizer[AppResource.API_KEY]
+                        </NavLink>
+                    </li>
+                </ul>
+            }
         </li>
+
         <li class="nav-item px-3">
             <NavLink class="nav-link" href="/account/logout" Match="NavLinkMatch.All">
                 <span class="oi oi-x" aria-hidden="true"></span> @localizer[AppResource.LOG_OUT]
@@ -29,11 +48,23 @@
 
 @code {
     private bool collapseNavMenu = true;
+    private bool expandSubAdminMenu = false;
+
+    private NavLink? navLinkProfile { get; set; }
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
+    }
+
+    private void AdminMenuClick()
+    {
+        if (!expandSubAdminMenu)
+        {
+            NavigationManager.NavigateTo("/administration/profile");
+        }
+        expandSubAdminMenu = !expandSubAdminMenu;
     }
 }

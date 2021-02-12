@@ -163,4 +163,19 @@
   <data name="LANGUAGE" xml:space="preserve">
     <value>Langue</value>
   </data>
+  <data name="ADMINISTRATION" xml:space="preserve">
+    <value>Administration</value>
+  </data>
+  <data name="API_KEY" xml:space="preserve">
+    <value>Api Key</value>
+  </data>
+  <data name="NAME" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="ROLES" xml:space="preserve">
+    <value>Roles</value>
+  </data>
+  <data name="ROLE" xml:space="preserve">
+    <value>Role</value>
+  </data>
 </root>

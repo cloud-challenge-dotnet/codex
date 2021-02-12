@@ -1,5 +1,7 @@
+using Blazored.Modal;
 using Codex.BackOffice.Extensions;
 using Codex.BackOffice.Services.Users.Implementations;
+using Codex.Web.Services.Security.Interfaces;
 using Codex.Web.Services.Tools.Implementations;
 using Codex.Web.Services.Tools.Interfaces;
 using Codex.Web.Services.Users.Implementations;
@@ -21,12 +23,15 @@ namespace Codex.BackOffice
 
             builder.Services
                 .AddLocalization()
+                .AddBlazoredModal()
                 .AddScoped<ILocalStorageService, LocalStorageService>()
                 .AddScoped<IApplicationData, ApplicationData>()
                 .AddScoped<IHttpManager, HttpManager>()
+                .AddScoped<IApiKeyService, ApiKeyService>()
                 .AddScoped<IAuthenticationService, AuthenticationService>()
                 .AddScoped<IUserService, UserService>()
                 .AddScoped<IAlertService, AlertService>();
+
 
             builder.Services.AddScoped(sp =>
             {

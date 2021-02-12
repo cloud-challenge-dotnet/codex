@@ -1,0 +1,112 @@
+﻿@inject IStringLocalizer<AppResource> localizer
+@inject IApiKeyService ApiKeyService
+@inject IAlertService AlertService
+@using System.Linq
+
+<div class="dialog-form">
+    <EditForm Model="@model">
+        <DataAnnotationsValidator />
+        <div class="form-group">
+            <label>@localizer[AppResource.NAME]</label>
+            <InputText @bind-Value="model.Name" class="form-control" name="login" />
+            <ValidationMessage For="@(() => model.Name)" />
+        </div>
+
+        <fieldset class="form-group">
+            <div class="row">
+                <legend class="col-form-label col-sm-2 pt-0">@localizer[AppResource.ROLES]</legend>
+                <div class="col-sm-10">
+                    @foreach (var selectRole in model.Roles)
+                    {
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="apiKeyRoles" id="@selectRole.Name" value="@selectRole.Name"
+                                   @bind="selectRole.Selected">
+                            <label class="form-check-label" for="@selectRole.Name">
+                                @selectRole.Name
+                            </label>
+                        </div>
+                    }
+                </div>
+            </div>
+        </fieldset>
+
+        <div class="form-group">
+            <button type="button" disabled="@Sending"
+                    @onclick="@(async ()=> { await CancelAsync(); })" class="btn btn-secondary mr-2">
+                Cancel
+            </button>
+
+            @if (Editable)
+            {
+                <button type="button" disabled="@Sending"
+                        @onclick="@(async () => { await SaveAsync(); })" class="btn btn-primary mr-2">
+                    @if (Sending)
+                    {
+                        <span class="spinner-border spinner-border-sm mr-1"></span>
+                    }
+                    Submit
+                </button>
+            }
+        </div>
+    </EditForm>
+    <Alert Id="@ApiKeyDialogErrorId" />
+</div>
+
+@code {
+    const String ApiKeyDialogErrorId = "api_key_dialog_alert";
+
+    [Parameter]
+    public string? ApiKeyId { get; set; }
+
+    [CascadingParameter]
+    BlazoredModalInstance? ModalInstance { get; set; }
+
+    ApiKeyModel model { get; set; } = new();
+
+    bool Editable { get; set; } = true;
+
+    bool Sending { get; set; } = false;
+
+    List<string> TenantRoles = new() // TODO search tenant roles
+    {
+        "ADMIN",
+        "TENANT",
+        "USER"
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        if (!string.IsNullOrWhiteSpace(ApiKeyId))
+        {
+            try
+            {
+                var apiKey = await ApiKeyService.FindOneAsync(ApiKeyId);
+                model = new()
+                {
+                    Id = apiKey.Id,
+                    Name = apiKey.Name,
+                    Roles = TenantRoles.Select(role => new SelectData(role, apiKey.Roles.Contains(role))).ToList()
+                };
+            }
+            catch (Exception exception)
+            {
+                Editable = false;
+                string errorMessage = exception is FunctionnalException ? exception.Message : @localizer[AppResource.AN_ERROR_OCCURED]!;
+                AlertService.Error(errorMessage, id: ApiKeyDialogErrorId, autoClose: false);
+            }
+        }
+    }
+
+    private async Task CancelAsync()
+    {
+        await ModalInstance!.CancelAsync();
+    }
+
+    private async Task SaveAsync()
+    {
+        // TODO savemodel
+        await ModalInstance!.CloseAsync(ModalResult.Ok<ApiKey>(new()));
+    }
+}

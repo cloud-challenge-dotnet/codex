@@ -9,10 +9,11 @@ namespace Codex.Web.Services.Tools.Implementations
         private const string _defaultId = "default-alert";
         public event Action<Alert>? OnAlert;
 
-        public void Success(string message, bool keepAfterRouteChange = false, bool autoClose = true)
+        public void Success(string message, string? id = null, bool keepAfterRouteChange = false, bool autoClose = true)
         {
             this.Alert(new Alert
             {
+                Id = id,
                 Type = AlertType.Success,
                 Message = message,
                 KeepAfterRouteChange = keepAfterRouteChange,
@@ -20,10 +21,11 @@ namespace Codex.Web.Services.Tools.Implementations
             });
         }
 
-        public void Error(string message, bool keepAfterRouteChange = false, bool autoClose = true)
+        public void Error(string message, string? id= null, bool keepAfterRouteChange = false, bool autoClose = true)
         {
             this.Alert(new Alert
             {
+                Id = id,
                 Type = AlertType.Error,
                 Message = message,
                 KeepAfterRouteChange = keepAfterRouteChange,
@@ -31,10 +33,11 @@ namespace Codex.Web.Services.Tools.Implementations
             });
         }
 
-        public void Info(string message, bool keepAfterRouteChange = false, bool autoClose = true)
+        public void Info(string message, string? id = null, bool keepAfterRouteChange = false, bool autoClose = true)
         {
             this.Alert(new Alert
             {
+                Id = id,
                 Type = AlertType.Info,
                 Message = message,
                 KeepAfterRouteChange = keepAfterRouteChange,
@@ -42,10 +45,11 @@ namespace Codex.Web.Services.Tools.Implementations
             });
         }
 
-        public void Warn(string message, bool keepAfterRouteChange = false, bool autoClose = true)
+        public void Warn(string message, string? id = null, bool keepAfterRouteChange = false, bool autoClose = true)
         {
             this.Alert(new Alert
             {
+                Id = id,
                 Type = AlertType.Warning,
                 Message = message,
                 KeepAfterRouteChange = keepAfterRouteChange,

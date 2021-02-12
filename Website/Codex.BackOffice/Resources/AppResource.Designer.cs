@@ -79,11 +79,29 @@ namespace Codex.BackOffice.Resources {
         }
         
         /// <summary>
+        ///   Recherche une chaîne localisée semblable à Administration.
+        /// </summary>
+        public static string ADMINISTRATION {
+            get {
+                return ResourceManager.GetString("ADMINISTRATION", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Recherche une chaîne localisée semblable à An error occured. Please try again later.
         /// </summary>
         public static string AN_ERROR_OCCURED {
             get {
                 return ResourceManager.GetString("AN_ERROR_OCCURED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à Api Key.
+        /// </summary>
+        public static string API_KEY {
+            get {
+                return ResourceManager.GetString("API_KEY", resourceCulture);
             }
         }
         
@@ -187,6 +205,15 @@ namespace Codex.BackOffice.Resources {
         }
         
         /// <summary>
+        ///   Recherche une chaîne localisée semblable à Name.
+        /// </summary>
+        public static string NAME {
+            get {
+                return ResourceManager.GetString("NAME", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Recherche une chaîne localisée semblable à Password.
         /// </summary>
         public static string PASSWORD {
@@ -219,6 +246,24 @@ namespace Codex.BackOffice.Resources {
         public static string REQUIRED_FIELD_ERROR {
             get {
                 return ResourceManager.GetString("REQUIRED_FIELD_ERROR", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à Role.
+        /// </summary>
+        public static string ROLE {
+            get {
+                return ResourceManager.GetString("ROLE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à Roles.
+        /// </summary>
+        public static string ROLES {
+            get {
+                return ResourceManager.GetString("ROLES", resourceCulture);
             }
         }
         
