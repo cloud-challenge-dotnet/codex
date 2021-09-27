@@ -23,10 +23,9 @@ namespace Codex.Tenants.Api.Tests
         private static Mock<DaprClient> CreateMockDaprClientWithTenant(Tenant? tenant = null)
         {
             var daprClient = new Mock<DaprClient>();
-
             daprClient.Setup(x => x.GetStateAndETagAsync<Tenant?>(
-                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<ConsistencyMode?>(), It.IsAny<CancellationToken>()
-            )).Returns(new ValueTask<(Tenant?, string)>((tenant, "")));
+                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<ConsistencyMode?>(), It.IsAny<IReadOnlyDictionary<string, string>?>(), It.IsAny<CancellationToken>()
+            )).Returns(Task.FromResult<(Tenant?, string)>((tenant, "")));
 
             return daprClient;
         }

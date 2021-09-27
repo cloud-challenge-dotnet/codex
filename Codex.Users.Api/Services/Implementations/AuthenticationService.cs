@@ -11,18 +11,21 @@ using Codex.Users.Api.Exceptions;
 using Codex.Users.Api.Resources;
 using Codex.Users.Api.Services.Interfaces;
 using Dapr.Client;
-using Dapr.Client.Http;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net.Http;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace Codex.Users.Api.Services.Implementations
 {
@@ -86,20 +89,18 @@ namespace Codex.Users.Api.Services.Implementations
 
                 try
                 {
-                    user = (await _daprClient.InvokeMethodAsync<List<User>>(ApiNameConstant.UserApi, "User",
-                        httpExtension: new HTTPExtension()
+                    string methodNameWithParams = QueryHelpers.AddQueryString("User",
+                        new Dictionary<string, string?>()
                         {
-                            Verb = HTTPVerb.Get,
-                            QueryString = new Dictionary<string, string>()
-                            {
-                                { "Login", userLogin.Login }
-                            },
-                            Headers = {
-                                { HttpHeaderConstant.TenantId, "global" },
-                                { HttpHeaderConstant.ApiKey, $"global.{microserviceApiKey}" }
-                            }
+                            {"Login", userLogin.Login }
                         }
-                    )).FirstOrDefault(u => u.Login == userLogin.Login);
+                    );
+
+                    var requestMessage = _daprClient.CreateInvokeMethodRequest(HttpMethod.Get, ApiNameConstant.UserApi, methodNameWithParams);
+                    requestMessage.Headers.Add(HttpHeaderConstant.TenantId, "global");
+                    requestMessage.Headers.Add(HttpHeaderConstant.ApiKey, $"global.{microserviceApiKey}");
+                    List<User> userList = await _daprClient.InvokeMethodAsync<List<User>>(requestMessage);
+                    user = userList.FirstOrDefault(u => u.Login == userLogin.Login);
                 }
                 catch (Exception exception)
                 {

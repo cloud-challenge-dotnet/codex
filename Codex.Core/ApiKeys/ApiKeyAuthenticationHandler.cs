@@ -5,7 +5,6 @@ using Codex.Core.Roles.Interfaces;
 using Codex.Models.Roles;
 using Codex.Models.Security;
 using Dapr.Client;
-using Dapr.Client.Http;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -14,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Net.Http;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 using System.Text.Json;
@@ -85,16 +85,12 @@ namespace Codex.Core.ApiKeys
                     apiKey = await _apiKeyCacheService.GetCacheAsync(_daprClient, cacheKey);
                     if (apiKey == null)
                     {
-                        apiKey = await _daprClient.InvokeMethodAsync<ApiKey>(ApiNameConstant.SecurityApi, $"ApiKey/{providedApiKey}",
-                            new HTTPExtension()
-                            {
-                                Verb = HTTPVerb.Get,
-                                Headers = {
-                                    { HttpHeaderConstant.TenantId, tenantId },
-                                    { HttpHeaderConstant.ApiKey, $"{tenantId}.{microserviceApiKey}" }
-                                }
-                            }
-                        );
+                        var request = _daprClient.CreateInvokeMethodRequest(ApiNameConstant.SecurityApi, $"ApiKey/{providedApiKey}");
+                        request.Method = HttpMethod.Get;
+                        request.Headers.Add(HttpHeaderConstant.TenantId, tenantId);
+                        request.Headers.Add(HttpHeaderConstant.ApiKey, $"{tenantId}.{microserviceApiKey}");
+                        apiKey = await _daprClient.InvokeMethodAsync<ApiKey>(request);
+
                         await _apiKeyCacheService.UpdateCacheAsync(_daprClient, cacheKey, apiKey);
                     }
                 }

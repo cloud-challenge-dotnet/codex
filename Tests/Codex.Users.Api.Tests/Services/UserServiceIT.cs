@@ -108,7 +108,7 @@ namespace Codex.Users.Api.Tests
 
             daprClient.Setup(x => x.GetSecretAsync(It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<Dictionary<string, string>>(), It.IsAny<CancellationToken>()))
-            .Returns(new ValueTask<Dictionary<string, string>>(
+            .Returns(Task.FromResult(
                 new Dictionary<string, string>() { { ConfigConstant.PasswordSalt, "" } }
             ));
 

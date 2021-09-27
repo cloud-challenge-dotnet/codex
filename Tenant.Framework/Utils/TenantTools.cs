@@ -5,10 +5,10 @@ using Codex.Models.Tenants;
 using Codex.Tenants.Framework.Exceptions;
 using Codex.Tenants.Framework.Resources;
 using Dapr.Client;
-using Dapr.Client.Http;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace Codex.Tenants.Framework.Utils
@@ -32,16 +32,12 @@ namespace Codex.Tenants.Framework.Utils
                     var secretValues = await daprClient.GetSecretAsync(ConfigConstant.CodexKey, ConfigConstant.MicroserviceApiKey);
                     var microserviceApiKey = secretValues[ConfigConstant.MicroserviceApiKey];
 
-                    tenant = await daprClient.InvokeMethodAsync<Tenant>(ApiNameConstant.TenantApi, $"Tenant/{tenantId}",
-                        new HTTPExtension()
-                        {
-                            Verb = HTTPVerb.Get,
-                            Headers = {
-                                { HttpHeaderConstant.TenantId, tenantId },
-                                { HttpHeaderConstant.ApiKey, $"{tenantId}.{microserviceApiKey}" }
-                            }
-                        }
-                    );
+                    var request = daprClient.CreateInvokeMethodRequest(ApiNameConstant.TenantApi, $"Tenant/{tenantId}");
+                    request.Method = HttpMethod.Get;
+                    request.Headers.Add(HttpHeaderConstant.TenantId, tenantId);
+                    request.Headers.Add(HttpHeaderConstant.ApiKey, $"{tenantId}.{microserviceApiKey}");
+                    tenant = await daprClient.InvokeMethodAsync<Tenant>(request);
+
                     await tenantCacheService.UpdateCacheAsync(daprClient, cacheKey, tenant);
                     return tenant;
                 }

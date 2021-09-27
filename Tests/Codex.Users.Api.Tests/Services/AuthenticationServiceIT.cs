@@ -12,7 +12,6 @@ using Codex.Users.Api.Resources;
 using Codex.Users.Api.Services.Implementations;
 using Codex.Users.Api.Services.Interfaces;
 using Dapr.Client;
-using Dapr.Client.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
@@ -21,6 +20,7 @@ using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using Moq;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -74,7 +74,7 @@ namespace Codex.Users.Api.Tests.Services
 
             daprClient.Setup(x => x.GetSecretAsync(It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<Dictionary<string, string>>(), It.IsAny<CancellationToken>()))
-            .Returns(new ValueTask<Dictionary<string, string>>(
+            .Returns(Task.FromResult(
                 new Dictionary<string, string>() { { ConfigConstant.PasswordSalt, "" } }
             ));
 
@@ -97,7 +97,7 @@ namespace Codex.Users.Api.Tests.Services
             daprClient.Verify(x => x.GetSecretAsync(It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<Dictionary<string, string>>(), It.IsAny<CancellationToken>()), Times.Once);
             daprClient.Verify(x => x.InvokeMethodAsync<List<User>>(
-                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<HTTPExtension>(), It.IsAny<CancellationToken>()), Times.Never);
+                It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()), Times.Never);
             passwordHasher.Verify(x => x.GenerateHash(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
 
             Assert.NotNull(auth);
@@ -218,7 +218,7 @@ namespace Codex.Users.Api.Tests.Services
 
             daprClient.Setup(x => x.GetSecretAsync(It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<Dictionary<string, string>>(), It.IsAny<CancellationToken>()))
-            .Returns(new ValueTask<Dictionary<string, string>>(
+            .Returns(Task.FromResult(
                 new Dictionary<string, string>() { { ConfigConstant.PasswordSalt, "" } }
             ));
 
@@ -307,16 +307,19 @@ namespace Codex.Users.Api.Tests.Services
 
             daprClient.Setup(x => x.GetSecretAsync(It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<Dictionary<string, string>>(), It.IsAny<CancellationToken>()))
-            .Returns(new ValueTask<Dictionary<string, string>>(
+            .Returns(Task.FromResult(
                 new Dictionary<string, string>() {
                     { ConfigConstant.PasswordSalt, "" },
                     { ConfigConstant.MicroserviceApiKey, "" }
                 }
             ));
 
+            daprClient.Setup(x => x.CreateInvokeMethodRequest(It.IsAny<HttpMethod>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(new HttpRequestMessage());
+
             daprClient.Setup(x => x.InvokeMethodAsync<List<User>>(
-                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<HTTPExtension>(), It.IsAny<CancellationToken>()))
-                .Returns(new ValueTask<List<User>>(new List<User>() {
+                It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()))
+                .Returns(Task.FromResult(new List<User>() {
                     new User(){Id = userId, Login = "Login", PasswordHash = "123123313" }
                 }));
 
@@ -339,7 +342,7 @@ namespace Codex.Users.Api.Tests.Services
             daprClient.Verify(x => x.GetSecretAsync(It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<Dictionary<string, string>>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
             daprClient.Verify(x => x.InvokeMethodAsync<List<User>>(
-                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<HTTPExtension>(), It.IsAny<CancellationToken>()), Times.Once);
+                It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()), Times.Once);
             passwordHasher.Verify(x => x.GenerateHash(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
 
             Assert.NotNull(auth);

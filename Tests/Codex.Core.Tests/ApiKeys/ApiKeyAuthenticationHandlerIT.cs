@@ -1,4 +1,5 @@
-﻿using Codex.Core.ApiKeys;
+﻿using Autofac.Extras.Moq;
+using Codex.Core.ApiKeys;
 using Codex.Core.ApiKeys.Models;
 using Codex.Core.Cache;
 using Codex.Core.Models;
@@ -7,7 +8,6 @@ using Codex.Models.Roles;
 using Codex.Models.Security;
 using Codex.Tests.Framework;
 using Dapr.Client;
-using Dapr.Client.Http;
 using Grpc.Core;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
@@ -17,6 +17,7 @@ using Microsoft.Extensions.Primitives;
 using Moq;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 using System.Threading;
@@ -192,7 +193,7 @@ namespace Codex.Core.Tests.ApiKeys
 
             daprClient.Setup(x => x.GetSecretAsync(It.IsAny<string>(), It.IsAny<string>(),
                It.IsAny<Dictionary<string, string>>(), It.IsAny<CancellationToken>()))
-            .Returns(new ValueTask<Dictionary<string, string>>(
+            .Returns(Task.FromResult(
                 new Dictionary<string, string> { { ConfigConstant.MicroserviceApiKey, "fgdfgkfdgmfmdkgmkdlgklmfdg" } }
             ));
 
@@ -251,7 +252,9 @@ namespace Codex.Core.Tests.ApiKeys
             var clock = new Mock<ISystemClock>();
             var apiKeyCacheService = new Mock<ApiKeyCacheService>();
             var roleService = new Mock<IRoleService>();
+
             var daprClient = new Mock<DaprClient>();
+
             var logger = new Mock<ILogger<ApiKeyAuthenticationHandler>>();
 
             loggerFactory.Setup(x => x.CreateLogger(It.IsAny<string>())).Returns(logger.Object);
@@ -264,13 +267,16 @@ namespace Codex.Core.Tests.ApiKeys
 
             daprClient.Setup(x => x.GetSecretAsync(It.IsAny<string>(), It.IsAny<string>(),
                It.IsAny<Dictionary<string, string>>(), It.IsAny<CancellationToken>()))
-            .Returns(new ValueTask<Dictionary<string, string>>(
+            .Returns(Task.FromResult(
                 new Dictionary<string, string> { { ConfigConstant.MicroserviceApiKey, "fgdfgkfdgmfmdkgmkdlgklmfdg" } }
             ));
 
+            daprClient.Setup(x => x.CreateInvokeMethodRequest(It.IsAny<HttpMethod>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(new HttpRequestMessage());
+
             daprClient.Setup(x => x.InvokeMethodAsync<ApiKey>(
-                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<HTTPExtension>(), It.IsAny<CancellationToken>()))
-                .Returns(new ValueTask<ApiKey>(new ApiKey("test", "test api key", new List<string>() {
+                It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()))
+                .Returns(Task.FromResult(new ApiKey("test", "test api key", new List<string>() {
                     RoleConstant.USER
                 })));
 
@@ -342,7 +348,7 @@ namespace Codex.Core.Tests.ApiKeys
 
             daprClient.Setup(x => x.GetSecretAsync(It.IsAny<string>(), It.IsAny<string>(),
                It.IsAny<Dictionary<string, string>>(), It.IsAny<CancellationToken>()))
-            .Returns(new ValueTask<Dictionary<string, string>>(
+            .Returns(Task.FromResult(
                 new Dictionary<string, string> { { ConfigConstant.MicroserviceApiKey, "fgdfgkfdgmfmdkgmkdlgklmfdg" } }
             ));
 
@@ -405,12 +411,12 @@ namespace Codex.Core.Tests.ApiKeys
 
             daprClient.Setup(x => x.GetSecretAsync(It.IsAny<string>(), It.IsAny<string>(),
                It.IsAny<Dictionary<string, string>>(), It.IsAny<CancellationToken>()))
-            .Returns(new ValueTask<Dictionary<string, string>>(
+            .Returns(Task.FromResult(
                 new Dictionary<string, string> { { ConfigConstant.MicroserviceApiKey, "fgdfgkfdgmfmdkgmkdlgklmfdg" } }
             ));
 
             daprClient.Setup(x => x.InvokeMethodAsync<ApiKey>(
-                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<HTTPExtension>(), It.IsAny<CancellationToken>()))
+                It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()))
                 .Throws(new RpcException(new Status(StatusCode.Aborted, "")));
 
             var apiKeyAuthenticationHandler = new ApiKeyAuthenticationHandler(
@@ -472,12 +478,12 @@ namespace Codex.Core.Tests.ApiKeys
 
             daprClient.Setup(x => x.GetSecretAsync(It.IsAny<string>(), It.IsAny<string>(),
                It.IsAny<Dictionary<string, string>>(), It.IsAny<CancellationToken>()))
-            .Returns(new ValueTask<Dictionary<string, string>>(
+            .Returns(Task.FromResult(
                 new Dictionary<string, string> { { ConfigConstant.MicroserviceApiKey, "fgdfgkfdgmfmdkgmkdlgklmfdg" } }
             ));
 
             daprClient.Setup(x => x.InvokeMethodAsync<ApiKey>(
-                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<HTTPExtension>(), It.IsAny<CancellationToken>()))
+                It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()))
                 .Throws(new RpcException(new Status(StatusCode.NotFound, "")));
 
             var apiKeyAuthenticationHandler = new ApiKeyAuthenticationHandler(
