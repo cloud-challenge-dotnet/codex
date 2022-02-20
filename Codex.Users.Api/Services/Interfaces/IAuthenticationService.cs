@@ -1,10 +1,9 @@
 ﻿using Codex.Models.Users;
 using System.Threading.Tasks;
 
-namespace Codex.Users.Api.Services.Interfaces
+namespace Codex.Users.Api.Services.Interfaces;
+
+public interface IAuthenticationService
 {
-    public interface IAuthenticationService
-    {
-        Task<Auth> AuthenticateAsync(UserLogin userLogin);
-    }
+    Task<Auth> AuthenticateAsync(UserLogin userLogin);
 }

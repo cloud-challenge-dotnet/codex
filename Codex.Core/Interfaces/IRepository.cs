@@ -1,13 +1,12 @@
 ﻿using System.Threading.Tasks;
 
-namespace Codex.Core.Interfaces
+namespace Codex.Core.Interfaces;
+
+public interface IRepository<TDocument, TId>
 {
-    public interface IRepository<TDocument, TId>
-    {
-        Task<bool> ExistsByIdAsync(TId id);
+    Task<bool> ExistsByIdAsync(TId id);
 
-        Task<TDocument?> FindOneAsync(TId id);
+    Task<TDocument?> FindOneAsync(TId id);
 
-        Task<TDocument> InsertAsync(TDocument document);
-    }
+    Task<TDocument> InsertAsync(TDocument document);
 }

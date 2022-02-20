@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+option csharp_namespace = "CodexGrpc.Security";
+
+package codex.security.grpc;
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/empty.proto";
+import "common.proto";
+
+service ApiKeyService {
+  rpc FindOne (FindOneApiKeyRequest) returns (ApiKeyModel);
+  rpc FindAll (FindAllApiKeyRequest) returns (ApiKeyListResponse);
+  rpc Create (ApiKeyModel) returns (ApiKeyModel);
+  rpc Update (ApiKeyModel) returns (ApiKeyModel);
+  rpc Delete (DeleteApiKeyRequest) returns (google.protobuf.Empty);
+}
+
+message FindOneApiKeyRequest {
+  string id = 1;
+}
+
+message FindAllApiKeyRequest {
+  ApiKeyCriteriaModel criteria = 1;
+}
+
+message DeleteApiKeyRequest {
+  string id = 1;
+}
+
+message ApiKeyListResponse {
+  repeated ApiKeyModel apiKeys = 1;
+}
+
+message ApiKeyModel {
+  google.protobuf.StringValue id = 1;
+  string name = 2;
+  codex.common.StringValues roles = 3;
+}
+
+message ApiKeyCriteriaModel {
+  
+}

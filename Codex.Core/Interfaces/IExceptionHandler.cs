@@ -1,10 +1,9 @@
 ﻿using Codex.Core.Models;
 using System;
 
-namespace Codex.Core.Interfaces
+namespace Codex.Core.Interfaces;
+
+public interface IExceptionHandler
 {
-    public interface IExceptionHandler
-    {
-        CustomProblemDetails? Intercept(Exception exception);
-    }
+    CustomProblemDetails? Intercept(Exception exception);
 }

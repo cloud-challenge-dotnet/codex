@@ -5,16 +5,15 @@ using MongoDB.Bson;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Codex.Users.Api.Repositories.Interfaces
+namespace Codex.Users.Api.Repositories.Interfaces;
+
+public interface IUserRepository : IRepository<UserRow, ObjectId>
 {
-    public interface IUserRepository : IRepository<UserRow, ObjectId>
-    {
-        Task<List<UserRow>> FindAllAsync(UserCriteria userCriteria);
+    Task<List<UserRow>> FindAllAsync(UserCriteria userCriteria);
 
-        Task<UserRow?> UpdateAsync(UserRow user);
+    Task<UserRow?> UpdateAsync(UserRow user);
 
-        Task<UserRow?> UpdatePasswordAsync(ObjectId userId, string passwordHash);
+    Task<UserRow?> UpdatePasswordAsync(ObjectId userId, string passwordHash);
 
-        Task<UserRow?> UpdateActivationCodeAsync(ObjectId userId, string activationCode);
-    }
+    Task<UserRow?> UpdateActivationCodeAsync(ObjectId userId, string activationCode);
 }

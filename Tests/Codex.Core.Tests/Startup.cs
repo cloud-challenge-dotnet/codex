@@ -1,6 +1,4 @@
 ﻿using Codex.Tests.Framework;
-using Microsoft.Extensions.DependencyInjection;
-using System.Globalization;
 
 namespace Codex.Core.Tests
 {

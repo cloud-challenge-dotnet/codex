@@ -1,5 +1,4 @@
-﻿using Autofac.Extras.Moq;
-using Codex.Core.ApiKeys;
+﻿using Codex.Core.ApiKeys;
 using Codex.Core.ApiKeys.Models;
 using Codex.Core.Cache;
 using Codex.Core.Models;
@@ -7,22 +6,6 @@ using Codex.Core.Roles.Interfaces;
 using Codex.Models.Roles;
 using Codex.Models.Security;
 using Codex.Tests.Framework;
-using Dapr.Client;
-using Grpc.Core;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Primitives;
-using Moq;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Security.Claims;
-using System.Text.Encodings.Web;
-using System.Threading;
-using System.Threading.Tasks;
-using Xunit;
 
 namespace Codex.Core.Tests.ApiKeys
 {

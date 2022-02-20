@@ -1,10 +1,4 @@
-using Codex.Models.Tenants;
-using Codex.Tenants.Api.Repositories.Interfaces;
 using Codex.Tests.Framework;
-using Microsoft.Extensions.DependencyInjection;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Xunit;
 
 namespace Codex.Tenants.Api.Tests
 {

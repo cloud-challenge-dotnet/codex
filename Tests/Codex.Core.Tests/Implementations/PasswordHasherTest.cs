@@ -1,6 +1,5 @@
 ﻿using Codex.Core.Implementations;
 using Codex.Tests.Framework;
-using Xunit;
 
 namespace Codex.Core.Tests.Implementations
 {

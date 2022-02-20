@@ -1,7 +1,6 @@
-﻿namespace Codex.Core.Models
+﻿namespace Codex.Core.Models;
+
+public static class ClaimConstant
 {
-    public static class ClaimConstant
-    {
-        public const string TenantId = "tenantId";
-    }
+    public const string TenantId = "tenantId";
 }

@@ -3,21 +3,20 @@ using Codex.Models.Roles;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Codex.Core.Roles.Implementations
+namespace Codex.Core.Roles.Implementations;
+
+[ExcludeFromCodeCoverage]
+public class DefaultRoleProvider : IRoleProvider
 {
-    [ExcludeFromCodeCoverage]
-    public class DefaultRoleProvider : IRoleProvider
+    public List<Role> GetRoles()
     {
-        public List<Role> GetRoles()
+        return new()
         {
-            return new()
-            {
-                new(Code: RoleConstant.ADMIN, UpperRoleCode: null),
+            new(Code: RoleConstant.Admin, UpperRoleCode: null),
 
-                new(Code: RoleConstant.TENANT_MANAGER, UpperRoleCode: RoleConstant.ADMIN),
+            new(Code: RoleConstant.TenantManager, UpperRoleCode: RoleConstant.Admin),
 
-                new(Code: RoleConstant.USER, UpperRoleCode: RoleConstant.TENANT_MANAGER)
-            };
-        }
+            new(Code: RoleConstant.User, UpperRoleCode: RoleConstant.TenantManager)
+        };
     }
 }

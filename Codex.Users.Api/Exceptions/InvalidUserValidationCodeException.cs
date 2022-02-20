@@ -1,15 +1,14 @@
-﻿using Codex.Models.Exceptions;
-using System;
+﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using Codex.Models.Exceptions;
 
-namespace Codex.Users.Api.Exceptions
+namespace Codex.Users.Api.Exceptions;
+
+[ExcludeFromCodeCoverage]
+[Serializable]
+public class InvalidUserValidationCodeException : FunctionalException
 {
-    [ExcludeFromCodeCoverage]
-    [Serializable]
-    public class InvalidUserValidationCodeException : FunctionnalException
+    public InvalidUserValidationCodeException(string message, string? code = null) : base(message, code)
     {
-        public InvalidUserValidationCodeException(string message, string? code = null) : base(message, code)
-        {
-        }
     }
 }

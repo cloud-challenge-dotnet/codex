@@ -1,5 +1,4 @@
 ﻿
-namespace Codex.Models.Security
-{
-    public record ApiKeyCriteria();
-}
+namespace Codex.Models.Security;
+
+public record ApiKeyCriteria;

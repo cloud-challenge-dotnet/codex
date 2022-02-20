@@ -1,16 +1,7 @@
 using Codex.Core.Models;
 using Codex.Models.Roles;
 using Codex.Models.Tenants;
-using Codex.Tenants.Api.Controllers;
-using Codex.Tenants.Api.Services;
 using Codex.Tests.Framework;
-using Dapr.Client;
-using Microsoft.AspNetCore.Mvc;
-using Moq;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using Xunit;
 
 namespace Codex.Tenants.Api.Tests
 {

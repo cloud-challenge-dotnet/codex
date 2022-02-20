@@ -11,29 +11,38 @@ extensions:
 - name: dapr
   log-level: debug
   components-path: "./components/"
-
-ingress:
-  - name: ingress
-    bindings:
-      - port: 8080
-    rules:
-      - path: /tenantApi
-        service: tenantApi
-      - path: /userApi
-        service: userApi
-      - path: /securityApi
-        service: securityApi
+  exclude-placement-container: true
+  placement-port: 50005
+  
+  
+#ingress:
+#  - name: ingress
+#    bindings:
+#      - port: 8081
+#    rules:
+#      - path: /tenantApi
+#        service: tenantApi
+#      - path: /userApi
+#        service: userApi
+#      - path: /securityApi
+#        service: securityApi
 
 services:
 - name: tenantApi
   project: Codex.Tenants.Api/Codex.Tenants.Api.csproj
   replicas: 1
+  bindings:
+    - port: 8100
 - name: userApi
   project: Codex.Users.Api/Codex.Users.Api.csproj
   replicas: 1
+  bindings:
+    - port: 8101
 - name: securityApi
   project: Codex.Security.Api/Codex.Security.Api.csproj
   replicas: 1
+  bindings:
+    - port: 8102
 
 # This may conflict with the redis instance that dapr manages.
 #
@@ -45,8 +54,8 @@ services:
 #  - port: 6379
 # To ensure that your are running a dapr placement container with the right binding port.
 # (50005 as HostPort)
-- name: placement
-  image: daprio/dapr
-  args: ./placement
-  bindings:
-    - port: 50005
+#- name: placement
+  #  image: daprio/dapr
+  #  args: ./placement
+    #  bindings:
+  #   - port: 50005

@@ -2,15 +2,6 @@
 using Codex.Core.Security;
 using Codex.Models.Roles;
 using Codex.Tests.Framework;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.Extensions.Primitives;
-using Moq;
-using System.Collections.Generic;
-using System.Security.Claims;
-using System.Security.Principal;
-using Xunit;
 
 namespace Codex.Core.Tests.Security
 {

@@ -1,11 +1,14 @@
-﻿using Codex.Models.Security;
+﻿using Codex.Core.Models;
+using Codex.Models.Security;
+using Dapr.Client;
 
-namespace Codex.Core.Cache
+namespace Codex.Core.Cache;
+
+public class ApiKeyCacheService : CacheServiceBase<ApiKey>, IApiKeyCacheService
 {
-    public class ApiKeyCacheService : CacheService<ApiKey>
+    public ApiKeyCacheService(DaprClient daprClient, int? expireTimeInSeconds) : base(daprClient, expireTimeInSeconds)
     {
-        public ApiKeyCacheService() : base(expireTimeInMinutes: 60)
-        {
-        }
     }
+
+    public override string GetCacheKey(ApiKey data) => $"{CacheConstant.ApiKey_}{data.Id}";
 }

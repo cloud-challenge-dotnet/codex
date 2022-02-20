@@ -1,9 +1,8 @@
 ﻿using System.Threading.Tasks;
 
-namespace Codex.Tenants.Framework.Interfaces
+namespace Codex.Tenants.Framework.Interfaces;
+
+public interface ITenantResolutionStrategy
 {
-    public interface ITenantResolutionStrategy
-    {
-        Task<string?> GetTenantIdentifierAsync();
-    }
+    Task<string?> GetTenantIdentifierAsync();
 }

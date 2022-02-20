@@ -1,9 +1,6 @@
 using Codex.Core.Interfaces;
 using Codex.Models.Exceptions;
 using Codex.Tests.Framework;
-using System;
-using System.Net;
-using Xunit;
 
 
 namespace Codex.Core.Tests

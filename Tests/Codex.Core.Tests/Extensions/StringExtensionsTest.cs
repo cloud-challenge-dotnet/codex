@@ -1,6 +1,4 @@
-using Codex.Core.Extensions;
 using Codex.Tests.Framework;
-using Xunit;
 
 
 namespace Codex.Core.Tests.Extensions

@@ -5,26 +5,25 @@ using Codex.Users.Api.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
-namespace Codex.Users.Api.Controllers
+namespace Codex.Users.Api.Controllers;
+
+[ApiController]
+[Route("[controller]")]
+public class UserMailController : ControllerBase
 {
-    [ApiController]
-    [Route("[controller]")]
-    public class UserMailController : ControllerBase
+    private readonly IUserMailService _userMailService;
+
+    public UserMailController(IUserMailService userMailService)
     {
-        private readonly IUserMailService _userMailService;
+        _userMailService = userMailService;
+    }
 
-        public UserMailController(IUserMailService userMailService)
-        {
-            _userMailService = userMailService;
-        }
+    [HttpPost("activation")]
+    [TenantAuthorize(Roles = RoleConstant.Admin)]
+    public async Task<ActionResult> SendActivateUserMail([FromHeader] string tenantId, [FromBody] User user)
+    {
+        await _userMailService.SendActivateUserMailAsync(tenantId, user);
 
-        [HttpPost("activation")]
-        [TenantAuthorize(Roles = RoleConstant.ADMIN)]
-        public async Task<ActionResult> SendActivateUserMail([FromHeader] string tenantId, [FromBody] User user)
-        {
-            await _userMailService.SendActivateUserMailAsync(tenantId, user);
-
-            return Ok();
-        }
+        return Ok();
     }
 }

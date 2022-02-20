@@ -1,20 +1,7 @@
-using AutoMapper;
 using Codex.Core.Tools.AutoMapper;
 using Codex.Models.Exceptions;
 using Codex.Models.Tenants;
-using Codex.Tenants.Api.Repositories.Interfaces;
-using Codex.Tenants.Api.Repositories.Models;
-using Codex.Tenants.Api.Resources;
-using Codex.Tenants.Api.Services;
 using Codex.Tests.Framework;
-using Microsoft.Extensions.Localization;
-using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Options;
-using Moq;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Xunit;
 
 namespace Codex.Tenants.Api.Tests
 {

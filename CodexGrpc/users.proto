@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+option csharp_namespace = "CodexGrpc.Users";
+
+package codex.users.grpc;
+
+import "google/protobuf/wrappers.proto";
+
+service AuthenticationService {
+  rpc Authenticate (AuthenticateRequest) returns (AuthModel);
+}
+
+message AuthenticateRequest {
+  string login = 1;
+  string password = 2;
+}
+
+message AuthModel{
+  string id = 1;
+  string login = 2;
+  string token = 3;
+  google.protobuf.StringValue firstName = 4;
+  google.protobuf.StringValue lastName = 5;
+}
