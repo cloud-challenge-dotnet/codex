@@ -9,57 +9,83 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Security.Claims;
+using System.Threading;
+using Grpc.Core;
+using Grpc.Core.Testing;
+using Grpc.Core.Utils;
 
-namespace Codex.Tests.Framework
+namespace Codex.Tests.Framework;
+
+[ExcludeFromCodeCoverage]
+public class Fixture
 {
-    [ExcludeFromCodeCoverage]
-    public class Fixture
+    public Fixture(IServiceProvider services)
     {
-        public Fixture(IServiceProvider services)
-        {
-            _services = services;
+        _services = services;
 
-            var camelCaseConventionPack = new ConventionPack { new CamelCaseElementNameConvention() };
-            ConventionRegistry.Register("CamelCase", camelCaseConventionPack, type => true);
+        var camelCaseConventionPack = new ConventionPack { new CamelCaseElementNameConvention() };
+        ConventionRegistry.Register("CamelCase", camelCaseConventionPack, _ => true);
+    }
+
+    private readonly IServiceProvider _services;
+
+    public IServiceProvider Services => _services;
+
+    public static ServerCallContext CreateServerCallContext(HttpContext? httpContext = null)
+    {
+        var serviceCallContext = TestServerCallContext.Create(
+            "fooMethod", 
+            null, 
+            DateTime.UtcNow.AddHours(1), 
+            new Metadata(),
+            CancellationToken.None, 
+            "127.0.0.1", 
+            null, 
+            null, 
+            (_) => TaskUtils.CompletedTask, () => new WriteOptions(), (_) => { }
+        );
+
+        if (httpContext != null)
+        {
+            serviceCallContext.UserState["__HttpContext"] = httpContext;
         }
 
-        private readonly IServiceProvider _services;
+        return serviceCallContext;
+    }
 
-        public IServiceProvider Services
+    public static HttpContext CreateHttpContext(string tenantId, string? userId = null, string? userName = null,
+        List<string>? roles = null, Dictionary<string, StringValues>? headers = null)
+    {
+        List<Claim> claimList = new()
         {
-            get => _services;
-        }
+            new Claim(ClaimTypes.NameIdentifier, userId??""),
+            new Claim(ClaimTypes.Name, userName??""),
+            new Claim(ClaimConstant.TenantId, tenantId),
+        };
 
-        public static HttpContext CreateHttpContext(string tenantId, string userId, string userName,
-            List<string> roles, Dictionary<string, StringValues>? headers = null)
+        if (roles != null)
         {
-            List<Claim> claimList = new()
-            {
-                new Claim(ClaimTypes.NameIdentifier, userId),
-                new Claim(ClaimTypes.Name, userName),
-                new Claim(ClaimConstant.TenantId, tenantId),
-            };
             claimList.AddRange(roles.Select(r =>
                 new Claim(ClaimTypes.Role, r)
             ));
-
-            var httpContext = new DefaultHttpContext
-            {
-                User = new ClaimsPrincipal(
-                    new ClaimsIdentity(claimList, "TestAuthType")
-                )
-            };
-            httpContext.Items.Add(Constants.HttpContextTenantKey, new Tenant() { Id = tenantId, Name = "tenantId" });
-
-            if (headers != null)
-            {
-                foreach (var keyVal in headers)
-                {
-                    httpContext.Request.Headers.Append(keyVal.Key, keyVal.Value);
-                }
-            }
-
-            return httpContext;
         }
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(
+                new ClaimsIdentity(claimList, "TestAuthType")
+            )
+        };
+        httpContext.Items.Add(Constants.HttpContextTenantKey, new Tenant() { Id = tenantId, Name = "tenantId" });
+
+        if (headers != null)
+        {
+            foreach (var keyVal in headers)
+            {
+                httpContext.Request.Headers.Append(keyVal.Key, keyVal.Value);
+            }
+        }
+
+        return httpContext;
     }
 }

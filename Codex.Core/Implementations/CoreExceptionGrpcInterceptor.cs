@@ -24,10 +24,9 @@ public class CoreExceptionGrpcInterceptor : Interceptor
         catch (Exception exception)
         {
             StatusCode statusCode;
-            CustomProblemDetails? customProblemDetails = null;
+            CustomProblemDetails? customProblemDetails;
             
-            if (exception is ArgumentException || exception is ArgumentNullException ||
-                exception is MongoDuplicateKeyException || exception is InvalidOperationException)
+            if (exception is ArgumentException or ArgumentNullException or MongoDuplicateKeyException or InvalidOperationException)
             {
                 statusCode = StatusCode.InvalidArgument;
                 customProblemDetails = new()

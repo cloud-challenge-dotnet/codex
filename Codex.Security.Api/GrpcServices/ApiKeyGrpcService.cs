@@ -8,11 +8,9 @@ using Codex.Models.Security;
 using Codex.Security.Api.Services.Interfaces;
 using Codex.Tenants.Framework;
 using CodexGrpc.Security;
-using CodexGrpc.Tenants;
 using Dapr.Client;
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
-using Microsoft.AspNetCore.Http;
 
 namespace Codex.Security.Api.GrpcServices;
 

@@ -11,6 +11,7 @@ using CodexGrpc.Tenants;
 using Codex.Models.Tenants;
 using Codex.Tenants.Api.Services.Interfaces;
 using Dapr.Client;
+using Google.Protobuf.Collections;
 
 namespace Codex.Tenants.Api.GrpcServices;
 
@@ -92,7 +93,7 @@ public class TenantGrpcService : TenantService.TenantServiceBase
         var tenantProperties = await _tenantPropertiesService.FindPropertiesAsync(request.TenantId);
 
         TenantPropertiesResponse response = new();
-        response.Properties.Add(_mapper.Map<IDictionary <string, StringValues>>(tenantProperties));
+        response.Properties.Add(_mapper.Map<MapField <string, StringValues>>(tenantProperties));
         return response;
     }
 

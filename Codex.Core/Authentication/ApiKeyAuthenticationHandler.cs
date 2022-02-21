@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Net.Http;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 using System.Text.Json;
@@ -14,7 +12,6 @@ using Codex.Core.Models;
 using Codex.Core.Roles.Interfaces;
 using Codex.Models.Roles;
 using Codex.Models.Security;
-using Dapr.Client;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -25,10 +22,8 @@ namespace Codex.Core.Authentication;
 public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthenticationOptions>
 {
     private const string ProblemDetailsContentType = "application/problem+json";
-    private readonly DaprClient _daprClient;
     private readonly IApiKeyCacheService _apiKeyCacheService;
     private readonly IRoleService _roleService;
-    private readonly ILogger<ApiKeyAuthenticationHandler> _logger;
 
     public ApiKeyAuthenticationHandler(
         IOptionsMonitor<ApiKeyAuthenticationOptions> options,
@@ -36,14 +31,10 @@ public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthentic
         UrlEncoder encoder,
         ISystemClock clock,
         IApiKeyCacheService apiKeyCacheService,
-        IRoleService roleService,
-        DaprClient daprClient,
-        ILogger<ApiKeyAuthenticationHandler> logger) : base(options, loggerFactory, encoder, clock)
+        IRoleService roleService) : base(options, loggerFactory, encoder, clock)
     {
         _apiKeyCacheService = apiKeyCacheService;
         _roleService = roleService;
-        _daprClient = daprClient;
-        _logger = logger;
     }
 
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
@@ -70,74 +61,50 @@ public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthentic
             return AuthenticateResult.Fail("Invalid API Key provided.");
         }
 
-        ApiKey? apiKey = null;
+        ApiKey apiKey;
         string tenantId = splitValues[0];
         providedApiKey = splitValues[1];
 
         try
         {
-            string cacheKey = $"{CacheConstant.ApiKey_}{providedApiKey}";
-            apiKey = await _apiKeyCacheService.GetCacheAsync(cacheKey);
-            if (apiKey == null)
-            {
-                var request = _daprClient.CreateInvokeMethodRequest(ApiNameConstant.SecurityApi, $"ApiKey/{providedApiKey}");
-                request.Method = HttpMethod.Get;
-                request.Headers.Add(HttpHeaderConstant.TenantId, tenantId);
-                apiKey = await _daprClient.InvokeMethodAsync<ApiKey>(request);
-
-                await _apiKeyCacheService.UpdateCacheAsync(cacheKey, apiKey);
-            }
+            apiKey = await _apiKeyCacheService.GetApiKeyAsync(providedApiKey, tenantId);
         }
-        catch (Exception exception)
+        catch
         {
-            if (exception is Grpc.Core.RpcException rpcException &&
-                rpcException.Status.StatusCode == Grpc.Core.StatusCode.NotFound)
-            {
-                _logger.LogInformation(rpcException, "ApiKey not found : '{ApiKey}'", apiKey?.Id);
-            }
-            else
-            {
-                _logger.LogError(exception, "Unable to find ApiKey {ApiKey}", apiKey?.Id);
-            }
             return AuthenticateResult.Fail("Invalid API Key provided.");
         }
 
-        if (apiKey != null)
+        var claims = new List<Claim>
         {
-            var claims = new List<Claim>
+            new Claim(ClaimTypes.Name, apiKey.Name),
+            new Claim(ClaimTypes.NameIdentifier, "API_KEY"),
+            new Claim(ClaimConstant.TenantId, tenantId)
+        };
+
+        var roles = _roleService.GetRoles();
+
+        var completedRoles = new List<string>();
+
+        apiKey.Roles.ForEach(roleCode =>
+        {
+            var role = roles.FirstOrDefault(r => r.Code == roleCode);
+            if (role != null)
             {
-                new Claim(ClaimTypes.Name, apiKey.Name),
-                new Claim(ClaimTypes.NameIdentifier, "API_KEY"),
-                new Claim(ClaimConstant.TenantId, tenantId)
-            };
+                completedRoles.Add(roleCode);
+                completedRoles.AddRange(GetLowerRoles(roles, role).Select(r => r.Code));
+            }
+        });
 
-            var roles = _roleService.GetRoles();
+        apiKey = apiKey with { Roles = completedRoles.Distinct().ToList() };
 
-            var completedRoles = new List<string>();
+        claims.AddRange(apiKey.Roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
-            apiKey.Roles.ForEach(roleCode =>
-            {
-                var role = roles.FirstOrDefault(r => r.Code == roleCode);
-                if (role != null)
-                {
-                    completedRoles.Add(roleCode);
-                    completedRoles.AddRange(GetLowerRoles(roles, role).Select(r => r.Code));
-                }
-            });
+        var identity = new ClaimsIdentity(claims, Options.AuthenticationType);
+        var identities = new List<ClaimsIdentity> { identity };
+        var principal = new ClaimsPrincipal(identities);
+        var ticket = new AuthenticationTicket(principal, ApiKeyAuthenticationOptions.Scheme);
 
-            apiKey = apiKey with { Roles = completedRoles.Distinct().ToList() };
-
-            claims.AddRange(apiKey.Roles.Select(role => new Claim(ClaimTypes.Role, role)));
-
-            var identity = new ClaimsIdentity(claims, Options.AuthenticationType);
-            var identities = new List<ClaimsIdentity> { identity };
-            var principal = new ClaimsPrincipal(identities);
-            var ticket = new AuthenticationTicket(principal, ApiKeyAuthenticationOptions.Scheme);
-
-            return AuthenticateResult.Success(ticket);
-        }
-
-        return AuthenticateResult.Fail("Invalid API Key provided.");
+        return AuthenticateResult.Success(ticket);
     }
 
     private List<Role> GetLowerRoles(List<Role> roles, Role role)

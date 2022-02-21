@@ -36,6 +36,8 @@ using Codex.Core.Authentication.Extensions;
 using Codex.Core.Authentication.Models;
 using Codex.Users.Api.GrpcServices;
 using Codex.Users.Api.MappingProfiles;
+using CodexGrpc.Tenants;
+using Dapr.Client;
 
 namespace Codex.Users.Api;
 
@@ -101,8 +103,15 @@ public class Startup
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
         services.AddSingleton<IRoleProvider, DefaultRoleProvider>();
         services.AddSingleton<IRoleService, RoleService>();
+        services.AddSingleton(_ =>
+        {
+            var callInvoker = DaprClient.CreateInvocationInvoker(ApiNameConstant.TenantApi);
+            return new TenantService.TenantServiceClient(
+                callInvoker
+            );
+        });
         services.AddSingleton<ITenantCacheService, TenantCacheService>();
-        services.AddSingleton<ITenantCacheService, TenantCacheService>();
+        services.AddSingleton<IApiKeyCacheService, ApiKeyCacheService>();
         services.AddSingleton<IUserRepository, UserRepository>(); // for try authenticate without tenantId inside request header
         services.AddSingleton<IUserService, UserService>(); // for try authenticate without tenantId inside request header
         services.AddSingleton<IAuthenticationService, AuthenticationService>(); // for try authenticate without tenantId inside request header

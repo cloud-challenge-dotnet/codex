@@ -1,118 +1,122 @@
-﻿using Codex.Core.Models;
+﻿using System.Collections.Generic;
+using System.Security.Claims;
+using System.Security.Principal;
+using Codex.Core.Models;
 using Codex.Core.Security;
 using Codex.Models.Roles;
 using Codex.Tests.Framework;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.Primitives;
+using Moq;
+using Xunit;
 
-namespace Codex.Core.Tests.Security
+namespace Codex.Core.Tests.Security;
+
+public class TenantAuthorizeAttributeTest : IClassFixture<Fixture>
 {
-    public class TenantAuthorizeAttributeTest : IClassFixture<Fixture>
+    [Fact]
+    public void OnAuthorization()
     {
-        public TenantAuthorizeAttributeTest()
-        {
-        }
-
-        [Fact]
-        public void OnAuthorization()
-        {
-            ActionContext actionContext = new(
-                httpContext: Fixture.CreateHttpContext(
-                    tenantId: "global",
-                    userId: "Id1",
-                    userName: "login",
-                    roles: new() { RoleConstant.TENANT_MANAGER },
-                    headers: new()
-                    {
-                        { HttpHeaderConstant.TenantId, new StringValues("global") }
-                    }
-                ),
-                new(),
-                new(),
-                new()
-            );
-
-            AuthorizationFilterContext authorizationFilterContext = new(actionContext, new List<IFilterMetadata>());
-
-            TenantAuthorizeAttribute tenantAuthorizeAttribute = new();
-
-            tenantAuthorizeAttribute.OnAuthorization(authorizationFilterContext);
-
-            Assert.Null(authorizationFilterContext.Result);
-        }
-
-        [Fact]
-        public void OnAuthorization_UnauthorizedResult()
-        {
-            ActionContext actionContext = new(
-                httpContext: Fixture.CreateHttpContext(
-                    tenantId: "global",
-                    userId: "Id1",
-                    userName: "login",
-                    roles: new() { RoleConstant.TENANT_MANAGER },
-                    headers: new()
-                    {
-                        { HttpHeaderConstant.TenantId, new StringValues("demo") }
-                    }
-                ),
-                new(),
-                new(),
-                new()
-            );
-
-            AuthorizationFilterContext authorizationFilterContext = new(actionContext, new List<IFilterMetadata>());
-
-            TenantAuthorizeAttribute tenantAuthorizeAttribute = new();
-
-            tenantAuthorizeAttribute.OnAuthorization(authorizationFilterContext);
-
-            Assert.NotNull(authorizationFilterContext.Result);
-            Assert.IsType<UnauthorizedResult>(authorizationFilterContext.Result);
-        }
-
-        [Fact]
-        public void OnAuthorization_Identity_Null()
-        {
-            ActionContext actionContext = new(
-                httpContext: new DefaultHttpContext
+        ActionContext actionContext = new(
+            httpContext: Fixture.CreateHttpContext(
+                tenantId: "global",
+                userId: "Id1",
+                userName: "login",
+                roles: new() { RoleConstant.TenantManager },
+                headers: new()
                 {
-                    User = new ClaimsPrincipal()
-                },
-                new(),
-                new(),
-                new()
-            );
+                    { HttpHeaderConstant.TenantId, new StringValues("global") }
+                }
+            ),
+            new(),
+            new(),
+            new()
+        );
 
-            AuthorizationFilterContext authorizationFilterContext = new(actionContext, new List<IFilterMetadata>());
+        AuthorizationFilterContext authorizationFilterContext = new(actionContext, new List<IFilterMetadata>());
 
-            TenantAuthorizeAttribute tenantAuthorizeAttribute = new();
+        TenantAuthorizeAttribute tenantAuthorizeAttribute = new();
 
-            tenantAuthorizeAttribute.OnAuthorization(authorizationFilterContext);
+        tenantAuthorizeAttribute.OnAuthorization(authorizationFilterContext);
 
-            Assert.Null(authorizationFilterContext.Result);
-        }
+        Assert.Null(authorizationFilterContext.Result);
+    }
 
-        [Fact]
-        public void OnAuthorization_Identity_Is_Not_Authenticated()
-        {
-            var identity = new Mock<IIdentity>();
-            ActionContext actionContext = new(
-                httpContext: new DefaultHttpContext
+    [Fact]
+    public void OnAuthorization_UnauthorizedResult()
+    {
+        ActionContext actionContext = new(
+            httpContext: Fixture.CreateHttpContext(
+                tenantId: "global",
+                userId: "Id1",
+                userName: "login",
+                roles: new() { RoleConstant.TenantManager },
+                headers: new()
                 {
-                    User = new ClaimsPrincipal(
-                        identity.Object
-                    )
-                },
-                new(),
-                new(),
-                new()
-            );
+                    { HttpHeaderConstant.TenantId, new StringValues("demo") }
+                }
+            ),
+            new(),
+            new(),
+            new()
+        );
 
-            AuthorizationFilterContext authorizationFilterContext = new(actionContext, new List<IFilterMetadata>());
+        AuthorizationFilterContext authorizationFilterContext = new(actionContext, new List<IFilterMetadata>());
 
-            TenantAuthorizeAttribute tenantAuthorizeAttribute = new(policy: "");
+        TenantAuthorizeAttribute tenantAuthorizeAttribute = new();
 
-            tenantAuthorizeAttribute.OnAuthorization(authorizationFilterContext);
+        tenantAuthorizeAttribute.OnAuthorization(authorizationFilterContext);
 
-            Assert.Null(authorizationFilterContext.Result);
-        }
+        Assert.NotNull(authorizationFilterContext.Result);
+        Assert.IsType<UnauthorizedResult>(authorizationFilterContext.Result);
+    }
+
+    [Fact]
+    public void OnAuthorization_Identity_Null()
+    {
+        ActionContext actionContext = new(
+            httpContext: new DefaultHttpContext
+            {
+                User = new ClaimsPrincipal()
+            },
+            new(),
+            new(),
+            new()
+        );
+
+        AuthorizationFilterContext authorizationFilterContext = new(actionContext, new List<IFilterMetadata>());
+
+        TenantAuthorizeAttribute tenantAuthorizeAttribute = new();
+
+        tenantAuthorizeAttribute.OnAuthorization(authorizationFilterContext);
+
+        Assert.Null(authorizationFilterContext.Result);
+    }
+
+    [Fact]
+    public void OnAuthorization_Identity_Is_Not_Authenticated()
+    {
+        var identity = new Mock<IIdentity>();
+        ActionContext actionContext = new(
+            httpContext: new DefaultHttpContext
+            {
+                User = new ClaimsPrincipal(
+                    identity.Object
+                )
+            },
+            new(),
+            new(),
+            new()
+        );
+
+        AuthorizationFilterContext authorizationFilterContext = new(actionContext, new List<IFilterMetadata>());
+
+        TenantAuthorizeAttribute tenantAuthorizeAttribute = new(policy: "");
+
+        tenantAuthorizeAttribute.OnAuthorization(authorizationFilterContext);
+
+        Assert.Null(authorizationFilterContext.Result);
     }
 }

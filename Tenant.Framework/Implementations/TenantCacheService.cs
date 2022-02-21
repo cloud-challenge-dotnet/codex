@@ -19,6 +19,8 @@ public class TenantCacheService : CacheServiceBase<Tenant>, ITenantCacheService
     private readonly ILogger<TenantCacheService> _logger;
     private readonly IMapper _mapper;
     private readonly IStringLocalizer<TenantFrameworkResource> _sl;
+
+    public TenantService.TenantServiceClient TenantServiceClient { get; internal set; }
         
     public TenantCacheService(
         ILogger<TenantCacheService> logger,
@@ -29,6 +31,17 @@ public class TenantCacheService : CacheServiceBase<Tenant>, ITenantCacheService
         _logger = logger;
         _mapper = mapper;
         _sl = sl;
+        
+        // ReSharper disable once VirtualMemberCallInConstructor
+        TenantServiceClient = ConstructTenantServiceClient();
+    }
+
+    private TenantService.TenantServiceClient ConstructTenantServiceClient()
+    {
+        var callInvoker = DaprClient.CreateInvocationInvoker(ApiNameConstant.TenantApi);
+        return new TenantService.TenantServiceClient(
+            callInvoker
+        );
     }
     
     public override string GetCacheKey(Tenant data) => $"{CacheConstant.Tenant_}{data.Id}";
@@ -42,12 +55,7 @@ public class TenantCacheService : CacheServiceBase<Tenant>, ITenantCacheService
             
             if (tenant == null)
             {
-                var callInvoker = DaprClient.CreateInvocationInvoker(ApiNameConstant.TenantApi);
-                TenantService.TenantServiceClient client = new TenantService.TenantServiceClient(
-                    callInvoker
-                );
-                
-                var tenantModel = client.FindOne(new FindOneTenantRequest()
+                var tenantModel = await TenantServiceClient.FindOneAsync(new FindOneTenantRequest()
                 {
                     Id = tenantId
                 });

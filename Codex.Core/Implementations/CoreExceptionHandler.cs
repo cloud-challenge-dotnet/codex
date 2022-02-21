@@ -11,8 +11,7 @@ public class CoreExceptionHandler : IExceptionHandler
 {
     public CustomProblemDetails? Intercept(Exception exception)
     {
-        if (exception is ArgumentException || exception is ArgumentNullException ||
-            exception is MongoDuplicateKeyException || exception is InvalidOperationException)
+        if (exception is ArgumentException or ArgumentNullException or MongoDuplicateKeyException or InvalidOperationException)
         {
             return new()
             {
@@ -20,7 +19,8 @@ public class CoreExceptionHandler : IExceptionHandler
                 Title = exception.Message
             };
         }
-        else if (exception is FunctionalException functionalException)
+
+        if (exception is FunctionalException functionalException)
         {
             return new()
             {
@@ -29,7 +29,8 @@ public class CoreExceptionHandler : IExceptionHandler
                 Code = functionalException.Code
             };
         }
-        else if (exception is TechnicalException technicalException)
+
+        if (exception is TechnicalException technicalException)
         {
             return new()
             {

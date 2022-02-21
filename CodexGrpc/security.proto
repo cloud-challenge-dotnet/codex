@@ -6,7 +6,6 @@ package codex.security.grpc;
 
 import "google/protobuf/wrappers.proto";
 import "google/protobuf/empty.proto";
-import "common.proto";
 
 service ApiKeyService {
   rpc FindOne (FindOneApiKeyRequest) returns (ApiKeyModel);
@@ -35,7 +34,7 @@ message ApiKeyListResponse {
 message ApiKeyModel {
   google.protobuf.StringValue id = 1;
   string name = 2;
-  codex.common.StringValues roles = 3;
+  repeated string roles = 3;
 }
 
 message ApiKeyCriteriaModel {

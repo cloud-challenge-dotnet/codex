@@ -5,13 +5,13 @@ namespace Codex.Models.Users;
 
 public abstract record BaseUser
 {
-    public BaseUser()
-        => (Login, Email, FirstName, LastName, PhoneNumber, Roles, CreationDate, ModificationDate, LanguageCultureName) =
-            ("", "", null, null, null, new(), DateTime.Now, DateTime.Now, "en-US");
+    protected BaseUser()
+        => (Login, Email, FirstName, LastName, PhoneNumber, Roles, LanguageCultureName) =
+            ("", "", null, null, null, new(), "en-US");
 
-    public BaseUser(string login, string email, string? firstName, string? lastName, string? phoneNumber, List<string> roles, string languageCultureName = "en-US")
-        => (Login, Email, FirstName, LastName, PhoneNumber, Roles, LanguageCultureName, CreationDate, ModificationDate) =
-            (login, email, firstName, lastName, phoneNumber, roles, languageCultureName, DateTime.Now, DateTime.Now);
+    protected BaseUser(string login, string email, string? firstName, string? lastName, string? phoneNumber, List<string> roles, string languageCultureName = "en-US")
+        => (Login, Email, FirstName, LastName, PhoneNumber, Roles, LanguageCultureName) =
+            (login, email, firstName, lastName, phoneNumber, roles, languageCultureName);
 
     public string Login { get; init; }
 
@@ -26,21 +26,18 @@ public abstract record BaseUser
     public List<string> Roles { get; init; }
 
     public string LanguageCultureName { get; init; }
-
-    public DateTime CreationDate { get; init; }
-
-    public DateTime ModificationDate { get; init; }
 }
 
 public record User : BaseUser
 {
     public User()
-        => (Id, PasswordHash, ActivationValidity, Active) = (null, null, null, true);
+        => (Id, PasswordHash, ActivationValidity, Active, CreationDate, ModificationDate) = (null, null, null, true, DateTime.Now, DateTime.Now);
 
     public User(string? id, string login, string email, string? firstName, string? lastName, string? phoneNumber, List<string> roles,
         string? passwordHash, string? activationCode = null, DateTime? activationValidity = null, bool active = true, string languageCultureName = "en")
         : base(login, email, firstName, lastName, phoneNumber, roles, languageCultureName)
-        => (Id, PasswordHash, ActivationCode, ActivationValidity, Active) = (id, passwordHash, activationCode, activationValidity, active);
+        => (Id, PasswordHash, ActivationCode, ActivationValidity, Active,  CreationDate, ModificationDate) = (id, passwordHash, activationCode, activationValidity, active,
+            DateTime.Now, DateTime.Now);
 
     public string? Id { get; init; }
 
@@ -51,6 +48,10 @@ public record User : BaseUser
     public DateTime? ActivationValidity { get; init; }
 
     public bool Active { get; init; }
+
+    public DateTime CreationDate { get; init; }
+
+    public DateTime ModificationDate { get; init; }
 }
 
 public record UserCreator : BaseUser

@@ -6,51 +6,46 @@ using Moq;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Codex.Tenants.Framework.Tests
+namespace Codex.Tenants.Framework.Tests;
+
+public class TenantAccessServiceTest : IClassFixture<Fixture>
 {
-    public class TenantAccessServiceTest : IClassFixture<Fixture>
+    [Fact]
+    public async Task Get_Tenant()
     {
-        public TenantAccessServiceTest()
-        {
-        }
+        var tenantResolutionStrategy = new Mock<ITenantResolutionStrategy>();
+        tenantResolutionStrategy.Setup(x => x.GetTenantIdentifierAsync()).Returns(
+            Task.FromResult<string?>("tenant")
+        );
 
-        [Fact]
-        public async Task Get_Tenant()
-        {
-            var tenantResolutionStrategy = new Mock<ITenantResolutionStrategy>();
-            tenantResolutionStrategy.Setup(x => x.GetTenantIdentifierAsync()).Returns(
-                Task.FromResult<string?>("tenant")
-            );
+        var tenantStore = new Mock<ITenantStore>();
+        tenantStore.Setup(x => x.GetTenantAsync(It.Is<string>(m => m == "tenant"))).Returns(
+            Task.FromResult((Tenant?)new Tenant("tenant", "my tenant"))
+        );
 
-            var tenantStore = new Mock<ITenantStore>();
-            tenantStore.Setup(x => x.GetTenantAsync(It.Is<string>(m => m == "tenant"))).Returns(
-                Task.FromResult((Tenant?)new Tenant("tenant", "my tenant", null))
-            );
+        TenantAccessService tenantAccessService = new(tenantResolutionStrategy.Object, tenantStore.Object);
 
-            TenantAccessService tenantAccessService = new(tenantResolutionStrategy.Object, tenantStore.Object);
+        Tenant? tenant = await tenantAccessService.GetTenantAsync();
 
-            Tenant? tenant = await tenantAccessService.GetTenantAsync();
+        Assert.NotNull(tenant);
+        Assert.Equal("tenant", tenant!.Id);
+        Assert.Equal("my tenant", tenant.Name);
+    }
 
-            Assert.NotNull(tenant);
-            Assert.Equal("tenant", tenant!.Id);
-            Assert.Equal("my tenant", tenant!.Name);
-        }
+    [Fact]
+    public async Task Get_Null_Tenant()
+    {
+        var tenantResolutionStrategy = new Mock<ITenantResolutionStrategy>();
+        tenantResolutionStrategy.Setup(x => x.GetTenantIdentifierAsync()).Returns(
+            Task.FromResult<string?>(null)
+        );
 
-        [Fact]
-        public async Task Get_Null_Tenant()
-        {
-            var tenantResolutionStrategy = new Mock<ITenantResolutionStrategy>();
-            tenantResolutionStrategy.Setup(x => x.GetTenantIdentifierAsync()).Returns(
-                Task.FromResult<string?>(null)
-            );
+        var tenantStore = new Mock<ITenantStore>();
 
-            var tenantStore = new Mock<ITenantStore>();
+        TenantAccessService tenantAccessService = new(tenantResolutionStrategy.Object, tenantStore.Object);
 
-            TenantAccessService tenantAccessService = new(tenantResolutionStrategy.Object, tenantStore.Object);
+        Tenant? tenant = await tenantAccessService.GetTenantAsync();
 
-            Tenant? tenant = await tenantAccessService.GetTenantAsync();
-
-            Assert.Null(tenant);
-        }
+        Assert.Null(tenant);
     }
 }

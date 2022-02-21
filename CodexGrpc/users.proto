@@ -5,6 +5,9 @@ option csharp_namespace = "CodexGrpc.Users";
 package codex.users.grpc;
 
 import "google/protobuf/wrappers.proto";
+import "google/protobuf/timestamp.proto";
+
+// Authentication Service
 
 service AuthenticationService {
   rpc Authenticate (AuthenticateRequest) returns (AuthModel);
@@ -15,10 +18,65 @@ message AuthenticateRequest {
   string password = 2;
 }
 
-message AuthModel{
+message AuthModel {
   string id = 1;
   string login = 2;
   string token = 3;
   google.protobuf.StringValue firstName = 4;
   google.protobuf.StringValue lastName = 5;
+}
+
+// user service
+
+service UserService {
+  rpc FindOne (FindOneUserRequest) returns (UserModel);
+  rpc FindAll (FindAllUserRequest) returns (UserListResponse);
+  rpc Create (UserModel) returns (UserModel);
+  rpc Update (UserModel) returns (UserModel);
+  rpc UpdatePassword (UpdatePasswordRequest) returns (UserModel);
+  rpc ActivateUser (ActivateUserRequest) returns (UserModel);
+}
+
+message FindOneUserRequest {
+  string id = 1;
+}
+
+message FindAllUserRequest {
+  UserCriteriaModel criteria = 1;
+}
+
+message UserListResponse {
+  repeated UserModel users = 1;
+}
+
+message UpdatePasswordRequest {
+  string userId = 1;
+  string password = 2;
+}
+
+message ActivateUserRequest {
+  string userId = 1;
+  string activationCode = 2;
+}
+
+message UserModel {
+  string id = 1;
+  string login = 2;
+  string email = 3;
+  google.protobuf.StringValue firstName = 4;
+  google.protobuf.StringValue LastName = 5;
+  google.protobuf.StringValue PhoneNumber = 6;
+  repeated string roles = 7;
+  string languageCultureName = 8;
+  google.protobuf.Timestamp creationDate = 9;
+  google.protobuf.Timestamp modificationDate = 10;
+  google.protobuf.StringValue passwordHash = 11;
+  google.protobuf.StringValue activationCode = 12;
+  google.protobuf.Timestamp activationValidity = 13;
+  bool active = 14;
+}
+
+message UserCriteriaModel {
+  google.protobuf.StringValue login = 1;
+  google.protobuf.StringValue email = 2;
 }

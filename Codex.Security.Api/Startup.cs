@@ -34,7 +34,6 @@ using Codex.Core.Cache;
 using Codex.Core.Implementations;
 using Codex.Security.Api.GrpcServices;
 using Codex.Security.Api.MappingProfiles;
-using GrpcMappingProfile = Codex.Core.MappingProfiles.GrpcMappingProfile;
 
 namespace Codex.Security.Api;
 
@@ -118,7 +117,7 @@ public class Startup
 
         services.AddControllers()
             //Add controller from Codex.Core
-            .AddApplicationPart(typeof(Codex.Core.Controllers.CacheControllerBase<>).Assembly)
+            .AddApplicationPart(typeof(Core.Controllers.CacheControllerBase<>).Assembly)
             .AddJsonOptions(options =>
             {
                 options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;

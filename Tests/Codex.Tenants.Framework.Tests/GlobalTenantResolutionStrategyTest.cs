@@ -3,23 +3,18 @@ using Codex.Tests.Framework;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Codex.Tenants.Framework.Tests
+namespace Codex.Tenants.Framework.Tests;
+
+public class GlobalTenantResolutionStrategyTest : IClassFixture<Fixture>
 {
-    public class GlobalTenantResolutionStrategyTest : IClassFixture<Fixture>
+    [Fact]
+    public async Task GetTenantIdentifier()
     {
-        public GlobalTenantResolutionStrategyTest()
-        {
-        }
+        GlobalTenantResolutionStrategy tenantStrategy = new();
 
-        [Fact]
-        public async Task GetTenantIdentifier()
-        {
-            GlobalTenantResolutionStrategy tenantStrategy = new();
+        string? tenantId = await tenantStrategy.GetTenantIdentifierAsync();
 
-            string? tenantId = await tenantStrategy.GetTenantIdentifierAsync();
-
-            Assert.NotNull(tenantId);
-            Assert.Equal("global", tenantId);
-        }
+        Assert.NotNull(tenantId);
+        Assert.Equal("global", tenantId);
     }
 }

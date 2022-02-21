@@ -45,7 +45,7 @@ message UpdatePropertiesRequest {
 message UpdatePropertyRequest {
   string tenantId = 1;
   string propertyKey = 2;
-  codex.common.StringValues propertyValues = 3;
+  repeated string propertyValues = 3;
 }
 
 message DeletePropertyRequest {

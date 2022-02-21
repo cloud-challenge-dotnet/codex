@@ -8,7 +8,6 @@ using Codex.Users.Api.Exceptions;
 using Codex.Users.Api.Resources;
 using Codex.Users.Api.Services.Interfaces;
 using Dapr.Client;
-using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
@@ -17,11 +16,12 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
-using System.Net.Http;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMapper;
 using Codex.Core.Cache;
+using Grpc.Core;
 
 namespace Codex.Users.Api.Services.Implementations;
 
@@ -42,6 +42,10 @@ public class AuthenticationService : IAuthenticationService
     private readonly IStringLocalizer<UserResource> _sl;
 
     private readonly ITenantCacheService _tenantCacheService;
+    
+    private readonly IMapper _mapper;
+    
+    public CodexGrpc.Users.UserService.UserServiceClient UserServiceClient { get; internal set; }
 
     public AuthenticationService(
         ILogger<AuthenticationService> logger,
@@ -51,7 +55,8 @@ public class AuthenticationService : IAuthenticationService
         IConfiguration configuration,
         IRoleService roleService,
         IStringLocalizer<UserResource> sl,
-        ITenantCacheService tenantCacheService)
+        ITenantCacheService tenantCacheService,
+        IMapper mapper)
     {
         _logger = logger;
         _daprClient = daprClient;
@@ -61,6 +66,18 @@ public class AuthenticationService : IAuthenticationService
         _roleService = roleService;
         _sl = sl;
         _tenantCacheService = tenantCacheService;
+        _mapper = mapper;
+    
+        // ReSharper disable once VirtualMemberCallInConstructor
+        UserServiceClient = ConstructUserServiceClient();
+    }
+
+    private CodexGrpc.Users.UserService.UserServiceClient ConstructUserServiceClient()
+    {
+        var callInvoker = DaprClient.CreateInvocationInvoker(ApiNameConstant.UserApi);
+        return new CodexGrpc.Users.UserService.UserServiceClient(
+            callInvoker
+        );
     }
 
     public async Task<Auth> AuthenticateAsync(UserLogin userLogin)
@@ -78,16 +95,21 @@ public class AuthenticationService : IAuthenticationService
             // Search user on global instance (user inter tenant for administration)
             try
             {
-                string methodNameWithParams = QueryHelpers.AddQueryString("User",
-                    new Dictionary<string, string?>()
+                var userListResponse = await UserServiceClient.FindAllAsync(
+                    new()
                     {
-                        {"Login", userLogin.Login }
+                        Criteria = new()
+                        {
+                            Login = userLogin.Login
+                        }
+                    },
+                    new Metadata()
+                    {
+                        { HttpHeaderConstant.TenantId, "global" }
                     }
                 );
 
-                var requestMessage = _daprClient.CreateInvokeMethodRequest(HttpMethod.Get, ApiNameConstant.UserApi, methodNameWithParams);
-                requestMessage.Headers.Add(HttpHeaderConstant.TenantId, "global");
-                List<User> userList = await _daprClient.InvokeMethodAsync<List<User>>(requestMessage);
+                var userList = _mapper.Map<List<User>>(userListResponse.Users);
                 user = userList.FirstOrDefault(u => u.Login == userLogin.Login);
             }
             catch (Exception exception)
