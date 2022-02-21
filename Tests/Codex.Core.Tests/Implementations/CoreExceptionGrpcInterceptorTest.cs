@@ -18,7 +18,7 @@ public class CoreExceptionGrpcInterceptorTest : IClassFixture<Fixture>
         CoreExceptionGrpcInterceptor interceptor = new();
 
         var rpcException = await Assert.ThrowsAsync<RpcException>(() => interceptor.UnaryServerHandler<string, RpcException>("",
-            Fixture.CreateServerCallContext(),(request, context) => throw exception));
+            Fixture.CreateServerCallContext(),(_, _) => throw exception));
 
         Assert.NotNull(rpcException);
         Assert.Equal(Status.DefaultCancelled, rpcException.Status);
@@ -32,7 +32,7 @@ public class CoreExceptionGrpcInterceptorTest : IClassFixture<Fixture>
         CoreExceptionGrpcInterceptor interceptor = new();
 
         var rpcException = await Assert.ThrowsAsync<RpcException>(() => interceptor.UnaryServerHandler<string, RpcException>("",
-            Fixture.CreateServerCallContext(),(request, context) => throw exception));
+            Fixture.CreateServerCallContext(),(_, _) => throw exception));
 
         Assert.NotNull(rpcException);
         Assert.Equal(StatusCode.InvalidArgument, rpcException.Status.StatusCode);
@@ -47,7 +47,7 @@ public class CoreExceptionGrpcInterceptorTest : IClassFixture<Fixture>
         CoreExceptionGrpcInterceptor interceptor = new();
         
         var rpcException = await Assert.ThrowsAsync<RpcException>(() => interceptor.UnaryServerHandler<string, RpcException>("",
-            Fixture.CreateServerCallContext(),(request, context) => throw exception));
+            Fixture.CreateServerCallContext(),(_, _) => throw exception));
 
         Assert.NotNull(rpcException);
         Assert.Equal(StatusCode.Cancelled, rpcException.Status.StatusCode);
@@ -61,7 +61,7 @@ public class CoreExceptionGrpcInterceptorTest : IClassFixture<Fixture>
         CoreExceptionGrpcInterceptor interceptor = new();
         
         var rpcException = await Assert.ThrowsAsync<RpcException>(() => interceptor.UnaryServerHandler<string, RpcException>("",
-            Fixture.CreateServerCallContext(),(request, context) => throw exception));
+            Fixture.CreateServerCallContext(),(_, _) => throw exception));
 
         Assert.NotNull(rpcException);
         Assert.Equal(StatusCode.Internal, rpcException.Status.StatusCode);

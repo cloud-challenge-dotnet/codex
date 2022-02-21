@@ -7,7 +7,6 @@ using Codex.Core.Models;
 using Codex.Core.RazorHelpers.Interfaces;
 using Codex.Models.Tenants;
 using Codex.Models.Users;
-using Codex.Tenants.Framework.Implementations;
 using Codex.Tests.Framework;
 using Codex.Users.Api.Models;
 using Codex.Users.Api.Services.Implementations;
