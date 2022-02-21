@@ -87,7 +87,7 @@ public class UserGrpcService : UserService.UserServiceBase
         
         if (string.IsNullOrWhiteSpace(user.Id))
         {
-            throw new ArgumentNullException(nameof(UserModel.Id));
+            throw new ArgumentNullException(nameof(UserModel.Id), "Invalid user id");
         }
         
         string? contextUserId = httpContext.GetUserId();
@@ -169,7 +169,7 @@ public class UserGrpcService : UserService.UserServiceBase
         return _mapper.Map<UserModel>(user);
     }
 
-    private User OffendUserFields(HttpContext httpContext, User user)
+    private static User OffendUserFields(HttpContext httpContext, User user)
     {
         if (!httpContext.User.IsInRole(RoleConstant.TenantManager))
         {

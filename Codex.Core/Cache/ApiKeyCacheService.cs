@@ -31,7 +31,7 @@ public class ApiKeyCacheService : CacheServiceBase<ApiKey>, IApiKeyCacheService
         ApiKeyServiceClient = ConstructApiKeyServiceClient();
     }
 
-    private ApiKeyService.ApiKeyServiceClient ConstructApiKeyServiceClient()
+    private static ApiKeyService.ApiKeyServiceClient ConstructApiKeyServiceClient()
     {
         var callInvoker = DaprClient.CreateInvocationInvoker(ApiNameConstant.SecurityApi);
         return new ApiKeyService.ApiKeyServiceClient(
@@ -41,7 +41,7 @@ public class ApiKeyCacheService : CacheServiceBase<ApiKey>, IApiKeyCacheService
 
     public override string GetCacheKey(ApiKey data) => $"{CacheConstant.ApiKey_}{data.Id}";
     
-    private string GetCacheKey(string providedApiKey) => $"{CacheConstant.ApiKey_}{providedApiKey}";
+    private static string GetCacheKey(string providedApiKey) => $"{CacheConstant.ApiKey_}{providedApiKey}";
     
     public async Task<ApiKey> GetApiKeyAsync(string providedApiKey, string tenantId)
     {

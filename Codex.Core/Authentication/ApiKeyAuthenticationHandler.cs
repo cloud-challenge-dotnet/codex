@@ -99,7 +99,7 @@ public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthentic
 
         claims.AddRange(apiKey.Roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
-        var identity = new ClaimsIdentity(claims, Options.AuthenticationType);
+        var identity = new ClaimsIdentity(claims, ApiKeyAuthenticationOptions.AuthenticationType);
         var identities = new List<ClaimsIdentity> { identity };
         var principal = new ClaimsPrincipal(identities);
         var ticket = new AuthenticationTicket(principal, ApiKeyAuthenticationOptions.Scheme);

@@ -36,7 +36,7 @@ public class TenantCacheService : CacheServiceBase<Tenant>, ITenantCacheService
         TenantServiceClient = ConstructTenantServiceClient();
     }
 
-    private TenantService.TenantServiceClient ConstructTenantServiceClient()
+    private static TenantService.TenantServiceClient ConstructTenantServiceClient()
     {
         var callInvoker = DaprClient.CreateInvocationInvoker(ApiNameConstant.TenantApi);
         return new TenantService.TenantServiceClient(

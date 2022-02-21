@@ -5,22 +5,13 @@ using AutoMapper;
 using Codex.Core.Cache;
 using Codex.Core.Models;
 using Codex.Core.Tools.AutoMapper;
-using Codex.Models.Exceptions;
 using Codex.Models.Security;
-using Codex.Models.Tenants;
-using Codex.Tenants.Framework.Exceptions;
-using Codex.Tenants.Framework.Implementations;
-using Codex.Tenants.Framework.Resources;
 using Codex.Tests.Framework;
 using CodexGrpc.Security;
-using CodexGrpc.Tenants;
 using Dapr.Client;
 using Grpc.Core;
 using Grpc.Core.Testing;
-using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
 
@@ -37,17 +28,10 @@ internal class GrpcMappingProfile : Profile
 
 public class ApiKeyCacheServiceTest : IClassFixture<Fixture>
 {
-    private readonly IStringLocalizer<TenantFrameworkResource> _sl;
-
     private readonly IMapper _mapper;
 
     public ApiKeyCacheServiceTest()
     {
-        var options = Options.Create(new LocalizationOptions { ResourcesPath = "Resources" });
-        var factory = new ResourceManagerStringLocalizerFactory(options, NullLoggerFactory.Instance);
-        _sl = new StringLocalizer<TenantFrameworkResource>(factory);
-        
-        
         //auto mapper configuration
         var mockMapper = new MapperConfiguration(cfg =>
         {

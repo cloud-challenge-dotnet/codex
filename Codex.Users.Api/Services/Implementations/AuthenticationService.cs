@@ -72,7 +72,7 @@ public class AuthenticationService : IAuthenticationService
         UserServiceClient = ConstructUserServiceClient();
     }
 
-    private CodexGrpc.Users.UserService.UserServiceClient ConstructUserServiceClient()
+    private static CodexGrpc.Users.UserService.UserServiceClient ConstructUserServiceClient()
     {
         var callInvoker = DaprClient.CreateInvocationInvoker(ApiNameConstant.UserApi);
         return new CodexGrpc.Users.UserService.UserServiceClient(
