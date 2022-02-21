@@ -1,5 +1,0 @@
-﻿@page "/"
-@attribute [Authorize]
-@inject IApplicationData ApplicationData
-
-<h1>Hello @(ApplicationData.Auth?.Login??""),</h1>
