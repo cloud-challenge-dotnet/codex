@@ -3,20 +3,19 @@ using Codex.Models.Roles;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Codex.Core.Roles.Implementations
+namespace Codex.Core.Roles.Implementations;
+
+public class RoleService : IRoleService
 {
-    public class RoleService : IRoleService
+    private readonly IRoleProvider _roleProvider;
+
+    public RoleService(IRoleProvider roleProvider)
     {
-        private readonly IRoleProvider _roleProvider;
+        _roleProvider = roleProvider;
+    }
 
-        public RoleService(IRoleProvider roleProvider)
-        {
-            _roleProvider = roleProvider;
-        }
-
-        public List<Role> GetRoles()
-        {
-            return _roleProvider.GetRoles().Select(r => r with { }).ToList();
-        }
+    public List<Role> GetRoles()
+    {
+        return _roleProvider.GetRoles().Select(r => r with { }).ToList();
     }
 }

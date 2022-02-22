@@ -1,9 +1,8 @@
-﻿namespace Codex.Core.Interfaces
-{
-    public interface IPasswordHasher
-    {
-        string GenerateHash(string password, string salt);
+﻿namespace Codex.Core.Interfaces;
 
-        string GenerateRandowSalt(int lengthInBytes = 128);
-    }
+public interface IPasswordHasher
+{
+    string GenerateHash(string password, string salt);
+
+    string GenerateRandowSalt(int lengthInBytes = 128);
 }

@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Codex.Core;
 using Codex.Core.Extensions;
 using Codex.Core.Interfaces;
 using Codex.Core.Models;
@@ -19,119 +18,118 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Codex.Users.Api.Services.Implementations
+namespace Codex.Users.Api.Services.Implementations;
+
+public class UserService : IUserService
 {
-    public class UserService : IUserService
+    public UserService(
+        IUserRepository userRepository,
+        DaprClient daprClient,
+        IPasswordHasher passwordHasher,
+        IMapper mapper,
+        IStringLocalizer<UserResource> sl)
     {
-        public UserService(
-            IUserRepository userRepository,
-            DaprClient daprClient,
-            IPasswordHasher passwordHasher,
-            IMapper mapper,
-            IStringLocalizer<UserResource> sl)
+        _userRepository = userRepository;
+        _daprClient = daprClient;
+        _passwordHasher = passwordHasher;
+        _mapper = mapper;
+        _sl = sl;
+    }
+
+    private readonly IUserRepository _userRepository;
+    private readonly DaprClient _daprClient;
+    private readonly IPasswordHasher _passwordHasher;
+    private readonly IMapper _mapper;
+    private readonly IStringLocalizer<UserResource> _sl;
+
+    public async Task<List<User>> FindAllAsync(UserCriteria userCriteria)
+    {
+        var userRows = await _userRepository.FindAllAsync(userCriteria);
+
+        return userRows.Select(it => _mapper.Map<User>(it)).ToList();
+    }
+
+    public async Task<User?> FindOneAsync(string id)
+    {
+        var userRow = await _userRepository.FindOneAsync(new ObjectId(id));
+        return userRow?.Let(it => _mapper.Map<User>(it));
+    }
+
+    public async Task<User> CreateAsync(string tenantId, UserCreator userCreator)
+    {
+        if (string.IsNullOrWhiteSpace(userCreator.Password))
+            throw new IllegalArgumentException(code: "USER_PASSWORD_INVALID", message: _sl[UserResource.PasswordMustBeSet]);
+
+        if (string.IsNullOrWhiteSpace(userCreator.Login))
+            throw new IllegalArgumentException(code: "USER_LOGIN_INVALID", message: _sl[UserResource.LoginMustBeSet]);
+
+        if (string.IsNullOrWhiteSpace(userCreator.Email) || !EmailValidator.EmailValid(userCreator.Email))
+            throw new IllegalArgumentException(code: "USER_EMAIL_INVALID", message: _sl[UserResource.EmailFormatInvalid]);
+
+        if ((await _userRepository.FindAllAsync(new(Login: userCreator.Login))).Count != 0 ||
+            (await _userRepository.FindAllAsync(new(Email: userCreator.Email))).Count != 0)
         {
-            _userRepository = userRepository;
-            _daprClient = daprClient;
-            _passwordHasher = passwordHasher;
-            _mapper = mapper;
-            _sl = sl;
+            throw new IllegalArgumentException(code: "USER_EXISTS", message: string.Format(_sl[UserResource.UserP0AlreadyExists], userCreator.Login));
         }
 
-        private readonly IUserRepository _userRepository;
-        private readonly DaprClient _daprClient;
-        private readonly IPasswordHasher _passwordHasher;
-        private readonly IMapper _mapper;
-        private readonly IStringLocalizer<UserResource> _sl;
+        var secretValues = await _daprClient.GetSecretAsync(ConfigConstant.CodexKey, ConfigConstant.PasswordSalt);
+        var salt = secretValues[ConfigConstant.PasswordSalt];
 
-        public async Task<List<User>> FindAllAsync(UserCriteria userCriteria)
+        var user = userCreator.ToUser(passwordHash: _passwordHasher.GenerateHash(userCreator.Password!, salt));
+
+        // generate activation code for 30 days
+        user = user with { ActivationCode = StringUtils.RandomString(50), ActivationValidity = DateTime.Now.AddDays(30) };
+
+        var userRow = await _userRepository.InsertAsync(_mapper.Map<UserRow>(user));
+
+        user = _mapper.Map<User>(userRow);
+
+        await SendActivationUserEmailAsync(user, tenantId);
+
+        return user;
+    }
+
+    public async Task<User?> UpdateAsync(User user)
+    {
+        var userRow = await _userRepository.UpdateAsync(_mapper.Map<UserRow>(user));
+
+        return userRow?.Let(it => _mapper.Map<User>(it));
+    }
+
+    public async Task<User?> UpdatePasswordAsync(string userId, string password)
+    {
+        if (string.IsNullOrWhiteSpace(password))
+            throw new IllegalArgumentException(code: "USER_PASSWORD_INVALID", message: _sl[UserResource.PasswordMustBeSet]);
+
+        var secretValues = await _daprClient.GetSecretAsync(ConfigConstant.CodexKey, ConfigConstant.PasswordSalt);
+        var salt = secretValues[ConfigConstant.PasswordSalt];
+
+        string passwordHash = _passwordHasher.GenerateHash(password, salt);
+
+        var userRow = await _userRepository.UpdatePasswordAsync(new ObjectId(userId), passwordHash);
+
+        return userRow?.Let(it => _mapper.Map<User>(it));
+    }
+
+    private async Task SendActivationUserEmailAsync(User user, string tenantId)
+    {
+        await _daprClient.PublishEventAsync(ConfigConstant.CodexPubSubName, TopicConstant.SendActivationUserMail, new TopicData<User>(TopicType.Modify, user, tenantId));
+    }
+
+    public async Task<User?> ActivateUserAsync(User user, string activationCode)
+    {
+        if (user.ActivationCode == null || user.ActivationCode != activationCode)
         {
-            var userRows = await _userRepository.FindAllAsync(userCriteria);
-
-            return userRows.Select(it => _mapper.Map<User>(it)).ToList();
+            throw new InvalidUserValidationCodeException(_sl[UserResource.ValidationCodeIsInvalid], code: "INVALID_VALIDATION_CODE");
         }
 
-        public async Task<User?> FindOneAsync(string id)
+        if (user.ActivationValidity == null || DateTime.Now > user.ActivationValidity!)
         {
-            var userRow = await _userRepository.FindOneAsync(new ObjectId(id));
-            return userRow?.Let(it => _mapper.Map<User>(it));
+            throw new ExpiredUserValidationCodeException(_sl[UserResource.ValidationCodeIsExpired], code: "EXPIRED_VALIDATION_CODE");
         }
 
-        public async Task<User> CreateAsync(string tenantId, UserCreator userCreator)
-        {
-            if (string.IsNullOrWhiteSpace(userCreator.Password))
-                throw new IllegalArgumentException(code: "USER_PASSWORD_INVALID", message: _sl[UserResource.PASSWORD_MUST_BE_SET]!);
+        var userRow = await _userRepository.UpdateActivationCodeAsync(new ObjectId(user.Id!), activationCode);
 
-            if (string.IsNullOrWhiteSpace(userCreator.Login))
-                throw new IllegalArgumentException(code: "USER_LOGIN_INVALID", message: _sl[UserResource.LOGIN_MUST_BE_SET]!);
-
-            if (string.IsNullOrWhiteSpace(userCreator.Email) || !EmailValidator.EmailValid(userCreator.Email))
-                throw new IllegalArgumentException(code: "USER_EMAIL_INVALID", message: _sl[UserResource.EMAIL_FORMAT_INVALID]!);
-
-            if ((await _userRepository.FindAllAsync(new(Login: userCreator.Login))).Count != 0 ||
-                (await _userRepository.FindAllAsync(new(Email: userCreator.Email))).Count != 0)
-            {
-                throw new IllegalArgumentException(code: "USER_EXISTS", message: string.Format(_sl[UserResource.USER_P0_ALREADY_EXISTS]!, userCreator.Login));
-            }
-
-            var secretValues = await _daprClient.GetSecretAsync(ConfigConstant.CodexKey, ConfigConstant.PasswordSalt);
-            var salt = secretValues[ConfigConstant.PasswordSalt];
-
-            var user = userCreator.ToUser(passwordHash: _passwordHasher.GenerateHash(userCreator.Password!, salt));
-
-            // generate activation code for 30 days
-            user = user with { ActivationCode = StringUtils.RandomString(50), ActivationValidity = DateTime.Now.AddDays(30) };
-
-            var userRow = await _userRepository.InsertAsync(_mapper.Map<UserRow>(user));
-
-            user = _mapper.Map<User>(userRow);
-
-            await SendActivationUserEmailAsync(user, tenantId);
-
-            return user;
-        }
-
-        public async Task<User?> UpdateAsync(User user)
-        {
-            var userRow = await _userRepository.UpdateAsync(_mapper.Map<UserRow>(user));
-
-            return userRow?.Let(it => _mapper.Map<User>(it));
-        }
-
-        public async Task<User?> UpdatePasswordAsync(string userId, string password)
-        {
-            if (string.IsNullOrWhiteSpace(password))
-                throw new IllegalArgumentException(code: "USER_PASSWORD_INVALID", message: _sl[UserResource.PASSWORD_MUST_BE_SET]!);
-
-            var secretValues = await _daprClient.GetSecretAsync(ConfigConstant.CodexKey, ConfigConstant.PasswordSalt);
-            var salt = secretValues[ConfigConstant.PasswordSalt];
-
-            string passwordHash = _passwordHasher.GenerateHash(password!, salt);
-
-            var userRow = await _userRepository.UpdatePasswordAsync(new ObjectId(userId), passwordHash);
-
-            return userRow?.Let(it => _mapper.Map<User>(it));
-        }
-
-        private async Task SendActivationUserEmailAsync(User user, string tenantId)
-        {
-            await _daprClient.PublishEventAsync(ConfigConstant.CodexPubSubName, TopicConstant.SendActivationUserMail, new TopicData<User>(TopicType.Modify, user, tenantId));
-        }
-
-        public async Task<User?> ActivateUserAsync(User user, string activationCode)
-        {
-            if (user.ActivationCode == null || user.ActivationCode != activationCode)
-            {
-                throw new InvalidUserValidationCodeException(_sl[UserResource.VALIDATION_CODE_IS_INVALID]!, code: "INVALID_VALIDATION_CODE");
-            }
-
-            if (user.ActivationValidity == null || DateTime.Now > user.ActivationValidity!)
-            {
-                throw new ExpiredUserValidationCodeException(_sl[UserResource.VALIDATION_CODE_IS_EXPIRED]!, code: "EXPIRED_VALIDATION_CODE");
-            }
-
-            var userRow = await _userRepository.UpdateActivationCodeAsync(new ObjectId(user.Id!), activationCode);
-
-            return userRow?.Let(it => _mapper.Map<User>(it));
-        }
+        return userRow?.Let(it => _mapper.Map<User>(it));
     }
 }

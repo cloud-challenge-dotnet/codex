@@ -1,9 +1,5 @@
 using Autofac;
-using AutoMapper;
 using Codex.Core;
-using Codex.Core.ApiKeys.Extensions;
-using Codex.Core.ApiKeys.Models;
-using Codex.Core.Cache;
 using Codex.Core.Interfaces;
 using Codex.Core.Models;
 using Codex.Core.Roles.Implementations;
@@ -13,7 +9,6 @@ using Codex.Core.Tools.AutoMapper;
 using Codex.Models.Tenants;
 using Codex.Tenants.Api.Repositories.Implementations;
 using Codex.Tenants.Api.Repositories.Interfaces;
-using Codex.Tenants.Api.Services;
 using Codex.Tenants.Framework;
 using Codex.Tenants.Framework.Implementations;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -24,109 +19,121 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Codex.Core.Authentication.Extensions;
+using Codex.Core.Authentication.Models;
+using Codex.Core.Implementations;
+using Codex.Tenants.Api.GrpcServices;
+using Codex.Tenants.Api.MappingProfiles;
+using Codex.Tenants.Api.Services.Implementations;
+using Codex.Tenants.Api.Services.Interfaces;
+using Codex.Core.Authentication;
+using Codex.Core.Cache;
 
-namespace Codex.Tenants.Api
+namespace Codex.Tenants.Api;
+
+[ExcludeFromCodeCoverage]
+public class Startup
 {
-    [ExcludeFromCodeCoverage]
-    public class Startup
+    public Startup(IConfiguration configuration)
     {
-        public Startup(IConfiguration configuration)
+        Configuration = configuration;
+    }
+
+    private IConfiguration Configuration { get; }
+
+    // This method gets called by the runtime. Use this method to add services to the container.
+    public void ConfigureServices(IServiceCollection services)
+    {
+        services.AddLocalization();
+
+        services.Configure<RequestLocalizationOptions>(options =>
         {
-            Configuration = configuration;
-        }
+            var supportedCultures = new List<CultureInfo>()
+            {
+                new CultureInfo("en-US"),
+                new CultureInfo("fr-FR")
+            };
 
-        public IConfiguration Configuration { get; }
+            options.DefaultRequestCulture = new(culture: "en-US", uiCulture: "en-US");
+            options.SupportedCultures = supportedCultures;
+            options.SupportedUICultures = supportedCultures;
+            options.ApplyCurrentCultureToResponseHeaders = true;
+            options.FallBackToParentUICultures = true;
+        });
+        
+        // requires using Microsoft.Extensions.Options
+        services.Configure<MongoDbSettings>(Configuration.GetSection(nameof(MongoDbSettings)));
 
-        // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
+        services.AddSingleton(sp =>
+            sp.GetRequiredService<IOptions<MongoDbSettings>>().Value);
+
+        services.AddGrpc();
+        services.AddGrpcReflection();
+            
+        services.AddDaprClient(configure =>
         {
-            services.AddLocalization();
-
-            services.Configure<RequestLocalizationOptions>(options =>
+            var options = new JsonSerializerOptions()
             {
-                var supportedCultures = new List<CultureInfo>()
-                {
-                    new CultureInfo("en-US"),
-                    new CultureInfo("fr-FR")
-                };
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                WriteIndented = true,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+            };
+            // Adds automatic json parsing to ObjectId.
+            options.Converters.Add(new ObjectIdConverter());
+            options.Converters.Add(new JsonStringEnumConverter());
 
-                options.DefaultRequestCulture = new(culture: "en-US", uiCulture: "en-US");
-                options.SupportedCultures = supportedCultures;
-                options.SupportedUICultures = supportedCultures;
-                options.ApplyCurrentCultureToResponseHeaders = true;
-                options.FallBackToParentUICultures = true;
-            });
+            configure.UseJsonSerializationOptions(options);
+        });
 
-            // requires using Microsoft.Extensions.Options
-            services.Configure<MongoDbSettings>(Configuration.GetSection(nameof(MongoDbSettings)));
+        services.AddSingleton<IExceptionHandler, CoreExceptionHandler>();
+        services.AddSingleton<IRoleProvider, DefaultRoleProvider>();
+        services.AddSingleton<IRoleService, RoleService>();
+        services.AddSingleton<IApiKeyCacheService, ApiKeyCacheService>();
 
-            services.AddSingleton(sp =>
-                sp.GetRequiredService<IOptions<MongoDbSettings>>().Value);
+        services.AddMultiTenancy()
+            .WithResolutionStrategy<GlobalTenantResolutionStrategy>()
+            .WithStore<GlobalTenantStore>();
 
-            services.AddDaprClient(configure =>
-            {
-                var options = new JsonSerializerOptions()
-                {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                    WriteIndented = true,
-                    IgnoreNullValues = true
-                };
-                // Adds automatic json parsing to ObjectId.
-                options.Converters.Add(new ObjectIdConverter());
-                options.Converters.Add(new JsonStringEnumConverter());
+        services.AddAutoMapper(cfg =>
+        {
+            cfg.AllowNullCollections = true;
+            cfg.AllowNullDestinationValues = true;
+            cfg.AddProfile<CoreMappingProfile>();
+            cfg.AddProfile<MappingProfile>();
+            cfg.AddProfile<Codex.Core.MappingProfiles.GrpcMappingProfile>();
+            cfg.AddProfile<GrpcMappingProfile>();
+        }, typeof(Startup), typeof(CoreMappingProfile));
 
-                configure.UseJsonSerializationOptions(options);
-            });
-
-            services.AddSingleton<IExceptionHandler, CoreExceptionHandler>();
-            services.AddSingleton<IRoleProvider, DefaultRoleProvider>();
-            services.AddSingleton<IRoleService, RoleService>();
-            services.AddSingleton<ApiKeyCacheService, ApiKeyCacheService>();
-
-            services.AddMultiTenancy()
-                .WithResolutionStrategy<GlobalTenantResolutionStrategy>()
-                .WithStore<GlobalTenantStore>();
-
-            services.AddAutoMapper(cfg =>
-            {
-                cfg.AllowNullCollections = true;
-                cfg.AllowNullDestinationValues = true;
-                cfg.AddProfile<CoreMappingProfile>();
-                cfg.AddProfile<MappingProfile>();
-            }, typeof(Startup), typeof(CoreMappingProfile));
-
-            services.AddControllers().AddJsonOptions(options =>
+        services.AddControllers()
+            //Add controller from Codex.Core
+            .AddApplicationPart(typeof(Core.Controllers.CacheControllerBase<>).Assembly)
+            .AddJsonOptions(options =>
             {
                 options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
                 options.JsonSerializerOptions.WriteIndented = true;
                 options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-                options.JsonSerializerOptions.IgnoreNullValues = true;
+                options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
                 // Adds automatic json parsing to ObjectId.
                 options.JsonSerializerOptions.Converters.Add(new ObjectIdConverter());
-            }).AddDapr();
+            })
+            .AddDapr();
 
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "TenantApi", Version = "v1" });
-            });
+        services.AddCors(options =>
+        {
+            options.AddPolicy(
+                "Open",
+                builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+        });
 
-            services.AddCors(options =>
-            {
-                options.AddPolicy(
-                    "Open",
-                    builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
-            });
+        var jwtSecret = Encoding.ASCII.GetBytes(Configuration.GetValue<string>(ConfigConstant.JwtSecretKey));
 
-            var jwtSecret = Encoding.ASCII.GetBytes(Configuration.GetValue<string>(ConfigConstant.JwtSecretKey));
-
-            services.AddAuthentication(x =>
+        services.AddAuthentication(x =>
             {
                 x.DefaultAuthenticateScheme = "customAuthScheme";
                 x.DefaultChallengeScheme = "customAuthScheme";
@@ -143,7 +150,7 @@ namespace Codex.Tenants.Api
                     return JwtBearerDefaults.AuthenticationScheme;
                 };
             })
-            .AddApiKeySupport(options => { })
+            .AddApiKeySupport()
             .AddJwtBearer(x =>
             {
                 x.RequireHttpsMetadata = false;
@@ -156,59 +163,64 @@ namespace Codex.Tenants.Api
                     ValidateAudience = false
                 };
             });
+    }
+
+    public static void ConfigureMultiTenantServices(Tenant? tenant, ContainerBuilder containerBuilder)
+    {
+        //This action has access to the tenant object so we can perform tenant specific logic here 
+        //when deciding which services to register
+        //These instances are scoped to the current tenant, so in this example 
+        //it will be one instance per tenant
+        _ = tenant;
+
+        containerBuilder.RegisterType<TenantRepository>().As<ITenantRepository>().InstancePerLifetimeScope();
+        containerBuilder.RegisterType<TenantService>().As<ITenantService>().InstancePerLifetimeScope();
+        containerBuilder.RegisterType<TenantPropertiesService>().As<ITenantPropertiesService>().InstancePerLifetimeScope();
+    }
+
+    // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env,
+        IEnumerable<IExceptionHandler> exceptionHandlers)
+    {
+        if (env.IsDevelopment())
+        {
+            app.UseDeveloperExceptionPage();
+        }
+        else
+        {
+            app.UseHttpsRedirection();
         }
 
-        public static void ConfigureMultiTenantServices(Tenant? tenant, ContainerBuilder containerBuilder)
-        {
-            //This action has access to the tenant object so we can perform tenant specific logic here 
-            //when deciding which services to register
-            //These instances are scoped to the current tenant, so in this example 
-            //it will be one instance per tenant
-            _ = tenant;
+        var localizationOptions = app.ApplicationServices.GetService<IOptions<RequestLocalizationOptions>>();
+        app.UseRequestLocalization(localizationOptions!.Value);
 
-            containerBuilder.RegisterType<TenantRepository>().As<ITenantRepository>().InstancePerLifetimeScope();
-            containerBuilder.RegisterType<TenantService>().As<ITenantService>().InstancePerLifetimeScope();
-            containerBuilder.RegisterType<TenantPropertiesService>().As<ITenantPropertiesService>().InstancePerLifetimeScope();
-        }
+        app.UseExceptionHandler(appBuilder => appBuilder.UseCustomErrors(env, exceptionHandlers));
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env,
-            IEnumerable<IExceptionHandler> exceptionHandlers)
+        app.UseRouting();
+
+        app.UseCors("Open");
+
+        app.UseCloudEvents();
+
+        app.UseMultiTenancy()
+            .UseMultiTenantContainer();
+        
+        app.UseDaprApiToken();
+
+        app.UseAuthentication();
+        app.UseAuthorization();
+
+        app.UseEndpoints(endpoints =>
         {
+            endpoints.MapSubscribeHandler();
+            endpoints.MapControllers();
+                
+            endpoints.MapGrpcService<TenantGrpcService>();
+            
             if (env.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage();
-
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("v1/swagger.json", "TenantApi v1"));
+                endpoints.MapGrpcReflectionService();
             }
-            else
-            {
-                app.UseHttpsRedirection();
-            }
-
-            var localizationOptions = app.ApplicationServices.GetService<IOptions<RequestLocalizationOptions>>();
-            app.UseRequestLocalization(localizationOptions!.Value);
-
-            app.UseExceptionHandler(app => app.UseCustomErrors(env, exceptionHandlers));
-
-            app.UseRouting();
-
-            app.UseCors("Open");
-
-            app.UseCloudEvents();
-
-            app.UseMultiTenancy()
-                .UseMultiTenantContainer();
-
-            app.UseAuthentication();
-            app.UseAuthorization();
-
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapSubscribeHandler();
-                endpoints.MapControllers();
-            });
-        }
+        });
     }
 }

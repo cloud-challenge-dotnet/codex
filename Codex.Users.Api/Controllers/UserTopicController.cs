@@ -7,45 +7,40 @@ using Microsoft.Extensions.Logging;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace Codex.Users.Api.Controllers
+namespace Codex.Users.Api.Controllers;
+
+public class UserTopicController : ControllerBase
 {
-    public class UserTopicController : ControllerBase
+    private readonly ILogger<UserTopicController> _logger;
+    private readonly DaprClient _daprClient;
+    
+    public UserTopicController(
+        ILogger<UserTopicController> logger,
+        DaprClient daprClient)
     {
-        private readonly ILogger<UserTopicController> _logger;
-        private readonly DaprClient _daprClient;
+        _logger = logger;
+        _daprClient = daprClient;
+    }
 
-        public UserTopicController(
-            ILogger<UserTopicController> logger,
-            DaprClient daprClient)
+    [Topic(ConfigConstant.CodexPubSubName, TopicConstant.SendActivationUserMail)]
+    [HttpPost]
+    [Route(TopicConstant.SendActivationUserMail)]
+    public async Task<IActionResult> ProcessSendActivationUserMailTopic([FromBody] TopicData<User> topicData)
+    {
+        User user = topicData.Data;
+        if (!string.IsNullOrWhiteSpace(user.Id))
         {
-            _logger = logger;
-            _daprClient = daprClient;
-        }
+            _logger.LogInformation("Receive send activation user mail topic, user id: {UserId}", user.Id);
 
-        [Topic(ConfigConstant.CodexPubSubName, TopicConstant.SendActivationUserMail)]
-        [HttpPost]
-        [Route(TopicConstant.SendActivationUserMail)]
-        public async Task<IActionResult> ProcessSendActivationUserMailTopic([FromBody] TopicData<User> topicData)
+            var request = _daprClient.CreateInvokeMethodRequest(ApiNameConstant.UserApi, "UserMail/activation", user);
+            request.Method = HttpMethod.Post;
+            request.Headers.Add(HttpHeaderConstant.TenantId, topicData.TenantId);
+            await _daprClient.InvokeMethodAsync(request);
+        }
+        else
         {
-            User? user = topicData.Data;
-            if (user?.Id != null)
-            {
-                _logger.LogInformation($"Receive send activation user mail topic, user id: {user.Id}");
-
-                var secretValues = await _daprClient.GetSecretAsync(ConfigConstant.CodexKey, ConfigConstant.MicroserviceApiKey);
-                var microserviceApiKey = secretValues[ConfigConstant.MicroserviceApiKey];
-
-                var request = _daprClient.CreateInvokeMethodRequest(ApiNameConstant.UserApi, "UserMail/activation", user);
-                request.Method = HttpMethod.Post;
-                request.Headers.Add(HttpHeaderConstant.TenantId, topicData.TenantId);
-                request.Headers.Add(HttpHeaderConstant.ApiKey, $"{topicData.TenantId}.{microserviceApiKey}");
-                await _daprClient.InvokeMethodAsync(request);
-            }
-            else
-            {
-                _logger.LogWarning($"Receive user topic without id");
-            }
-            return Ok();
+            _logger.LogWarning($"Receive user topic without id");
         }
+        return Ok();
     }
 }

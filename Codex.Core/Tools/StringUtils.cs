@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Linq;
 
-namespace Codex.Core
+namespace Codex.Core.Tools;
+
+public static class StringUtils
 {
-    public static class StringUtils
+    private static readonly Random Random = new Random();
+    public static string RandomString(int length)
     {
-        private static readonly Random random = new Random();
-        public static string RandomString(int length)
-        {
-            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-            return new string(Enumerable.Repeat(chars, length)
-              .Select(s => s[random.Next(s.Length)]).ToArray());
-        }
+        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        return new string(Enumerable.Repeat(chars, length)
+            .Select(s => s[Random.Next(s.Length)]).ToArray());
     }
 }

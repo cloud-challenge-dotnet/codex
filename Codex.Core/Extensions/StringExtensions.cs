@@ -1,32 +1,31 @@
-﻿namespace Codex.Core.Extensions
+﻿namespace Codex.Core.Extensions;
+
+public static class StringExtensions
 {
-    public static partial class StringExtensions
+    public static string? ToNullableCamelCase(this string? str)
     {
-        public static string? ToNullableCamelCase(this string? str)
+        if (str == null)
         {
-            if (str == null)
-            {
-                return null;
-            }
-            else
-            {
-                return ToCamelCase(str);
-            }
+            return null;
         }
-        public static string ToCamelCase(this string str)
+        else
         {
-            if (str.Length == 0)
-            {
-                return "";
-            }
-            else if (str.Length == 1)
-            {
-                return char.ToLowerInvariant(str[0]).ToString();
-            }
-            else
-            {
-                return char.ToLowerInvariant(str[0]) + str[1..];
-            }
+            return ToCamelCase(str);
+        }
+    }
+    public static string ToCamelCase(this string str)
+    {
+        if (str.Length == 0)
+        {
+            return "";
+        }
+        else if (str.Length == 1)
+        {
+            return char.ToLowerInvariant(str[0]).ToString();
+        }
+        else
+        {
+            return char.ToLowerInvariant(str[0]) + str[1..];
         }
     }
 }

@@ -6,71 +6,63 @@ using Moq;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Codex.Tenants.Framework.Tests
+namespace Codex.Tenants.Framework.Tests;
+
+public class HostTenantResolutionStrategyTest : IClassFixture<Fixture>
 {
-    public class HostTenantResolutionStrategyTest : IClassFixture<Fixture>
+    [Fact]
+    public async Task GetTenantIdentifier()
     {
-        public HostTenantResolutionStrategyTest()
-        {
-        }
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Headers[HttpHeaderConstant.TenantId] = "TenantTest";
 
-        [Fact]
-        public async Task GetTenantIdentifier()
-        {
-            var httpContext = new DefaultHttpContext();
-            httpContext.Request.Headers[HttpHeaderConstant.TenantId] = "TenantTest";
+        var httpContextAccessor = new Mock<IHttpContextAccessor>();
+        httpContextAccessor.Setup(x => x.HttpContext).Returns(
+            httpContext
+        );
 
-            var httpContextAccessor = new Mock<IHttpContextAccessor>();
-            httpContextAccessor.Setup(x => x.HttpContext).Returns(
-                httpContext
-            );
+        HostTenantResolutionStrategy tenantStrategy = new(httpContextAccessor.Object);
 
-            HostTenantResolutionStrategy tenantStrategy = new(httpContextAccessor.Object);
+        string? tenantId = await tenantStrategy.GetTenantIdentifierAsync();
 
-            string? tenantId = await tenantStrategy.GetTenantIdentifierAsync();
+        Assert.NotNull(tenantId);
+        Assert.Equal("TenantTest", tenantId);
+    }
 
-            Assert.NotNull(tenantId);
-            Assert.Equal("TenantTest", tenantId);
-        }
+    [Fact]
+    public async Task GetTenantIdentifier_Null_HttpRequest()
+    {
+        var httpContext = new DefaultHttpContext();
 
-        [Fact]
-        public async Task GetTenantIdentifier_Null_HttpRequest()
-        {
-            var httpContext = new Mock<HttpContext>();
-            httpContext.Setup(x => x.Request).Returns<HttpRequest>(
-                null
-            );
+        var httpContextAccessor = new Mock<IHttpContextAccessor>();
+        httpContextAccessor.Setup(x => x.HttpContext).Returns(
+            httpContext
+        );
 
-            var httpContextAccessor = new Mock<IHttpContextAccessor>();
-            httpContextAccessor.Setup(x => x.HttpContext).Returns(
-                httpContext.Object
-            );
+        HostTenantResolutionStrategy tenantStrategy = new(httpContextAccessor.Object);
 
-            HostTenantResolutionStrategy tenantStrategy = new(httpContextAccessor.Object);
+        string? tenantId = await tenantStrategy.GetTenantIdentifierAsync();
 
-            string? tenantId = await tenantStrategy.GetTenantIdentifierAsync();
+        Assert.Null(tenantId);
+    }
 
-            Assert.Null(tenantId);
-        }
+    [Fact]
+    public async Task GetTenantIdentifier_Null_HttpContext()
+    {
+        var httpContext = new Mock<HttpContext>();
+        httpContext.Setup(x => x.Request).Returns<HttpRequest>(
+            null
+        );
 
-        [Fact]
-        public async Task GetTenantIdentifier_Null_HttpContext()
-        {
-            var httpContext = new Mock<HttpContext>();
-            httpContext.Setup(x => x.Request).Returns<HttpRequest>(
-                null
-            );
+        var httpContextAccessor = new Mock<IHttpContextAccessor>();
+        httpContextAccessor.Setup(x => x.HttpContext).Returns<HttpContext>(
+            null
+        );
 
-            var httpContextAccessor = new Mock<IHttpContextAccessor>();
-            httpContextAccessor.Setup(x => x.HttpContext).Returns<HttpContext>(
-                null
-            );
+        HostTenantResolutionStrategy tenantStrategy = new(httpContextAccessor.Object);
 
-            HostTenantResolutionStrategy tenantStrategy = new(httpContextAccessor.Object);
+        string? tenantId = await tenantStrategy.GetTenantIdentifierAsync();
 
-            string? tenantId = await tenantStrategy.GetTenantIdentifierAsync();
-
-            Assert.Null(tenantId);
-        }
+        Assert.Null(tenantId);
     }
 }

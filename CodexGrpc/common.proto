@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+option csharp_namespace = "CodexGrpc.Common";
+
+package codex.common;
+
+message StringValues {
+  repeated string values = 1;
+}

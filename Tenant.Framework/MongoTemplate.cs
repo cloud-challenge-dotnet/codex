@@ -9,116 +9,115 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
-namespace Codex.Tenants.Framework
+namespace Codex.Tenants.Framework;
+
+[ExcludeFromCodeCoverage]
+public class MongoTemplate<TDocument, TId>
 {
-    [ExcludeFromCodeCoverage]
-    public class MongoTemplate<TDocument, TId>
+    MongoClient? _mongoClient;
+    IMongoDatabase? _database;
+    private readonly MongoDbSettings _mongoDbSettings;
+    private readonly ITenantAccessService _tenantAccessService;
+    private readonly string _collectionName;
+    private readonly IStringLocalizer<TenantFrameworkResource> _sl;
+
+    public MongoTemplate(MongoDbSettings mongoDbSettings,
+        ITenantAccessService tenantAccessService,
+        IStringLocalizer<TenantFrameworkResource> sl)
     {
-        MongoClient? _mongoClient;
-        IMongoDatabase? _database;
-        private readonly MongoDbSettings _mongoDbSettings;
-        private readonly ITenantAccessService _tenantAccessService;
-        private readonly string _collectionName;
-        private readonly IStringLocalizer<TenantFrameworkResource> _sl;
+        _tenantAccessService = tenantAccessService;
+        _mongoDbSettings = mongoDbSettings;
+        _sl = sl;
 
-        public MongoTemplate(MongoDbSettings mongoDbSettings,
-            ITenantAccessService tenantAccessService,
-            IStringLocalizer<TenantFrameworkResource> sl)
+        _collectionName = (typeof(TDocument)).Name.ToCamelCase();
+        if (_collectionName.EndsWith("Row"))
         {
-            _tenantAccessService = tenantAccessService;
-            _mongoDbSettings = mongoDbSettings;
-            _sl = sl;
+            _collectionName = _collectionName[0..^3];
+        }
+    }
 
-            _collectionName = (typeof(TDocument)).Name.ToCamelCase();
-            if (_collectionName.EndsWith("Row"))
-            {
-                _collectionName = _collectionName[0..^3];
-            }
+    public MongoClient MongoClient
+    {
+        get => _mongoClient ??= new MongoClient(_mongoDbSettings.ConnectionString);
+    }
+
+    public string GetDatabaseName(string tenantId) => $"{_mongoDbSettings.DatabaseName}-{tenantId}";
+
+    public string GetMongoPropertyName(string classPropertyName) => classPropertyName.ToCamelCase();
+
+    public IMongoDatabase GetDatabase(string tenantId)
+    {
+        if (_database == null)
+        {
+            var camelCaseConventionPack = new ConventionPack { new CamelCaseElementNameConvention() };
+            ConventionRegistry.Register("CamelCase", camelCaseConventionPack, _ => true);
+
+            var database = MongoClient.GetDatabase(GetDatabaseName(tenantId));
+            _database = database;
         }
 
-        public MongoClient MongoClient
-        {
-            get => _mongoClient ??= new MongoClient(_mongoDbSettings.ConnectionString);
-        }
+        return _database;
+    }
 
-        public string GetDatabaseName(string tenantId) => $"{_mongoDbSettings.DatabaseName}-{tenantId}";
+    public async Task<IMongoCollection<TDocument>> GetRepositoryAsync()
+    {
+        var tenant = await _tenantAccessService.GetTenantAsync();
 
-        public string GetMongoPropertyName(string classPropertyName) => classPropertyName.ToCamelCase();
+        if (string.IsNullOrWhiteSpace(tenant?.Id))
+            throw new ArgumentException(_sl[TenantFrameworkResource.TenantNotFound]);
 
-        public IMongoDatabase GetDatabase(string tenantId)
-        {
-            if (_database == null)
-            {
-                var camelCaseConventionPack = new ConventionPack { new CamelCaseElementNameConvention() };
-                ConventionRegistry.Register("CamelCase", camelCaseConventionPack, type => true);
+        return GetDatabase(tenant.Id).GetCollection<TDocument>(_collectionName);
+    }
 
-                var database = MongoClient.GetDatabase(GetDatabaseName(tenantId));
-                _database = database;
-            }
+    public async Task<bool> ExistsByIdAsync(TId id)
+    {
+        var repository = await GetRepositoryAsync();
 
-            return _database;
-        }
+        var filter = Builders<TDocument>.Filter.Eq("_id", id);
+        return (await repository.CountDocumentsAsync(filter)) > 0;
+    }
+    public async Task<TDocument?> FindOneAsync(TId id)
+    {
+        var repository = await GetRepositoryAsync();
 
-        public async Task<IMongoCollection<TDocument>> GetRepositoryAsync()
-        {
-            var tenant = await _tenantAccessService.GetTenantAsync();
+        var filter = Builders<TDocument>.Filter.Eq("_id", id);
+        return await repository.Find(filter).Limit(1).SingleOrDefaultAsync();
+    }
 
-            if (string.IsNullOrWhiteSpace(tenant?.Id))
-                throw new ArgumentException(_sl[TenantFrameworkResource.TENANT_NOT_FOUND]!);
+    public virtual async Task<TDocument> InsertAsync(TDocument document)
+    {
+        var repository = await GetRepositoryAsync();
 
-            return GetDatabase(tenant.Id).GetCollection<TDocument>(_collectionName);
-        }
+        await repository.InsertOneAsync(document);
 
-        public async Task<bool> ExistsByIdAsync(TId id)
-        {
-            var repository = await GetRepositoryAsync();
+        return document;
+    }
 
-            var filter = Builders<TDocument>.Filter.Eq("_id", id);
-            return (await repository.CountDocumentsAsync(filter)) > 0;
-        }
-        public async Task<TDocument?> FindOneAsync(TId id)
-        {
-            var repository = await GetRepositoryAsync();
+    public async Task DeleteAsync(TId id)
+    {
+        var repository = await GetRepositoryAsync();
 
-            var filter = Builders<TDocument>.Filter.Eq("_id", id);
-            return await repository.Find(filter).Limit(1).SingleOrDefaultAsync();
-        }
+        var filter = Builders<TDocument>.Filter.Eq("_id", id);
+        await repository.DeleteOneAsync(filter);
+    }
 
-        public virtual async Task<TDocument> InsertAsync(TDocument document)
-        {
-            var repository = await GetRepositoryAsync();
+    public async Task DropDatabaseAsync()
+    {
+        var tenant = await _tenantAccessService.GetTenantAsync();
 
-            await repository.InsertOneAsync(document);
+        if (string.IsNullOrWhiteSpace(tenant?.Id))
+            throw new ArgumentException(_sl[TenantFrameworkResource.TenantNotFound]);
 
-            return document;
-        }
+        await MongoClient.DropDatabaseAsync(GetDatabaseName(tenant.Id));
+    }
 
-        public async Task DeleteAsync(TId id)
-        {
-            var repository = await GetRepositoryAsync();
+    public async Task DropCollectionAsync()
+    {
+        var tenant = await _tenantAccessService.GetTenantAsync();
 
-            var filter = Builders<TDocument>.Filter.Eq("_id", id);
-            await repository.DeleteOneAsync(filter);
-        }
+        if (string.IsNullOrWhiteSpace(tenant?.Id))
+            throw new ArgumentException(_sl[TenantFrameworkResource.TenantNotFound]);
 
-        public async Task DropDatabaseAsync()
-        {
-            var tenant = await _tenantAccessService.GetTenantAsync();
-
-            if (string.IsNullOrWhiteSpace(tenant?.Id))
-                throw new ArgumentException(_sl[TenantFrameworkResource.TENANT_NOT_FOUND]!);
-
-            await MongoClient.DropDatabaseAsync(GetDatabaseName(tenant.Id));
-        }
-
-        public async Task DropCollectionAsync()
-        {
-            var tenant = await _tenantAccessService.GetTenantAsync();
-
-            if (string.IsNullOrWhiteSpace(tenant?.Id))
-                throw new ArgumentException(_sl[TenantFrameworkResource.TENANT_NOT_FOUND]!);
-
-            await GetDatabase(tenant.Id).DropCollectionAsync(_collectionName);
-        }
+        await GetDatabase(tenant.Id).DropCollectionAsync(_collectionName);
     }
 }

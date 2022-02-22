@@ -1,10 +1,9 @@
 ﻿using Codex.Models.Tenants;
 using System.Threading.Tasks;
 
-namespace Codex.Tenants.Framework.Interfaces
+namespace Codex.Tenants.Framework.Interfaces;
+
+public interface ITenantStore
 {
-    public interface ITenantStore
-    {
-        Task<Tenant?> GetTenantAsync(string identifier);
-    }
+    Task<Tenant?> GetTenantAsync(string identifier);
 }

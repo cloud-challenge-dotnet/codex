@@ -1,17 +1,16 @@
-﻿using Codex.Models.Tenants;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Codex.Models.Tenants;
 
-namespace Codex.Tenants.Api.Services
+namespace Codex.Tenants.Api.Services.Interfaces;
+
+public interface ITenantService
 {
-    public interface ITenantService
-    {
-        Task<List<Tenant>> FindAllAsync();
+    Task<List<Tenant>> FindAllAsync();
 
-        Task<Tenant?> FindOneAsync(string id);
+    Task<Tenant?> FindOneAsync(string id);
 
-        Task<Tenant> CreateAsync(Tenant tenant);
+    Task<Tenant> CreateAsync(Tenant tenant);
 
-        Task<Tenant?> UpdateAsync(Tenant tenant);
-    }
+    Task<Tenant?> UpdateAsync(Tenant tenant);
 }

@@ -1,10 +1,11 @@
 ﻿
-namespace Codex.Core.Models
-{
-    public static class HttpHeaderConstant
-    {
-        public const string ApiKey = "X-Api-Key";
+namespace Codex.Core.Models;
 
-        public const string TenantId = "tenantId";
-    }
+public static class HttpHeaderConstant
+{
+    public const string DaprApiToken = "dapr-api-token";
+    
+    public const string ApiKey = "X-Api-Key";
+
+    public const string TenantId = "tenantId";
 }

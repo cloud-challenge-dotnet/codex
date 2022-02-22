@@ -1,11 +1,10 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace Codex.Tenants.Api.Resources
+namespace Codex.Tenants.Api.Resources;
+
+[ExcludeFromCodeCoverage]
+public class TenantResource
 {
-    [ExcludeFromCodeCoverage]
-    public class TenantResource
-    {
-        public const string TENANT_ID_IS_MANDATORY = nameof(TENANT_ID_IS_MANDATORY);
-        public const string TENANT_P0_ALREADY_EXISTS = nameof(TENANT_P0_ALREADY_EXISTS);
-    }
+    public const string TenantIdIsMandatory = nameof(TenantIdIsMandatory);
+    public const string TenantP0AlreadyExists = nameof(TenantP0AlreadyExists);
 }

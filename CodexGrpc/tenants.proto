@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+option csharp_namespace = "CodexGrpc.Tenants";
+
+package codex.tenants.grpc;
+
+import "common.proto";
+
+service TenantService {
+  rpc FindOne (FindOneTenantRequest) returns (TenantModel);
+  rpc FindAll (FindAllTenantRequest) returns (TenantListResponse);
+  rpc Create (TenantModel) returns (TenantModel);
+  rpc Update (TenantModel) returns (TenantModel);
+
+  rpc FindProperties (FindPropertiesRequest) returns (TenantPropertiesResponse);
+  rpc UpdateProperties (UpdatePropertiesRequest) returns (TenantModel);
+  rpc UpdateProperty (UpdatePropertyRequest) returns (TenantModel);
+  rpc DeleteProperty (DeletePropertyRequest) returns (TenantModel);
+}
+
+message FindOneTenantRequest {
+  string id = 1;
+}
+
+message FindAllTenantRequest {
+}
+
+message TenantListResponse {
+  repeated TenantModel tenants = 1;
+}
+
+message FindPropertiesRequest {
+  string tenantId = 1;
+}
+
+message TenantPropertiesResponse {
+  map<string, codex.common.StringValues> properties = 1;
+}
+
+message UpdatePropertiesRequest {
+  string tenantId = 1;
+  map<string, codex.common.StringValues> properties = 2;
+}
+
+message UpdatePropertyRequest {
+  string tenantId = 1;
+  string propertyKey = 2;
+  repeated string propertyValues = 3;
+}
+
+message DeletePropertyRequest {
+  string tenantId = 1;
+  string propertyKey = 2;
+}
+
+message TenantModel {
+  string id = 1;
+  string name = 2;
+  map<string, codex.common.StringValues> properties = 3;
+}

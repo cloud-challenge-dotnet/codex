@@ -1,10 +1,9 @@
 ﻿using Codex.Core.Models.Mail;
 using System.Threading.Tasks;
 
-namespace Codex.Core.Interfaces
+namespace Codex.Core.Interfaces;
+
+public interface IMailService
 {
-    public interface IMailService
-    {
-        Task SendEmailAsync(Message message);
-    }
+    Task SendEmailAsync(Message message);
 }

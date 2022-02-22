@@ -2,35 +2,37 @@
 using Codex.Tenants.Framework.Interfaces;
 using System.Threading.Tasks;
 
-namespace Codex.Tenants.Framework.Implementations
+namespace Codex.Tenants.Framework.Implementations;
+
+/// <summary>
+/// Tenant access service
+/// </summary>
+public class TenantAccessService : ITenantAccessService
 {
-    /// <summary>
-    /// Tenant access service
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public class TenantAccessService : ITenantAccessService
+    private readonly ITenantResolutionStrategy _tenantResolutionStrategy;
+    private readonly ITenantStore _tenantStore;
+
+    public TenantAccessService(ITenantResolutionStrategy tenantResolutionStrategy, ITenantStore tenantStore)
     {
-        private readonly ITenantResolutionStrategy _tenantResolutionStrategy;
-        private readonly ITenantStore _tenantStore;
+        _tenantResolutionStrategy = tenantResolutionStrategy;
+        _tenantStore = tenantStore;
+    }
 
-        public TenantAccessService(ITenantResolutionStrategy tenantResolutionStrategy, ITenantStore tenantStore)
+    /// <summary>
+    /// Get the current tenant
+    /// </summary>
+    /// <returns></returns>
+    public async Task<Tenant?> GetTenantAsync(string? tenantIdentifier = null)
+    {
+        if (string.IsNullOrWhiteSpace(tenantIdentifier))
         {
-            _tenantResolutionStrategy = tenantResolutionStrategy;
-            _tenantStore = tenantStore;
+            tenantIdentifier = await _tenantResolutionStrategy.GetTenantIdentifierAsync();
         }
 
-        /// <summary>
-        /// Get the current tenant
-        /// </summary>
-        /// <returns></returns>
-        public async Task<Tenant?> GetTenantAsync()
+        if (string.IsNullOrWhiteSpace(tenantIdentifier))
         {
-            var tenantIdentifier = await _tenantResolutionStrategy.GetTenantIdentifierAsync();
-            if (string.IsNullOrWhiteSpace(tenantIdentifier))
-            {
-                return null;
-            }
-            return await _tenantStore.GetTenantAsync(tenantIdentifier);
+            return null;
         }
+        return await _tenantStore.GetTenantAsync(tenantIdentifier);
     }
 }

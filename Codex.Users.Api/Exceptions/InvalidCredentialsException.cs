@@ -1,15 +1,14 @@
-﻿using Codex.Models.Exceptions;
-using System;
+﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using Codex.Models.Exceptions;
 
-namespace Codex.Users.Api.Exceptions
+namespace Codex.Users.Api.Exceptions;
+
+[ExcludeFromCodeCoverage]
+[Serializable]
+public class InvalidCredentialsException : FunctionalException
 {
-    [ExcludeFromCodeCoverage]
-    [Serializable]
-    public class InvalidCredentialsException : FunctionnalException
+    public InvalidCredentialsException(string message, string? code = null) : base(message, code)
     {
-        public InvalidCredentialsException(string message, string? code = null) : base(message, code)
-        {
-        }
     }
 }

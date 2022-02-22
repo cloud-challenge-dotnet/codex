@@ -2,60 +2,55 @@ using Codex.Core.Tools;
 using Codex.Tests.Framework;
 using Xunit;
 
-namespace Codex.Core.Tests
+namespace Codex.Core.Tests.Tools;
+
+public class EmailValidatorTest : IClassFixture<Fixture>
 {
-    public class EmailValidatorTest : IClassFixture<Fixture>
+    [Fact]
+    public void EmailValid()
     {
-        public EmailValidatorTest()
-        {
-        }
+        bool result = EmailValidator.EmailValid("test@gmail.com");
 
-        [Fact]
-        public void EmailValid()
-        {
-            bool result = EmailValidator.EmailValid("test@gmail.com");
+        Assert.True(result);
+    }
 
-            Assert.True(result);
-        }
+    [Fact]
+    public void EmailValid_valid_1()
+    {
+        bool result = EmailValidator.EmailValid("test@gmailcom");
 
-        [Fact]
-        public void EmailValid_valid_1()
-        {
-            bool result = EmailValidator.EmailValid("test@gmailcom");
+        Assert.True(result);
+    }
 
-            Assert.True(result);
-        }
+    [Fact]
+    public void EmailValid_Invalid_Email_1()
+    {
+        bool result = EmailValidator.EmailValid("@gmail.com");
 
-        [Fact]
-        public void EmailValid_Invalid_Email_1()
-        {
-            bool result = EmailValidator.EmailValid("@gmail.com");
+        Assert.False(result);
+    }
 
-            Assert.False(result);
-        }
+    [Fact]
+    public void EmailValid_Invalid_Email_2()
+    {
+        bool result = EmailValidator.EmailValid("testgmail.com");
 
-        [Fact]
-        public void EmailValid_Invalid_Email_2()
-        {
-            bool result = EmailValidator.EmailValid("testgmail.com");
+        Assert.False(result);
+    }
 
-            Assert.False(result);
-        }
+    [Fact]
+    public void EmailValid_Invalid_Email_3()
+    {
+        bool result = EmailValidator.EmailValid("test@.com");
 
-        [Fact]
-        public void EmailValid_Invalid_Email_3()
-        {
-            bool result = EmailValidator.EmailValid("test@.com");
+        Assert.False(result);
+    }
 
-            Assert.False(result);
-        }
+    [Fact]
+    public void EmailValid_Empty_Email()
+    {
+        bool result = EmailValidator.EmailValid("");
 
-        [Fact]
-        public void EmailValid_Empty_Email()
-        {
-            bool result = EmailValidator.EmailValid("");
-
-            Assert.False(result);
-        }
+        Assert.False(result);
     }
 }

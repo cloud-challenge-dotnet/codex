@@ -26,7 +26,7 @@
         </o:OfficeDocumentSettings>
     </xml>
     <![endif]-->
-    <!--[if !mso]><!-- -->
+    <!--[if !mso]-->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700,700i" rel="stylesheet">
     <!--<![endif]-->
     <style type="text/css">
@@ -114,7 +114,7 @@ a[x-apple-data-detectors] {
                                                     <td class="es-m-p0r" valign="top" align="center" style="padding:0;Margin:0;width:530px">
                                                         <table width="100%" cellspacing="0" cellpadding="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
                                                             <tr style="border-collapse:collapse">
-                                                                <td class="es-m-txt-c" align="left" style="padding:0;Margin:0"><h1 style="Margin:0;line-height:36px;mso-line-height-rule:exactly;font-family:'open sans', 'helvetica neue', helvetica, arial, sans-serif;font-size:36px;font-style:normal;font-weight:bold;color:#FFFFFF">@Model.Tenant.Name</h1></td>
+                                                                <td class="es-m-txt-c" align="left" style="padding:0;Margin:0"><h1 style="Margin:0;line-height:36px;mso-line-height-rule:exactly;font-family:'open sans', 'helvetica neue', helvetica, arial, sans-serif;font-size:36px;font-style:normal;font-weight:bold;color:#FFFFFF">@Model!.Tenant.Name</h1></td>
                                                             </tr>
                                                         </table>
                                                     </td>
@@ -137,10 +137,10 @@ a[x-apple-data-detectors] {
                                                     <td valign="top" align="center" style="padding:0;Margin:0;width:530px">
                                                         <table width="100%" cellspacing="0" cellpadding="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
                                                             <tr style="border-collapse:collapse">
-                                                                <td class="es-m-txt-l" align="left" style="padding:0;Margin:0;padding-top:15px"><h3 style="Margin:0;line-height:22px;mso-line-height-rule:exactly;font-family:'open sans', 'helvetica neue', helvetica, arial, sans-serif;font-size:18px;font-style:normal;font-weight:bold;color:#333333">Bonjour  @Model.User.Login,</h3></td>
+                                                                <td class="es-m-txt-l" align="left" style="padding:0;Margin:0;padding-top:15px"><h3 style="Margin:0;line-height:22px;mso-line-height-rule:exactly;font-family:'open sans', 'helvetica neue', helvetica, arial, sans-serif;font-size:18px;font-style:normal;font-weight:bold;color:#333333">Bonjour  @Model!.User.Login,</h3></td>
                                                             </tr>
                                                             <tr style="border-collapse:collapse">
-                                                                <td align="left" style="padding:0;Margin:0;padding-bottom:10px;padding-top:15px"><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-size:16px;font-family:'open sans', 'helvetica neue', helvetica, arial, sans-serif;line-height:24px;color:#777777">Bienvenue chez @Model.Tenant.Name.<br>Merci pour votre inscription!&nbsp;</p></td>
+                                                                <td align="left" style="padding:0;Margin:0;padding-bottom:10px;padding-top:15px"><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-size:16px;font-family:'open sans', 'helvetica neue', helvetica, arial, sans-serif;line-height:24px;color:#777777">Bienvenue chez @Model!.Tenant.Name.<br>Merci pour votre inscription!&nbsp;</p></td>
                                                             </tr>
                                                             <tr style="border-collapse:collapse">
                                                                 <td align="center" style="padding:0;Margin:0;padding-bottom:15px;padding-top:20px;font-size:0">
@@ -170,7 +170,7 @@ a[x-apple-data-detectors] {
                                                                 <td align="center" style="padding:0;Margin:0;padding-top:15px"><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-size:16px;font-family:'open sans', 'helvetica neue', helvetica, arial, sans-serif;line-height:24px;color:#777777">Veuillez confirmer votre adresse e-mail pour commencer</p></td>
                                                             </tr>
                                                             <tr style="border-collapse:collapse">
-                                                                <td align="center" style="padding:0;Margin:0;padding-bottom:15px;padding-top:30px"><span class="es-button-border" style="border-style:solid;border-color:transparent;background:#044767;border-width:0px;display:inline-block;border-radius:5px;width:auto"><a href="@Model.ActivationLink" class="es-button" target="_blank" style="mso-style-priority:100 !important;text-decoration:none;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:'open sans', 'helvetica neue', helvetica, arial, sans-serif;font-size:18px;color:#FFFFFF;border-style:solid;border-color:#044767;border-width:15px 30px;display:inline-block;background:#044767;border-radius:5px;font-weight:normal;font-style:normal;line-height:22px;width:auto;text-align:center">Activer votre compte</a></span></td>
+                                                                <td align="center" style="padding:0;Margin:0;padding-bottom:15px;padding-top:30px"><span class="es-button-border" style="border-style:solid;border-color:transparent;background:#044767;border-width:0px;display:inline-block;border-radius:5px;width:auto"><a href="@Model!.ActivationLink" class="es-button" target="_blank" style="mso-style-priority:100 !important;text-decoration:none;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:'open sans', 'helvetica neue', helvetica, arial, sans-serif;font-size:18px;color:#FFFFFF;border-style:solid;border-color:#044767;border-width:15px 30px;display:inline-block;background:#044767;border-radius:5px;font-weight:normal;font-style:normal;line-height:22px;width:auto;text-align:center">Activer votre compte</a></span></td>
                                                             </tr>
                                                         </table>
                                                     </td>

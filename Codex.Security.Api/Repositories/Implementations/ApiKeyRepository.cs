@@ -10,49 +10,47 @@ using MongoDB.Driver;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Codex.Security.Api.Repositories.Implementations
+namespace Codex.Security.Api.Repositories.Implementations;
+
+public class ApiKeyRepository : MongoTemplate<ApiKeyRow, string>, IApiKeyRepository
 {
-    public class ApiKeyRepository : MongoTemplate<ApiKeyRow, string>, IApiKeyRepository
+    public ApiKeyRepository(MongoDbSettings mongoDbSettings,
+        ITenantAccessService tenantAccessService,
+        IStringLocalizer<TenantFrameworkResource> sl) : base(mongoDbSettings, tenantAccessService, sl)
     {
-        public ApiKeyRepository(MongoDbSettings mongoDbSettings,
-            ITenantAccessService tenantAccessService,
-            IStringLocalizer<TenantFrameworkResource> sl) : base(mongoDbSettings, tenantAccessService, sl)
+    }
+
+    public async Task<List<ApiKeyRow>> FindAllAsync(ApiKeyCriteria apiKeyCriteria)
+    {
+        var repository = await GetRepositoryAsync();
+
+        var query = repository.AsQueryable();
+
+        return query.ToList();
+    }
+
+    public async Task<ApiKeyRow?> UpdateAsync(ApiKeyRow apiKey)
+    {
+        var repository = await GetRepositoryAsync();
+
+        var update = Builders<ApiKeyRow>.Update;
+        var updates = new List<UpdateDefinition<ApiKeyRow>>
         {
+            update.Set(GetMongoPropertyName(nameof(apiKey.Roles)), apiKey.Roles)
+        };
+
+        foreach (var KeyValuePair in apiKey.Name)
+        {
+            updates.Add(update.Set(GetMongoPropertyName($"{nameof(ApiKeyRow.Name)}.{KeyValuePair.Key}"), KeyValuePair.Value));
         }
 
-        public async Task<List<ApiKeyRow>> FindAllAsync(ApiKeyCriteria apiKeyCriteria)
-        {
-            var repository = await GetRepositoryAsync();
-
-            var query = repository.AsQueryable();
-
-            return query.ToList();
-        }
-
-        public async Task<ApiKeyRow?> UpdateAsync(ApiKeyRow apiKey)
-        {
-            var repository = await GetRepositoryAsync();
-
-            var update = Builders<ApiKeyRow>.Update;
-            var updates = new List<UpdateDefinition<ApiKeyRow>>
+        return await repository.FindOneAndUpdateAsync(
+            Builders<ApiKeyRow>.Filter.Where(it => it.Id == apiKey.Id),
+            update.Combine(updates),
+            options: new FindOneAndUpdateOptions<ApiKeyRow>
             {
-                update.Set(GetMongoPropertyName(nameof(apiKey.Roles)), apiKey.Roles)
-            };
-
-            foreach (var KeyValuePair in apiKey.Name)
-            {
-                updates.Add(update.Set(GetMongoPropertyName($"{nameof(ApiKeyRow.Name)}.{KeyValuePair.Key}"), KeyValuePair.Value));
+                ReturnDocument = ReturnDocument.After
             }
-
-            return await repository.FindOneAndUpdateAsync(
-                Builders<ApiKeyRow>.Filter.Where(it => it.Id == apiKey.Id),
-                update.Combine(updates),
-                options: new FindOneAndUpdateOptions<ApiKeyRow>
-                {
-                    ReturnDocument = ReturnDocument.After
-                }
-            );
-        }
+        );
     }
 }
-

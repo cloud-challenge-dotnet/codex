@@ -1,8 +1,7 @@
 ﻿
-namespace Codex.Tenants.Framework.Models
+namespace Codex.Tenants.Framework.Models;
+
+public static class Constants
 {
-    public static class Constants
-    {
-        public const string HttpContextTenantKey = "TENANT";
-    }
+    public const string HttpContextTenantKey = "TENANT";
 }

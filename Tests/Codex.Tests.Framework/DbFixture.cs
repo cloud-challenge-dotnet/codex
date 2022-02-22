@@ -11,100 +11,99 @@ using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace Codex.Tests.Framework
+namespace Codex.Tests.Framework;
+
+[ExcludeFromCodeCoverage]
+public class DbFixture : IDisposable
 {
-    [ExcludeFromCodeCoverage]
-    public class DbFixture : IDisposable
+    public DbFixture(
+        MongoDbSettings mongoDbSettings,
+        ITenantAccessService tenantAccessService,
+        IServiceProvider services)
     {
-        public DbFixture(
-            MongoDbSettings mongoDbSettings,
-            ITenantAccessService tenantAccessService,
-            IServiceProvider services)
+        _mongoDbSettings = mongoDbSettings;
+        _tenantAccessService = tenantAccessService;
+        _services = services;
+
+        var camelCaseConventionPack = new ConventionPack { new CamelCaseElementNameConvention() };
+        ConventionRegistry.Register("CamelCase", camelCaseConventionPack, _ => true);
+    }
+
+    private readonly MongoDbSettings _mongoDbSettings;
+    private readonly ITenantAccessService _tenantAccessService;
+    private readonly IServiceProvider _services;
+
+    public IServiceProvider Services
+    {
+        get => _services;
+    }
+
+    public string GetDatabaseName(string tenantId) => $"{_mongoDbSettings.DatabaseName}-{tenantId}";
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+    protected virtual void Dispose(bool disposing)
+    {
+        DropDatabaseAsync().GetAwaiter().GetResult();
+    }
+
+    public async Task DropDatabaseAsync()
+    {
+        var tenant = await _tenantAccessService.GetTenantAsync();
+
+        if (string.IsNullOrWhiteSpace(tenant?.Id))
+            throw new ArgumentException("Tenant not found");
+
+        var client = new MongoClient(this._mongoDbSettings.ConnectionString);
+        client.DropDatabase(GetDatabaseName(tenant.Id));
+    }
+
+    public async Task UseDataSetAsync(
+        params string[] locations)
+    {
+        var tenant = await _tenantAccessService.GetTenantAsync();
+        if (string.IsNullOrWhiteSpace(tenant?.Id))
+            throw new ArgumentException("Tenant not found");
+
+        await DropDatabaseAsync();
+
+        foreach (string location in locations)
         {
-            _mongoDbSettings = mongoDbSettings;
-            _tenantAccessService = tenantAccessService;
-            _services = services;
-
-            var camelCaseConventionPack = new ConventionPack { new CamelCaseElementNameConvention() };
-            ConventionRegistry.Register("CamelCase", camelCaseConventionPack, type => true);
-        }
-
-        private readonly MongoDbSettings _mongoDbSettings;
-        private readonly ITenantAccessService _tenantAccessService;
-        private readonly IServiceProvider _services;
-
-        public IServiceProvider Services
-        {
-            get => _services;
-        }
-
-        public string GetDatabaseName(string tenantId) => $"{_mongoDbSettings.DatabaseName}-{tenantId}";
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-        protected virtual void Dispose(bool disposing)
-        {
-            DropDatabaseAsync().GetAwaiter().GetResult();
-        }
-
-        public async Task DropDatabaseAsync()
-        {
-            var tenant = await _tenantAccessService.GetTenantAsync();
-
-            if (string.IsNullOrWhiteSpace(tenant?.Id))
-                throw new ArgumentException("Tenant not found");
-
-            var client = new MongoClient(this._mongoDbSettings.ConnectionString);
-            client.DropDatabase(GetDatabaseName(tenant.Id));
-        }
-
-        public async Task UseDataSetAsync(
-            params string[] locations)
-        {
-            var tenant = await _tenantAccessService.GetTenantAsync();
-            if (string.IsNullOrWhiteSpace(tenant?.Id))
-                throw new ArgumentException("Tenant not found");
-
-            await DropDatabaseAsync();
-
-            foreach (string location in locations)
+            if (File.Exists(location))
             {
-                if (File.Exists(location))
+                using FileStream fs = File.OpenRead(location);
+
+                using JsonDocument document = await JsonDocument.ParseAsync(fs);
+
+                var client = new MongoClient(this._mongoDbSettings.ConnectionString);
+                var database = client.GetDatabase(GetDatabaseName(tenant.Id));
+
+                foreach (JsonElement element in document.RootElement.EnumerateArray())
                 {
-                    using FileStream fs = File.OpenRead(location);
+                    var collectionName = element.GetProperty("collectionName").GetString();
 
-                    using JsonDocument document = await JsonDocument.ParseAsync(fs);
-
-                    var client = new MongoClient(this._mongoDbSettings.ConnectionString);
-                    var database = client.GetDatabase(GetDatabaseName(tenant.Id));
-
-                    foreach (JsonElement element in document.RootElement.EnumerateArray())
+                    if (collectionName != null)
                     {
-                        var collectionName = element.GetProperty("collectionName").GetString();
+                        var collection = database.GetCollection<BsonDocument>(collectionName.ToCamelCase());
 
-                        if (collectionName != null)
+                        foreach (JsonElement jsonElement in element.GetProperty("data").EnumerateArray())
                         {
-                            var collection = database.GetCollection<BsonDocument>(collectionName.ToCamelCase());
+                            var bsonDocument = BsonSerializer.Deserialize<BsonDocument>(jsonElement.ToString());
 
-                            foreach (JsonElement jsonElement in element.GetProperty("data").EnumerateArray())
+                            if (bsonDocument != null)
                             {
-                                var bsonDocument = BsonSerializer.Deserialize<BsonDocument>(jsonElement.ToString());
-
-                                if (bsonDocument != null)
-                                {
-                                    await collection.InsertOneAsync(bsonDocument);
-                                }
+                                await collection.InsertOneAsync(bsonDocument);
                             }
                         }
                     }
                 }
-                else
-                {
-                    throw new FileNotFoundException(location);
-                }
+            }
+            else
+            {
+                throw new FileNotFoundException(location);
             }
         }
     }

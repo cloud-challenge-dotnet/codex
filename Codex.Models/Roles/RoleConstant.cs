@@ -1,11 +1,10 @@
-﻿namespace Codex.Models.Roles
+﻿namespace Codex.Models.Roles;
+
+public static class RoleConstant
 {
-    public static class RoleConstant
-    {
-        public const string ADMIN = "ADMIN";
+    public const string Admin = "ADMIN";
 
-        public const string TENANT_MANAGER = "TENANT_MANAGER";
+    public const string TenantManager = "TENANT_MANAGER";
 
-        public const string USER = "USER";
-    }
+    public const string User = "USER";
 }

@@ -1,14 +1,9 @@
 ﻿using System.Collections.Generic;
 
-namespace Codex.Models.Tenants
-{
-    public record Tenant(
-        string? Id = null,
-        string Name = "",
-        TenantProperties? Properties = null
-    );
+namespace Codex.Models.Tenants;
 
-    public class TenantProperties : Dictionary<string, List<string>>
-    {
-    }
-}
+public record Tenant(
+    string Id = "",
+    string Name = "",
+    Dictionary<string, List<string>>? Properties = null
+);

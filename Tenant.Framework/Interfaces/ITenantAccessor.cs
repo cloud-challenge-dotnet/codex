@@ -1,9 +1,8 @@
 ﻿using Codex.Models.Tenants;
 
-namespace Codex.Tenants.Framework.Interfaces
+namespace Codex.Tenants.Framework.Interfaces;
+
+public interface ITenantAccessor
 {
-    public interface ITenantAccessor
-    {
-        Tenant? Tenant { get; }
-    }
+    Tenant? Tenant { get; }
 }

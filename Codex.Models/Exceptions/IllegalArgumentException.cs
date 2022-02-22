@@ -1,12 +1,11 @@
 ﻿using System;
 
-namespace Codex.Models.Exceptions
+namespace Codex.Models.Exceptions;
+
+[Serializable]
+public class IllegalArgumentException : FunctionalException
 {
-    [Serializable]
-    public class IllegalArgumentException : FunctionnalException
+    public IllegalArgumentException(string message, string? code = null) : base(message, code)
     {
-        public IllegalArgumentException(string message, string? code = null) : base(message, code)
-        {
-        }
     }
 }
