@@ -8,5 +8,5 @@ public class DaprAppTokenAuthenticationOptions : AuthenticationSchemeOptions
 {
     public const string DefaultScheme = "dapr-api-token";
     public static string Scheme => DefaultScheme;
-    public string AuthenticationType => DefaultScheme;
+    public static string AuthenticationType => DefaultScheme;
 }
